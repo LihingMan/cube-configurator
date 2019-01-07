@@ -4,8 +4,9 @@
         <meta charset="UTF-8">
         <title>ezbo</title>
 
+        <!-- earcut: polygon triangulation for webgl apps, required by babylon's polygon funcs -->
+        <script src="https://unpkg.com/earcut@2.1.4/dist/earcut.min.js"></script>
         <script src="babylon.custom.js"></script>
-        <script src="configurator.js"></script>
         
         <style>
             html, body {
@@ -24,7 +25,8 @@
     </head> 
 
     <body>
-        <canvas id="canvas"></canvas>
+        <canvas id="main_app"></canvas>'
         
+        <script src="configurator.js"></script>
     </body>
 </html>    
