@@ -137,7 +137,7 @@ function createRoomScene() {
      createOutdEnv(scene); 
 
      // Load cubes and event listener 
-     importBaseCubes(scene,camera); 
+     //importBaseCubes(scene,camera); 
 
      // finally 
      return scene; 
