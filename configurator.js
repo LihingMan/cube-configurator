@@ -27,7 +27,7 @@ if (BABYLON.Engine.isSupported()) {
      var engine = new BABYLON.Engine(canvas, true, { stencil: true });  // this is the Babylon class engine 
 
      // declare globally accesible variable of host url (for later concat)
-     var hostUrl = 'http://localhost:8000/'
+     var hostUrl = 'http://123sense.com/'
 
      // make sure DOM is loaded first 
      window.addEventListener('DOMContentLoaded', function() {
@@ -226,7 +226,7 @@ function createFloor(scene) {
 
      // create floor material
      var floorMaterial = new BABYLON.StandardMaterial("floorMaterial", scene);
-     var floorTextureUrl = hostUrl + 'static/stackcube/assets/textures/woodtexture.jpg'; 
+     var floorTextureUrl = hostUrl + 'static/bryantest/woodtexture.jpg'; 
      floorMaterial.ambientTexture = new BABYLON.Texture(floorTextureUrl,scene);
      // apply the material to mesh
      floorMesh.material = floorMaterial;
@@ -253,7 +253,7 @@ function createRoof(scene) {
 
      // create roof material
      var roofMaterial = new BABYLON.StandardMaterial("roofMaterial", scene);
-     var roofTextureUrl = hostUrl + 'static/stackcube/assets/textures/white-wall.jpg'; 
+     var roofTextureUrl = hostUrl + 'static/bryantest/white-wall.jpg'; 
      //roofMaterial.diffuseTexture = new BABYLON.Texture(roofTextureUrl,scene);
      roofMaterial.ambientTexture = new BABYLON.Texture(roofTextureUrl,scene);
      // apply the material to mesh
@@ -327,7 +327,7 @@ function createWalls_Winds(scene) {
     
      // create roof material
      var wallMaterial = new BABYLON.StandardMaterial("wallMaterial", scene);
-     var wallTextureUrl = hostUrl + 'static/stackcube/assets/textures/white-wall.jpg'; 
+     var wallTextureUrl = hostUrl + 'static/bryantest/white-wall.jpg'; 
      //wallMaterial.diffuseTexture = new BABYLON.Texture(wallTextureUrl,scene);
      wallMaterial.ambientTexture = new BABYLON.Texture(wallTextureUrl,scene);
      // apply the material to meshes
@@ -377,7 +377,7 @@ function highlightMesh (scene, newMeshes) {
 function createboxMaterial (scene) {
      // create box material
      var boxMaterial = new BABYLON.StandardMaterial("boxMaterial", scene);
-     var boxMaterialUrl = hostUrl + 'static/stackcube/assets/textures/walnut-fine-wood.jpg'; 
+     var boxMaterialUrl = hostUrl + 'static/bryantest/walnut-fine-wood.jpg'; 
      boxMaterial.diffuseTexture = new BABYLON.Texture(boxMaterialUrl,scene);
      //boxMaterial.ambientTexture = new BABYLON.Texture(boxMaterialUrl,scene);
 
