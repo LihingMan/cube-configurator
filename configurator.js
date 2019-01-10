@@ -137,7 +137,7 @@ function createRoomScene() {
      createOutdEnv(scene); 
 
      // Load cubes and event listener 
-     //importBaseCubes(scene,camera); 
+     importBaseCubes(scene,camera); 
 
      // finally 
      return scene; 
@@ -342,7 +342,7 @@ function importBaseCubes(scene,camera) {
      // SceneLoader.ImportMesh
      // Loads the meshes from the file and appends them to the scene
      console.log("[INFO] Imported B3 asset mesh"); 
-     BABYLON.SceneLoader.ImportMesh("", "http://localhost:8000/static/stackcube/assets/mesh/", "B1.glb", scene, 
+     BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", "B1-final.babylon", scene, 
      function (newMeshes) {
                // do something with the meshes (no particles or skeletons in this case)
                //camera.target = newMeshes[0]; // no need to do this 
