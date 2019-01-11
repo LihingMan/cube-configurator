@@ -357,6 +357,9 @@ function importBaseCubes(scene,camera) {
                // add highlight upon mouse hover , 
                // meshUnderPointer (https://doc.babylonjs.com/api/classes/babylon.actionevent)
                //highlightMesh(scene, newMeshes); 
+
+               // load the buttons on top of the mesh here
+               guiBtn(); 
      });  
 }
 
@@ -388,3 +391,20 @@ function createboxMaterial (scene) {
 function importStackCubes() {
      return 0; 
 }
+
+// GUI - buttons DEMO
+function guiBtn () {
+
+    var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+    var button1 = BABYLON.GUI.Button.CreateSimpleButton("but1", "Click Me");
+    button1.width = "150px"
+    button1.height = "40px";
+    button1.color = "white";
+    button1.cornerRadius = 20;
+    button1.background = "green";
+    button1.onPointerUpObservable.add(function() {
+        alert("you did it!");
+    });
+    advancedTexture.addControl(button1);
+
+} 
