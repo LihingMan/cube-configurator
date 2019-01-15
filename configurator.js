@@ -114,34 +114,36 @@ function mainApp_v2() {
 //             https://playground.babylonjs.com/#4G18GY#7 --> extruded polygon
 function createRoomScene() {
 
-    console.log('[INFO] Room scene created by computation')
-    
-    // create the scene 
-    var scene = new BABYLON.Scene(engine);
+     console.log('[INFO] Room scene created by computation')
+     
+     // create the scene 
+     var scene = new BABYLON.Scene(engine);
 
-    // camera
-    var camera = createCamera(scene); 
+     // camera
+     var camera = createCamera(scene); 
 
-    // light (sun directional)
-    createLights(scene); 
+     // light (sun directional)
+     createLights(scene); 
 
-    /* All meshes created using Babylon.js internal functions are created at position 0,0,0 of the scene and are centered */
+     /* All meshes created using Babylon.js internal functions are created at position 0,0,0 of the scene and are centered */
 
-    // create the floor
-    createFloor(scene);  // second arg is vertical position of slab wrt to origin  
+     // create the floor
+     createFloor(scene);  // second arg is vertical position of slab wrt to origin  
 
-    // create the walls with windows 
-    createWalls_Winds(scene); 
-    
-    // create the roof 
-    createRoof(scene); 
+     // create the walls with windows 
+     createWalls_Winds(scene); 
+     
+     // create the roof 
+     createRoof(scene); 
 
-    // create the outdoor env --> skybox!
-    createOutdEnv(scene); 
+     // create the outdoor env --> skybox!
+     createOutdEnv(scene); 
 
     // Load cubes and event listener 
-    importBaseCubes(scene,camera, 1); 
-//     importStackCubes(scene) 
+     importBaseCubes(scene,camera, 1); 
+
+     importPlusSymbol(scene);
+     
     // finally 
     return scene; 
 }
@@ -330,7 +332,7 @@ function createWalls_Winds(scene) {
    
     // create roof material
     var wallMaterial = new BABYLON.StandardMaterial("wallMaterial", scene);
-    var wallTextureUrl = hostUrl + 'static/bryantest/white-wall.jpg'; 
+    var wallTextureUrl = hostUrl + 'static/bryantest/woodtexture.jpg'; 
     //wallMaterial.diffuseTexture = new BABYLON.Texture(wallTextureUrl,scene);
     wallMaterial.ambientTexture = new BABYLON.Texture(wallTextureUrl,scene);
     // apply the material to meshes
@@ -359,6 +361,7 @@ function importBaseCubes(scene,camera, cubeNum) {
 
           var boxMaterial = createboxMaterial(scene); 
           newMeshes[0].material = boxMaterial;
+     
 
           // add highlight upon mouse hover , 
           // meshUnderPointer (https://doc.babylonjs.com/api/classes/babylon.actionevent)
@@ -369,86 +372,86 @@ function importBaseCubes(scene,camera, cubeNum) {
      // =====================================================================================
 
      // for B1
-     if (cubeNum == 1){
-          var button = guiBtn(scene, 2, 0.328, -0.2); 
-    	     button.moveToVector3(new BABYLON.Vector3(1.93, 0.7, 0), scene);
-     }
+     // if (cubeNum == 1){
+     //      var button = guiBtn(scene, 2, 0.328, -0.2); 
+    	//      button.moveToVector3(new BABYLON.Vector3(1.93, 0.7, 0), scene);
+     // }
 
-     // =====================================================================================
+     // // =====================================================================================
 
-     // for B2
-     else if (cubeNum == 2){
-          var button = guiBtn(scene); 
-          var button2 = guiBtn(scene);
-          button.moveToVector3(new BABYLON.Vector3(1.719, 0.7, 0), scene);
-          button2.moveToVector3(new BABYLON.Vector3(2.119, 0.7, 0), scene);
-     }
+     // // for B2
+     // else if (cubeNum == 2){
+     //      var button = guiBtn(scene); 
+     //      var button2 = guiBtn(scene);
+     //      button.moveToVector3(new BABYLON.Vector3(1.719, 0.7, 0), scene);
+     //      button2.moveToVector3(new BABYLON.Vector3(2.119, 0.7, 0), scene);
+     // }
      
-     // =====================================================================================
+     // // =====================================================================================
 
-     // for B3
-     else if (cubeNum == 3){
-          var button = guiBtn(scene); 
-          var button2 = guiBtn(scene);
-          var button3 = guiBtn(scene);
-          button.moveToVector3(new BABYLON.Vector3(1.523, 0.7, 0), scene);
-          button2.moveToVector3(new BABYLON.Vector3(1.919, 0.7, 0), scene);
-          button3.moveToVector3(new BABYLON.Vector3(2.335, 0.7, 0), scene);
-     }
+     // // for B3
+     // else if (cubeNum == 3){
+     //      var button = guiBtn(scene); 
+     //      var button2 = guiBtn(scene);
+     //      var button3 = guiBtn(scene);
+     //      button.moveToVector3(new BABYLON.Vector3(1.523, 0.7, 0), scene);
+     //      button2.moveToVector3(new BABYLON.Vector3(1.919, 0.7, 0), scene);
+     //      button3.moveToVector3(new BABYLON.Vector3(2.335, 0.7, 0), scene);
+     // }
     
      
 
-     // =====================================================================================
+     // // =====================================================================================
 
-     // for B4
-     else if (cubeNum == 4){
-          var button = guiBtn(scene); 
-          var button2 = guiBtn(scene);
-          var button3 = guiBtn(scene);
-          var button4 = guiBtn(scene);
-          button.moveToVector3(new BABYLON.Vector3(1.308, 0.7, 0), scene);
-          button2.moveToVector3(new BABYLON.Vector3(1.734, 0.7, 0), scene);
-          button3.moveToVector3(new BABYLON.Vector3(2.13, 0.7, 0), scene);
-          button4.moveToVector3(new BABYLON.Vector3(2.55, 0.7, 0), scene);
-     }
+     // // for B4
+     // else if (cubeNum == 4){
+     //      var button = guiBtn(scene); 
+     //      var button2 = guiBtn(scene);
+     //      var button3 = guiBtn(scene);
+     //      var button4 = guiBtn(scene);
+     //      button.moveToVector3(new BABYLON.Vector3(1.308, 0.7, 0), scene);
+     //      button2.moveToVector3(new BABYLON.Vector3(1.734, 0.7, 0), scene);
+     //      button3.moveToVector3(new BABYLON.Vector3(2.13, 0.7, 0), scene);
+     //      button4.moveToVector3(new BABYLON.Vector3(2.55, 0.7, 0), scene);
+     // }
      
-     // =====================================================================================
+     // // =====================================================================================
 
-     //for B5
-     else if (cubeNum == 5){
-          var button = guiBtn(scene); 
-          var button2 = guiBtn(scene);
-          var button3 = guiBtn(scene);
-          var button4 = guiBtn(scene);
-          var button5 = guiBtn(scene);
-          button.moveToVector3(new BABYLON.Vector3(1.112, 0.7, 0), scene);
-          button2.moveToVector3(new BABYLON.Vector3(1.506, 0.7, 0), scene);
-          button3.moveToVector3(new BABYLON.Vector3(1.93, 0.7, 0), scene);
-          button4.moveToVector3(new BABYLON.Vector3(2.34, 0.7, 0), scene);
-          button5.moveToVector3(new BABYLON.Vector3(2.75, 0.7, 0), scene);
-     }
+     // //for B5
+     // else if (cubeNum == 5){
+     //      var button = guiBtn(scene); 
+     //      var button2 = guiBtn(scene);
+     //      var button3 = guiBtn(scene);
+     //      var button4 = guiBtn(scene);
+     //      var button5 = guiBtn(scene);
+     //      button.moveToVector3(new BABYLON.Vector3(1.112, 0.7, 0), scene);
+     //      button2.moveToVector3(new BABYLON.Vector3(1.506, 0.7, 0), scene);
+     //      button3.moveToVector3(new BABYLON.Vector3(1.93, 0.7, 0), scene);
+     //      button4.moveToVector3(new BABYLON.Vector3(2.34, 0.7, 0), scene);
+     //      button5.moveToVector3(new BABYLON.Vector3(2.75, 0.7, 0), scene);
+     // }
      
 
-     // =====================================================================================
+     // // =====================================================================================
 
-     //for B6
-     else if (cubeNum == 6){
-          var button = guiBtn(scene); 
-          var button2 = guiBtn(scene);
-          var button3 = guiBtn(scene);
-          var button4 = guiBtn(scene);
-          var button5 = guiBtn(scene);
-          var button6 = guiBtn(scene);
-          button.moveToVector3(new BABYLON.Vector3(0.91, 0.7, 0), scene);
-          button2.moveToVector3(new BABYLON.Vector3(1.32, 0.7, 0), scene);
-          button3.moveToVector3(new BABYLON.Vector3(1.72, 0.7, 0), scene);
-          button4.moveToVector3(new BABYLON.Vector3(2.13, 0.7, 0), scene);
-          button5.moveToVector3(new BABYLON.Vector3(2.54, 0.7, 0), scene);
-          button6.moveToVector3(new BABYLON.Vector3(2.96, 0.7, 0), scene);
-     }
-     else {
-          alert("invalid number of cubes");
-     }
+     // //for B6
+     // else if (cubeNum == 6){
+     //      var button = guiBtn(scene); 
+     //      var button2 = guiBtn(scene);
+     //      var button3 = guiBtn(scene);
+     //      var button4 = guiBtn(scene);
+     //      var button5 = guiBtn(scene);
+     //      var button6 = guiBtn(scene);
+     //      button.moveToVector3(new BABYLON.Vector3(0.91, 0.7, 0), scene);
+     //      button2.moveToVector3(new BABYLON.Vector3(1.32, 0.7, 0), scene);
+     //      button3.moveToVector3(new BABYLON.Vector3(1.72, 0.7, 0), scene);
+     //      button4.moveToVector3(new BABYLON.Vector3(2.13, 0.7, 0), scene);
+     //      button5.moveToVector3(new BABYLON.Vector3(2.54, 0.7, 0), scene);
+     //      button6.moveToVector3(new BABYLON.Vector3(2.96, 0.7, 0), scene);
+     // }
+     // else {
+     //      alert("invalid number of cubes");
+     // }
 
     });  
 }
@@ -479,15 +482,37 @@ function createboxMaterial (scene) {
 
 // import stacking cubes 
 function importStackCubes(scene, x, y, z) {
-    //console.log("[INFO] Imported stack asset mesh"); 
+    console.log("[INFO] Imported stack asset mesh"); 
     BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", "E1-final.babylon", scene, 
     function (stackcube) {
         stackcube[0].position.x = x;
         stackcube[0].position.y = y;
         stackcube[0].position.z = z;
         stackcube[0].rotation.y = Math.PI/2;
+        
     });
 }
+
+function importPlusSymbol(scene, x, y, z) {
+     console.log("[INFO] Imported plus mesh"); 
+     BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", "plus_001-final.babylon", scene,
+     function (plus_001) {
+         plus_001[0].position.x = 1.99;
+         plus_001[0].position.y = 0.65;
+         plus_001[0].position.z = 0;
+         plus_001[0].rotation.y = Math.PI/2;
+     //     var actionEvent = new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger,
+     //           function(evt){
+     //                if (evt.meshUnderPointer){
+     //                     plus_001[0].position = new BABYLON.Vector3(1.99, 1, 0);
+     //                }
+     //           }
+     //           );
+          plus_001[0].actionManager.registerAction(actionEvent);
+     
+     });
+     
+ }
 
 // GUI - buttons DEMO
 function guiBtn (scene, x, y, z) {
