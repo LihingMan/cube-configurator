@@ -23,6 +23,7 @@ Benchmark app:
 var cubeCount;
 var buttonMesh;
 var cubeNum = 1;
+var buttonIndex;
 
 // Check if  browser supports webGL
 if (BABYLON.Engine.isSupported()) {
@@ -377,8 +378,8 @@ function importBaseCubes(scene,camera) {
 
 		//  for B1
 		if (cubeNum == 1){
-			var button = guiBtn(scene, "1"); 
-			button.moveToVector3(new BABYLON.Vector3(1.93, 0.7, 0), scene);
+			var button1 = guiBtn(scene, "1"); 
+			button1.moveToVector3(new BABYLON.Vector3(1.93, 0.7, 0), scene);
 		}
 
 		// =====================================================================================
@@ -386,9 +387,9 @@ function importBaseCubes(scene,camera) {
 		// for B2
 		else if (cubeNum == 2){
 
-			var button = guiBtn(scene, "1"); 
+			var button1 = guiBtn(scene, "1");
 			var button2 = guiBtn(scene, "2");
-			button.moveToVector3(new BABYLON.Vector3(1.719, 0.7, 0), scene);
+			button1.moveToVector3(new BABYLON.Vector3(1.719, 0.7, 0), scene);
 			button2.moveToVector3(new BABYLON.Vector3(2.119, 0.7, 0), scene);
 		}
 		
@@ -396,10 +397,10 @@ function importBaseCubes(scene,camera) {
 
 		// for B3
 		else if (cubeNum == 3){
-			var button = guiBtn(scene, "1"); 
+			var button1 = guiBtn(scene, "1"); 
 			var button2 = guiBtn(scene, "2");
 			var button3 = guiBtn(scene, "3");
-			button.moveToVector3(new BABYLON.Vector3(1.523, 0.7, 0), scene);
+			button1.moveToVector3(new BABYLON.Vector3(1.523, 0.7, 0), scene);
 			button2.moveToVector3(new BABYLON.Vector3(1.919, 0.7, 0), scene);
 			button3.moveToVector3(new BABYLON.Vector3(2.335, 0.7, 0), scene);
 		}
@@ -410,11 +411,11 @@ function importBaseCubes(scene,camera) {
 
 		// for B4
 		else if (cubeNum == 4){
-			var button = guiBtn(scene, "1"); 
+			var button1 = guiBtn(scene, "1"); 
 			var button2 = guiBtn(scene, "2");
 			var button3 = guiBtn(scene, "3");
 			var button4 = guiBtn(scene, "4");
-			button.moveToVector3(new BABYLON.Vector3(1.308, 0.7, 0), scene);
+			button1.moveToVector3(new BABYLON.Vector3(1.308, 0.7, 0), scene);
 			button2.moveToVector3(new BABYLON.Vector3(1.734, 0.7, 0), scene);
 			button3.moveToVector3(new BABYLON.Vector3(2.13, 0.7, 0), scene);
 			button4.moveToVector3(new BABYLON.Vector3(2.55, 0.7, 0), scene);
@@ -424,12 +425,12 @@ function importBaseCubes(scene,camera) {
 
 		//for B5
 		else if (cubeNum == 5){
-			var button = guiBtn(scene, "1"); 
+			var button1 = guiBtn(scene, "1"); 
 			var button2 = guiBtn(scene, "2");
 			var button3 = guiBtn(scene, "3");
 			var button4 = guiBtn(scene, "4");
 			var button5 = guiBtn(scene, "5");
-			button.moveToVector3(new BABYLON.Vector3(1.112, 0.7, 0), scene);
+			button1.moveToVector3(new BABYLON.Vector3(1.112, 0.7, 0), scene);
 			button2.moveToVector3(new BABYLON.Vector3(1.506, 0.7, 0), scene);
 			button3.moveToVector3(new BABYLON.Vector3(1.93, 0.7, 0), scene);
 			button4.moveToVector3(new BABYLON.Vector3(2.34, 0.7, 0), scene);
@@ -441,7 +442,7 @@ function importBaseCubes(scene,camera) {
 
 		//for B6
 		else if (cubeNum == 6){
-			var button = guiBtn(scene, "1"); 
+			var button1 = guiBtn(scene, "1"); 
 			var button2 = guiBtn(scene, "2");
 			var button3 = guiBtn(scene, "3");
 			var button4 = guiBtn(scene, "4");
@@ -471,13 +472,27 @@ function gridData() {
      }
 
      if (cubeNum == 1){
+          // initialise the first index of the grid for a base to populate other indexes
           grid[0] = [2, 0.738, -0.2];
           for (var i=1; i<grid.length; i++) {
-               y = grid[i-1][1];
-               grid[i] = [2, y+0.39, -0.2]
+               var prev_y = grid[i-1][1];
+               grid[i] = [2, prev_y+0.39, -0.2]
           }
      }
-     console.log(grid);
+     else if (cubeNum == 2) {
+          // initialise the first index of the grid for a base to populate other indexes
+          grid[0].push([1.719, 0.738, -0.2], [2, 0.738, -0.2]);
+          for (var i=1; i<grid.length; i++) {
+               var prev_y = grid[i-1][0][1];
+               var prev_x = grid[i-1][0][0];
+               prev_y += 0.39;
+               // console.log(y);
+               for (var j=0; j<cubeNum; j++){
+                    grid[i].push([prev_x, prev_y, -0.2]);
+                    prev_x += 0.285;
+               }
+          }
+     }
      return grid;
 }
      
@@ -515,7 +530,6 @@ function importStackCubes(scene, x, y, z) {
         stackcube[0].position.y = y;
         stackcube[0].position.z = z;
         stackcube[0].rotation.y = Math.PI/2;
-        
     });
 }
 
@@ -541,7 +555,8 @@ function guiBtn (scene, name) {
 	button.onPointerUpObservable.add(function() {
           // xyz coordinates
           var xyz = allCoords[counter];  
-
+          buttonIndex = parseInt(button.name);
+          
           // placing the stack cubes on the scene
           if (first){
                console.log(xyz);
