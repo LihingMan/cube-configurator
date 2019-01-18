@@ -20,9 +20,8 @@ Benchmark app:
 
 
 // global declarations
-var cubeCount;
-var buttonMesh;
-var cubeNum = 1;
+var cubeCount; // to keep track of number of cubes
+var baseCubeNum = 6; // number of base cubes
 var buttonIndex;
 
 // Check if  browser supports webGL
@@ -349,18 +348,18 @@ function createWalls_Winds(scene) {
 // import base cabinet cubes , reposition into the scene and highlight the mesh 
 function importBaseCubes(scene,camera) {	
      //initialise array 
-     cubeCount = Array.from({length:cubeNum}).fill(1);
+     cubeCount = Array.from({length:baseCubeNum}).fill(1);
      
     // SceneLoader.ImportMesh
     // Loads the meshes from the file and appends them to the scene
     console.log("[INFO] Imported B3 asset mesh"); 
-    BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", "B1-final.babylon", scene, 
+    BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", "B6-final.babylon", scene, 
     function (newMeshes) {
 
 		// do something with the meshes (no particles or skeletons in this case)
 		//camera.target = newMeshes[0]; // no need to do this 
 		newMeshes[0].position.x = 2;
-		newMeshes[0].position.y = 0.3;
+		newMeshes[0].position.y = 0.2;
 		newMeshes[0].position.z = -0.2;
 		newMeshes[0].rotation.y = Math.PI/2;
 
@@ -377,83 +376,80 @@ function importBaseCubes(scene,camera) {
 	// =====================================================================================
 
 		//  for B1
-		if (cubeNum == 1){
+		if (baseCubeNum == 1){
 			var button1 = guiBtn(scene, "1"); 
-			button1.moveToVector3(new BABYLON.Vector3(1.93, 0.7, 0), scene);
+			button1.moveToVector3(new BABYLON.Vector3(1.92, 0.55, 0), scene);
 		}
 
 		// =====================================================================================
 
 		// for B2
-		else if (cubeNum == 2){
+		else if (baseCubeNum == 2){
 
 			var button1 = guiBtn(scene, "1");
 			var button2 = guiBtn(scene, "2");
-			button1.moveToVector3(new BABYLON.Vector3(1.719, 0.7, 0), scene);
-			button2.moveToVector3(new BABYLON.Vector3(2.119, 0.7, 0), scene);
+			button1.moveToVector3(new BABYLON.Vector3(1.719, 0.55, 0), scene);
+			button2.moveToVector3(new BABYLON.Vector3(2.119, 0.55, 0), scene);
 		}
 		
 		// =====================================================================================
 
 		// for B3
-		else if (cubeNum == 3){
+		else if (baseCubeNum == 3){
 			var button1 = guiBtn(scene, "1"); 
 			var button2 = guiBtn(scene, "2");
 			var button3 = guiBtn(scene, "3");
-			button1.moveToVector3(new BABYLON.Vector3(1.523, 0.7, 0), scene);
-			button2.moveToVector3(new BABYLON.Vector3(1.919, 0.7, 0), scene);
-			button3.moveToVector3(new BABYLON.Vector3(2.335, 0.7, 0), scene);
+			button1.moveToVector3(new BABYLON.Vector3(1.523, 0.55, 0), scene);
+			button2.moveToVector3(new BABYLON.Vector3(1.919, 0.55, 0), scene);
+			button3.moveToVector3(new BABYLON.Vector3(2.335, 0.55, 0), scene);
 		}
-		
-		
 
 		// =====================================================================================
 
 		// for B4
-		else if (cubeNum == 4){
+		else if (baseCubeNum == 4){
 			var button1 = guiBtn(scene, "1"); 
 			var button2 = guiBtn(scene, "2");
 			var button3 = guiBtn(scene, "3");
 			var button4 = guiBtn(scene, "4");
-			button1.moveToVector3(new BABYLON.Vector3(1.308, 0.7, 0), scene);
-			button2.moveToVector3(new BABYLON.Vector3(1.734, 0.7, 0), scene);
-			button3.moveToVector3(new BABYLON.Vector3(2.13, 0.7, 0), scene);
-			button4.moveToVector3(new BABYLON.Vector3(2.55, 0.7, 0), scene);
+			button1.moveToVector3(new BABYLON.Vector3(1.308, 0.55, 0), scene);
+			button2.moveToVector3(new BABYLON.Vector3(1.734, 0.55, 0), scene);
+			button3.moveToVector3(new BABYLON.Vector3(2.13, 0.55, 0), scene);
+			button4.moveToVector3(new BABYLON.Vector3(2.55, 0.55, 0), scene);
 		}
 		
 		// =====================================================================================
 
 		//for B5
-		else if (cubeNum == 5){
+		else if (baseCubeNum == 5){
 			var button1 = guiBtn(scene, "1"); 
 			var button2 = guiBtn(scene, "2");
 			var button3 = guiBtn(scene, "3");
 			var button4 = guiBtn(scene, "4");
 			var button5 = guiBtn(scene, "5");
-			button1.moveToVector3(new BABYLON.Vector3(1.112, 0.7, 0), scene);
-			button2.moveToVector3(new BABYLON.Vector3(1.506, 0.7, 0), scene);
-			button3.moveToVector3(new BABYLON.Vector3(1.93, 0.7, 0), scene);
-			button4.moveToVector3(new BABYLON.Vector3(2.34, 0.7, 0), scene);
-			button5.moveToVector3(new BABYLON.Vector3(2.75, 0.7, 0), scene);
+			button1.moveToVector3(new BABYLON.Vector3(1.112, 0.55, 0), scene);
+			button2.moveToVector3(new BABYLON.Vector3(1.506, 0.55, 0), scene);
+			button3.moveToVector3(new BABYLON.Vector3(1.93, 0.55, 0), scene);
+			button4.moveToVector3(new BABYLON.Vector3(2.34, 0.55, 0), scene);
+			button5.moveToVector3(new BABYLON.Vector3(2.75, 0.55, 0), scene);
 		}
 		
-
 		// =====================================================================================
 
 		//for B6
-		else if (cubeNum == 6){
+		else if (baseCubeNum == 6){
 			var button1 = guiBtn(scene, "1"); 
 			var button2 = guiBtn(scene, "2");
 			var button3 = guiBtn(scene, "3");
 			var button4 = guiBtn(scene, "4");
 			var button5 = guiBtn(scene, "5");
 			var button6 = guiBtn(scene, "6");
-			button.moveToVector3(new BABYLON.Vector3(0.91, 0.7, 0), scene);
-			button2.moveToVector3(new BABYLON.Vector3(1.32, 0.7, 0), scene);
-			button3.moveToVector3(new BABYLON.Vector3(1.72, 0.7, 0), scene);
-			button4.moveToVector3(new BABYLON.Vector3(2.13, 0.7, 0), scene);
-			button5.moveToVector3(new BABYLON.Vector3(2.54, 0.7, 0), scene);
-			button6.moveToVector3(new BABYLON.Vector3(2.96, 0.7, 0), scene);
+			button1.moveToVector3(new BABYLON.Vector3(0.91, 0.55, 0), scene);
+			button2.moveToVector3(new BABYLON.Vector3(1.32, 0.55, 0), scene);
+			button3.moveToVector3(new BABYLON.Vector3(1.72, 0.55, 0), scene);
+			button4.moveToVector3(new BABYLON.Vector3(2.13, 0.55, 0), scene);
+			button5.moveToVector3(new BABYLON.Vector3(2.54, 0.55, 0), scene);
+			button6.moveToVector3(new BABYLON.Vector3(2.96, 0.55, 0), scene);
 		}
 		else {
 			alert("invalid number of cubes");
@@ -471,31 +467,57 @@ function gridData() {
           grid[i] = [];
      }
 
-     if (cubeNum == 1){
+     // B1
+     if (baseCubeNum == 1){
           // initialise the first index of the grid for a base to populate other indexes
-          grid[0] = [2, 0.738, -0.2];
+          grid[0] = [2, 0.59, -0.2];
           for (var i=1; i<grid.length; i++) {
                var prev_y = grid[i-1][1];
                grid[i] = [2, prev_y+0.39, -0.2]
           }
      }
-     else if (cubeNum == 2) {
+     // B2
+     else if (baseCubeNum == 2) {
           // initialise the first index of the grid for a base to populate other indexes
-          grid[0].push([1.719, 0.738, -0.2], [2, 0.738, -0.2]);
-          for (var i=1; i<grid.length; i++) {
-               var prev_y = grid[i-1][0][1];
-               var prev_x = grid[i-1][0][0];
-               prev_y += 0.39;
-               // console.log(y);
-               for (var j=0; j<cubeNum; j++){
-                    grid[i].push([prev_x, prev_y, -0.2]);
-                    prev_x += 0.285;
-               }
-          }
+          grid[0].push([1.8, 0.59, -0.2], [2.2, 0.59, -0.2]);
+          grid = gridMaker(grid, 0.4);
+     }
+     // B3
+     else if (baseCubeNum == 3){
+          grid[0].push([1.605, 0.59, -0.2], [1.995, 0.59, -0.2], [2.385, 0.59, -0.2]);
+          grid = gridMaker(grid, 0.39);
+     }
+     // B4
+     else if (baseCubeNum == 4) {
+          grid[0].push([1.41, 0.59, -0.2], [1.8, 0.59, -0.2], [2.19, 0.59, -0.2], [2.58, 0.59, -0.2]);
+          grid = gridMaker(grid, 0.39);
+     }
+     // B5
+     else if (baseCubeNum == 5){
+          grid[0].push([1.215, 0.59, -0.2], [1.605, 0.59, -0.2], [1.995, 0.59, -0.2], [2.385, 0.59, -0.2], [2.775, 0.59, -0.2]);
+          grid = gridMaker(grid, 0.39);
+     }
+     // B6
+     else if (baseCubeNum == 6){
+          grid[0].push([1.02, 0.59, -0.2], [1.41, 0.59, -0.2], [1.8, 0.59, -0.2], [2.19, 0.59, -0.2], [2.58, 0.59, -0.2], [2.97, 0.59, -0.2]);
+          grid = gridMaker(grid, 0.39);
      }
      return grid;
 }
-     
+
+// populate grid with coordinates
+function gridMaker(coord_grid, increment_xcoord){
+     for (var i=1; i<coord_grid.length; i++) {
+          var prev_y = coord_grid[i-1][0][1];
+          var prev_x = coord_grid[i-1][0][0];
+          prev_y += 0.39;
+          for (var j=0; j<baseCubeNum; j++){
+               coord_grid[i].push([prev_x, prev_y, -0.2]);
+               prev_x += increment_xcoord;
+          }
+     }
+     return coord_grid;
+}
 
 // highlight mesh on mouse hover
 function highlightMesh (scene, newMeshes) {
@@ -536,9 +558,9 @@ function importStackCubes(scene, x, y, z) {
 function guiBtn (scene, name) {
      // retrieve coordinates for grid
      var allCoords = gridData();
-
+     
      // counter for grid index 
-     var counter = 0;
+     var layerCounter = 0;
 
      //  button stuff
 	var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -548,28 +570,27 @@ function guiBtn (scene, name) {
 	button.color = "white";
      button.background = hostUrl + 'static/bryantest/white-wall.jpg';
      
-     // flag for first stack cube because base cube is not the same height as stack cube
-     var first = true;
-     
      // on click event for the button
 	button.onPointerUpObservable.add(function() {
           // xyz coordinates
-          var xyz = allCoords[counter];  
+          var xyz = allCoords[layerCounter];  
           buttonIndex = parseInt(button.name);
           
           // placing the stack cubes on the scene
-          if (first){
-               console.log(xyz);
+
+          // first condition is for 1 base cube
+          if (baseCubeNum == 1){
                importStackCubes(scene, xyz[0], xyz[1], xyz[2]);
                button.moveToVector3(new BABYLON.Vector3(2, xyz[1]+0.295, 0), scene);
-               first = false;
-               counter += 1;
+               layerCounter += 1;
           }
-          else{
-               importStackCubes(scene, xyz[0], xyz[1], xyz[2]);
-               button.moveToVector3(new BABYLON.Vector3(2, xyz[1]+0.295, 0), scene);
-               counter += 1;
+          else if (baseCubeNum > 1 && baseCubeNum <= 6){
+               importStackCubes(scene, xyz[buttonIndex-1][0], xyz[buttonIndex-1][1], xyz[buttonIndex-1][2]);
+               button.moveToVector3(new BABYLON.Vector3(xyz[buttonIndex-1][0], xyz[buttonIndex-1][1]+0.295, 0), scene);
+               layerCounter += 1;
+               
           }
+          
 		 
      });
      
