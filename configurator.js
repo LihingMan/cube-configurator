@@ -145,7 +145,7 @@ function createRoomScene() {
 	// create the outdoor env --> skybox!
 	createOutdEnv(scene); 
 
-// Load cubes and event listener 
+     // Load cubes and event listener 
 	importBaseCubes(scene,camera); 
 	
     // finally 
@@ -180,8 +180,6 @@ function createCamera(scene) {
 
 // create outdoor environment
 function createOutdEnv(scene) {
-
-    //good example but avoid pbr due to performance issues 
 
     // set bckgrnd colors
     scene.clearColor = new BABYLON.Color3(0, 0, 0);
