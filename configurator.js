@@ -369,7 +369,6 @@ function importBaseCubes(scene,camera) {
 
 		var boxMaterial = createboxMaterial(scene); 
 		newMeshes[0].material = boxMaterial;
-	
 
 		// add highlight upon mouse hover , 
 		// meshUnderPointer (https://doc.babylonjs.com/api/classes/babylon.actionevent)
