@@ -41,8 +41,6 @@ switch (baseCubeNum) {
           bcubesName = 'B6-final.babylon'; 
 }
 
-
-
 // Check if  browser supports webGL
 if (BABYLON.Engine.isSupported()) {
 
@@ -89,45 +87,6 @@ function mainApp_opt1() {
          engine.resize();
     });
 }
-
-/* // KIV this as blender scene import alternative. but need to resolve blender mastery first  
-// this applies if the blender is an entire scene by itself. (so 'load' the whole thing)
-function mainApp_v2() {
-
-    // Load scene  
-    // see https://www.eternalcoding.com/?p=313
-
-    BABYLON.SceneLoader.Load(  
-         // creates a new scene and imports all babylon assets from file 
-         "http://localhost:8000/static/stackcube/assets/babylon/", // model filepath
-         "room001.babylon", // Import the room !
-         engine, 
-         // then mount the app's function here and render!  
-         function (newScene) {
-              newScene.executeWhenReady(
-                   function () {
-                        scene = newScene;
-                        var camera = scene.getCameraByName("Camera"); // get blender active camera
-                        camera.attachControl(canvas, true); // attach control to the camera
-                        
-                        // lights
-                        var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 1, 0), scene);
-
-                        // RENDER 
-                        engine.runRenderLoop(function () {
-                             scene.render(); 
-                        }); 
-
-                        // LISTEN for window resize for reponsiveness
-                        window.addEventListener("resize", function () {
-                             engine.resize();
-                        });
-                   }
-              ); 
-         }
-    );  
-}
-*/
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // With regards to creating the scene 
@@ -393,9 +352,9 @@ function importBaseCubes(scene,camera) {
 		// meshUnderPointer (https://doc.babylonjs.com/api/classes/babylon.actionevent)
 		//highlightMesh(scene, newMeshes); 
 
-	// load the buttons on top of the mesh here
+	     // load the buttons on top of the mesh here
 
-	// =====================================================================================
+	     // =====================================================================================
 
 		//  for B1
 		if (baseCubeNum == 1){
