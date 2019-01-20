@@ -131,10 +131,8 @@ function createRoomScene() {
 	// light (sun directional)
 	createLights(scene); 
 
-	/* All meshes created using Babylon.js internal functions are created at position 0,0,0 of the scene and are centered */
-
 	// create the floor
-	createFloor(scene);  // second arg is vertical position of slab wrt to origin  
+	createFloor(scene); 
 
 	// create the walls with windows 
 	createWalls_Winds(scene); 
