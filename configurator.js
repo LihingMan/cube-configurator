@@ -476,7 +476,7 @@ function gridData() {
           grid[0] = [2, 0.59, -0.2];
           for (var i=1; i<grid.length; i++) {
                var prev_y = grid[i-1][1];
-               grid[i] = [2, prev_y+0.39, -0.2]
+               grid[i] = [2, prev_y+0.39, -0.2]; 
           }
      }
      // B2
