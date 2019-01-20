@@ -110,7 +110,8 @@ function mainApp_v2() {
 }
 */
 
-////////////////////////////////////////////  CALLBACK FUNCTIONS /////////////////////////////////////////////////////
+// -----------------------------------------------------------------------------------------------------------------------------------------
+// With regards to creating the scene 
 
 // create room scene mesh by manual vectors 
 // inspired by https://www.babylonjs-playground.com/#RNCYVM 
@@ -341,7 +342,14 @@ function createWalls_Winds(scene) {
     sidewall_l.material = wallMaterial;
 }
 
-// import base cabinet cubes , reposition into the scene and highlight the mesh 
+// --------------------------------------------------------------------------------------------------------------------------------------------
+// With regards to base cubes and GUI
+
+/*
+  import base cabinet cubes , reposition into the scene
+  Note that this is for INITIALIZATION ONLY. i.e. give the user something to work with at the very start
+  User will be able to modify the base cubes 
+*/
 function importBaseCubes(scene,camera) {	
      //initialise array 
      cubeCount = Array.from({length:baseCubeNum}).fill(1);
@@ -584,10 +592,7 @@ function guiBtn (scene, name) {
                importStackCubes(scene, xyz[buttonIndex-1][0], xyz[buttonIndex-1][1], xyz[buttonIndex-1][2]);
                button.moveToVector3(new BABYLON.Vector3(xyz[buttonIndex-1][0], xyz[buttonIndex-1][1]+0.295, 0), scene);
                layerCounter += 1;
-               
-          }
-          
-		 
+          } 
      });
      
 	advancedTexture.addControl(button);
