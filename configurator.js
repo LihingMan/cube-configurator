@@ -331,6 +331,7 @@ function highlightMesh (scene, newMeshes) {
      //hl.removeMesh(newMeshes[0]);
  }*/
 
+
 // --------------------------------------------------------------------------------------------------------------------------------------------
 // With regards to base cubes and GUI
 
@@ -350,12 +351,17 @@ function importBaseCubes(scene,camera) {
     function (newMeshes) {
 
           // do something with the meshes (no particles or skeletons in this case)
+
+          // define position of base cube (meters)
+          var posx = 2;
+          var posy = 0.3;
+          var posz = -0.2; 
+          var roty = Math.PI/2;
           
-		//camera.target = newMeshes[0]; // no need to do this 
-		newMeshes[0].position.x = 2;
-		newMeshes[0].position.y = 0.2;
-		newMeshes[0].position.z = -0.2;
-		newMeshes[0].rotation.y = Math.PI/2;
+		newMeshes[0].position.x = posx;
+		newMeshes[0].position.y = posy;
+		newMeshes[0].position.z = posz;
+		newMeshes[0].rotation.y = roty;
 
 		var boxMaterial = createboxMaterial(scene); 
 		newMeshes[0].material = boxMaterial;
@@ -371,7 +377,7 @@ function importBaseCubes(scene,camera) {
 		//  for B1
 		if (baseCubeNum == 1){
 			var button1 = guiBtn(scene, "1"); 
-			button1.moveToVector3(new BABYLON.Vector3(1.92, 0.55, 0), scene);
+			//button1.moveToVector3(new BABYLON.Vector3(1.92, 0.55, 0), scene);
 		}
 
 		// =====================================================================================
@@ -381,7 +387,7 @@ function importBaseCubes(scene,camera) {
 
 			var button1 = guiBtn(scene, "1");
 			var button2 = guiBtn(scene, "2");
-			button1.moveToVector3(new BABYLON.Vector3(1.719, 0.55, 0), scene);
+			button1.moveToVector3(new BABYLON.Vector3(1.719,1, 0), scene);
 			button2.moveToVector3(new BABYLON.Vector3(2.119, 0.55, 0), scene);
 		}
 		
@@ -553,7 +559,7 @@ function guiBtn (scene, name) {
      // on click event for the button
 	button.onPointerUpObservable.add(function() {
           // xyz coordinates
-          var xyz = allCoords[layerCounter];  
+          var xyz = allCoords[layerCounter];  // or 'row' counter!
           buttonIndex = parseInt(button.name);
           
           // placing the stack cubes on the scene
