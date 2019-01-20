@@ -21,8 +21,27 @@ Benchmark app:
 
 // global declarations
 var cubeCount; // to keep track of number of cubes
-var baseCubeNum = 6; // number of base cubes
+var baseCubeNum = 1; // number of base cubes
 var buttonIndex;
+var bcubesName; // initial import of base cubes
+
+// assign basecubes file name for auto import of mesh. keep this all global
+switch (baseCubeNum) {
+     case 1:
+          bcubesName = 'B1-final.babylon'; break;
+     case 2:
+          bcubesName = 'B2-final.babylon'; break;
+     case 3:
+          bcubesName = 'B3-final.babylon'; break; 
+     case 4:
+          bcubesName = 'B4-final.babylon'; break; 
+     case 5:
+          bcubesName = 'B5-final.babylon'; break; 
+     case 6:
+          bcubesName = 'B6-final.babylon'; 
+}
+
+
 
 // Check if  browser supports webGL
 if (BABYLON.Engine.isSupported()) {
@@ -357,7 +376,7 @@ function importBaseCubes(scene,camera) {
     // SceneLoader.ImportMesh
     // Loads the meshes from the file and appends them to the scene
     console.log("[INFO] Imported B3 asset mesh"); 
-    BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", "B6-final.babylon", scene, 
+    BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubesName, scene, 
     function (newMeshes) {
 
 		// do something with the meshes (no particles or skeletons in this case)
