@@ -324,7 +324,7 @@ function createWalls_Winds(scene) {
 // With regards to base cubes and GUI
 
 /*
-  import base cabinet cubes , reposition into the scene
+  import base cabinet cubes , reposition into the scene, at the far left corner of an imaginary maximum 6 cube space
   Note that this is for INITIALIZATION ONLY. i.e. give the user something to work with at the very start
   User will be able to modify the base cubes 
 */
