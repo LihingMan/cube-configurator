@@ -338,7 +338,8 @@ function importBaseCubes(scene,camera) {
     BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubesName, scene, 
     function (newMeshes) {
 
-		// do something with the meshes (no particles or skeletons in this case)
+          // do something with the meshes (no particles or skeletons in this case)
+          
 		//camera.target = newMeshes[0]; // no need to do this 
 		newMeshes[0].position.x = 2;
 		newMeshes[0].position.y = 0.2;
@@ -439,27 +440,25 @@ function importBaseCubes(scene,camera) {
     });  
 }
 
+// By index, we mean rows of cubes. first index == first row (which is the base)
 function gridData() {
-     //initialise array 
+
+     //initialise array to hold the rows of cube. 10 is arbitrary (to limit this later)
      var grid = Array.from({length:10}).fill(1);
 
-     //initialise grid
+     //initialise grid (this means 9 rows possible)
      for (var i=0; i<grid.length; i++) {
           grid[i] = [];
      }
 
-     // B1
+     // B1 
      if (baseCubeNum == 1){
-          // initialise the first index of the grid for a base to populate other indexes
-          grid[0] = [2, 0.59, -0.2];
-          for (var i=1; i<grid.length; i++) {
-               var prev_y = grid[i-1][1];
-               grid[i] = [2, prev_y+0.39, -0.2]; 
-          }
+          // initialise the first index of the grid for a base to populate other indexes/rows above it
+          grid[0].push([2, 0.59, -0.2]);
+          grid = gridMaker(grid, 0.4);
      }
      // B2
      else if (baseCubeNum == 2) {
-          // initialise the first index of the grid for a base to populate other indexes
           grid[0].push([1.8, 0.59, -0.2], [2.2, 0.59, -0.2]);
           grid = gridMaker(grid, 0.4);
      }
@@ -559,13 +558,8 @@ function guiBtn (scene, name) {
           
           // placing the stack cubes on the scene
 
-          // first condition is for 1 base cube
-          if (baseCubeNum == 1){
-               importStackCubes(scene, xyz[0], xyz[1], xyz[2]);
-               button.moveToVector3(new BABYLON.Vector3(2, xyz[1]+0.295, 0), scene);
-               layerCounter += 1;
-          }
-          else if (baseCubeNum > 1 && baseCubeNum <= 6){
+          // update positions of the buttons and place stacking cubes
+          if (baseCubeNum >= 1 && baseCubeNum <= 6){
                importStackCubes(scene, xyz[buttonIndex-1][0], xyz[buttonIndex-1][1], xyz[buttonIndex-1][2]);
                button.moveToVector3(new BABYLON.Vector3(xyz[buttonIndex-1][0], xyz[buttonIndex-1][1]+0.295, 0), scene);
                layerCounter += 1;
