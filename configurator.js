@@ -319,6 +319,17 @@ function createWalls_Winds(scene) {
     sidewall_r.material = wallMaterial;
     sidewall_l.material = wallMaterial;
 }
+/*
+// highlight mesh on mouse hover
+function highlightMesh (scene, newMeshes) {
+
+     // activate highlight
+     var hl = new BABYLON.HighlightLayer("hl1", scene);
+     hl.addMesh(newMeshes[0], BABYLON.Color3.Green());
+ 
+     // deactivate highlight
+     //hl.removeMesh(newMeshes[0]);
+ }*/
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
 // With regards to base cubes and GUI
@@ -497,17 +508,6 @@ function gridMaker(coord_grid, increment_xcoord){
           }
      }
      return coord_grid;
-}
-
-// highlight mesh on mouse hover
-function highlightMesh (scene, newMeshes) {
-
-    // activate highlight
-    var hl = new BABYLON.HighlightLayer("hl1", scene);
-    hl.addMesh(newMeshes[0], BABYLON.Color3.Green());
-
-    // deactivate highlight
-    //hl.removeMesh(newMeshes[0]);
 }
 
 // create box material and assign wide to all boxes which are imported in .babylon format 
