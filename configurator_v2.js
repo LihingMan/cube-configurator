@@ -309,6 +309,14 @@ function createOutdEnv(scene) {
 
 
 // --------------------------------------------------------------------------------------------------------------------------------
+// Define Grid Data for 6 cubes, with a maximum height of circa 2.5m ~ max 7 stacked rows
+// This implies a matrix of size 7,6
+function defineGrid () {
+     
+}
+
+
+// --------------------------------------------------------------------------------------------------------------------------------
 // Import and handling of the cubes 
 
 // first, define the cube materials
@@ -329,8 +337,6 @@ function createboxMaterial (scene) {
   User will be able to modify the base cubes 
 */
 function importBaseCubes(scene,camera) {	
-     //initialise array (Note this is for rows!)
-     cubeCount = Array.from({length:initBaseCube}).fill(1);
      
     // SceneLoader.ImportMesh
     // Loads the meshes from the file and appends them to the scene
