@@ -337,11 +337,10 @@ function highlightMesh (scene, newMeshes) {
 
 /*
   import base cabinet cubes , reposition into the scene, at the far left corner of an imaginary maximum 6 cube space
-  Note that this is for INITIALIZATION ONLY. i.e. give the user something to work with at the very start
   User will be able to modify the base cubes 
 */
 function importBaseCubes(scene,camera) {	
-     //initialise array 
+     //initialise array (Note this is for rows!)
      cubeCount = Array.from({length:baseCubeNum}).fill(1);
      
     // SceneLoader.ImportMesh
@@ -370,14 +369,18 @@ function importBaseCubes(scene,camera) {
 		// meshUnderPointer (https://doc.babylonjs.com/api/classes/babylon.actionevent)
 		//highlightMesh(scene, newMeshes); 
 
-	     // load the buttons on top of the mesh here
+          // load the buttons on top of the mesh here
+          
+          //vertical position
+          var btnposY = posy + 0.3; 
 
 	     // =====================================================================================
 
 		//  for B1
 		if (baseCubeNum == 1){
-			var button1 = guiBtn(scene, "1"); 
-			//button1.moveToVector3(new BABYLON.Vector3(1.92, 0.55, 0), scene);
+               var button1 = guiBtn(scene, "1"); 
+               // Note: this is to correct non stacking cubes plus btn position in an effor to reuse guiBtn
+			button1.moveToVector3(new BABYLON.Vector3(1.92, btnposY, 0), scene); 
 		}
 
 		// =====================================================================================
@@ -388,7 +391,7 @@ function importBaseCubes(scene,camera) {
 			var button1 = guiBtn(scene, "1");
 			var button2 = guiBtn(scene, "2");
 			button1.moveToVector3(new BABYLON.Vector3(1.719,1, 0), scene);
-			button2.moveToVector3(new BABYLON.Vector3(2.119, 0.55, 0), scene);
+			button2.moveToVector3(new BABYLON.Vector3(2.119, btnposY, 0), scene);
 		}
 		
 		// =====================================================================================
@@ -398,9 +401,9 @@ function importBaseCubes(scene,camera) {
 			var button1 = guiBtn(scene, "1"); 
 			var button2 = guiBtn(scene, "2");
 			var button3 = guiBtn(scene, "3");
-			button1.moveToVector3(new BABYLON.Vector3(1.523, 0.55, 0), scene);
-			button2.moveToVector3(new BABYLON.Vector3(1.919, 0.55, 0), scene);
-			button3.moveToVector3(new BABYLON.Vector3(2.335, 0.55, 0), scene);
+			button1.moveToVector3(new BABYLON.Vector3(1.523, btnposY, 0), scene);
+			button2.moveToVector3(new BABYLON.Vector3(1.919, btnposY, 0), scene);
+			button3.moveToVector3(new BABYLON.Vector3(2.335, btnposY, 0), scene);
 		}
 
 		// =====================================================================================
@@ -411,10 +414,10 @@ function importBaseCubes(scene,camera) {
 			var button2 = guiBtn(scene, "2");
 			var button3 = guiBtn(scene, "3");
 			var button4 = guiBtn(scene, "4");
-			button1.moveToVector3(new BABYLON.Vector3(1.308, 0.55, 0), scene);
-			button2.moveToVector3(new BABYLON.Vector3(1.734, 0.55, 0), scene);
-			button3.moveToVector3(new BABYLON.Vector3(2.13, 0.55, 0), scene);
-			button4.moveToVector3(new BABYLON.Vector3(2.55, 0.55, 0), scene);
+			button1.moveToVector3(new BABYLON.Vector3(1.308, btnposY, 0), scene);
+			button2.moveToVector3(new BABYLON.Vector3(1.734, btnposY, 0), scene);
+			button3.moveToVector3(new BABYLON.Vector3(2.13, btnposY, 0), scene);
+			button4.moveToVector3(new BABYLON.Vector3(2.55, btnposY, 0), scene);
 		}
 		
 		// =====================================================================================
@@ -426,11 +429,11 @@ function importBaseCubes(scene,camera) {
 			var button3 = guiBtn(scene, "3");
 			var button4 = guiBtn(scene, "4");
 			var button5 = guiBtn(scene, "5");
-			button1.moveToVector3(new BABYLON.Vector3(1.112, 0.55, 0), scene);
-			button2.moveToVector3(new BABYLON.Vector3(1.506, 0.55, 0), scene);
-			button3.moveToVector3(new BABYLON.Vector3(1.93, 0.55, 0), scene);
-			button4.moveToVector3(new BABYLON.Vector3(2.34, 0.55, 0), scene);
-			button5.moveToVector3(new BABYLON.Vector3(2.75, 0.55, 0), scene);
+			button1.moveToVector3(new BABYLON.Vector3(1.112, btnposY, 0), scene);
+			button2.moveToVector3(new BABYLON.Vector3(1.506, btnposY, 0), scene);
+			button3.moveToVector3(new BABYLON.Vector3(1.93, btnposY, 0), scene);
+			button4.moveToVector3(new BABYLON.Vector3(2.34, btnposY, 0), scene);
+			button5.moveToVector3(new BABYLON.Vector3(2.75, btnposY, 0), scene);
 		}
 		
 		// =====================================================================================
@@ -443,12 +446,12 @@ function importBaseCubes(scene,camera) {
 			var button4 = guiBtn(scene, "4");
 			var button5 = guiBtn(scene, "5");
 			var button6 = guiBtn(scene, "6");
-			button1.moveToVector3(new BABYLON.Vector3(0.91, 0.55, 0), scene);
-			button2.moveToVector3(new BABYLON.Vector3(1.32, 0.55, 0), scene);
-			button3.moveToVector3(new BABYLON.Vector3(1.72, 0.55, 0), scene);
-			button4.moveToVector3(new BABYLON.Vector3(2.13, 0.55, 0), scene);
-			button5.moveToVector3(new BABYLON.Vector3(2.54, 0.55, 0), scene);
-			button6.moveToVector3(new BABYLON.Vector3(2.96, 0.55, 0), scene);
+			button1.moveToVector3(new BABYLON.Vector3(0.91, btnposY, 0), scene);
+			button2.moveToVector3(new BABYLON.Vector3(1.32, btnposY, 0), scene);
+			button3.moveToVector3(new BABYLON.Vector3(1.72, btnposY, 0), scene);
+			button4.moveToVector3(new BABYLON.Vector3(2.13, btnposY, 0), scene);
+			button5.moveToVector3(new BABYLON.Vector3(2.54, btnposY, 0), scene);
+			button6.moveToVector3(new BABYLON.Vector3(2.96, btnposY, 0), scene);
 		}
 		else {
 			alert("invalid number of cubes");
@@ -516,31 +519,6 @@ function gridMaker(coord_grid, increment_xcoord){
      return coord_grid;
 }
 
-// create box material and assign wide to all boxes which are imported in .babylon format 
-// should be more efficient since we reference to a single texture image file for all boxes (cache friendly also)
-// note that only this product configurator loads babylon files directly.  
-function createboxMaterial (scene) {
-    // create box material
-     var boxMaterial = new BABYLON.StandardMaterial("boxMaterial", scene);
-     var boxMaterialUrl = hostUrl + 'static/bryantest/walnut-fine-wood.jpg'; 
-     boxMaterial.diffuseTexture = new BABYLON.Texture(boxMaterialUrl,scene);
-    //boxMaterial.ambientTexture = new BABYLON.Texture(boxMaterialUrl,scene);
-
-    return boxMaterial; 
-}
-
-// import stacking cubes 
-function importStackCubes(scene, x, y, z) {
-    console.log("[INFO] Imported stack asset mesh"); 
-    BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", "E1-final.babylon", scene, 
-    function (stackcube) {
-        stackcube[0].position.x = x;
-        stackcube[0].position.y = y;
-        stackcube[0].position.z = z;
-        stackcube[0].rotation.y = Math.PI/2;
-    });
-}
-
 function guiBtn (scene, name) {
      // retrieve coordinates for grid
      var allCoords = gridData();
@@ -560,6 +538,7 @@ function guiBtn (scene, name) {
 	button.onPointerUpObservable.add(function() {
           // xyz coordinates
           var xyz = allCoords[layerCounter];  // or 'row' counter!
+
           buttonIndex = parseInt(button.name);
           
           // placing the stack cubes on the scene
@@ -575,3 +554,28 @@ function guiBtn (scene, name) {
 	advancedTexture.addControl(button);
 	return button;
 } 
+
+// import stacking cubes 
+function importStackCubes(scene, x, y, z) {
+     console.log("[INFO] Imported stack asset mesh"); 
+     BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", "E1-final.babylon", scene, 
+     function (stackcube) {
+         stackcube[0].position.x = x;
+         stackcube[0].position.y = y;
+         stackcube[0].position.z = z;
+         stackcube[0].rotation.y = Math.PI/2;
+     });
+ }
+
+// create box material and assign wide to all boxes which are imported in .babylon format 
+// should be more efficient since we reference to a single texture image file for all boxes (cache friendly also)
+// note that only this product configurator loads babylon files directly.  
+function createboxMaterial (scene) {
+     // create box material
+      var boxMaterial = new BABYLON.StandardMaterial("boxMaterial", scene);
+      var boxMaterialUrl = hostUrl + 'static/bryantest/walnut-fine-wood.jpg'; 
+      boxMaterial.diffuseTexture = new BABYLON.Texture(boxMaterialUrl,scene);
+     //boxMaterial.ambientTexture = new BABYLON.Texture(boxMaterialUrl,scene);
+ 
+     return boxMaterial; 
+ }

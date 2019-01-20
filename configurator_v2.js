@@ -1,0 +1,3 @@
+/*
+Rewrite of logic by Aaron Lee
+*/
