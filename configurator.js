@@ -19,11 +19,17 @@
 	*/
 
 
-	// global declarations
+	// GLOBAL DECLARATIONS
 	var cubeCount; // to keep track of number of cubes
 	var baseCubeNum = 2; // number of base cubes
 	var buttonIndex;
 	var bcubesName; // initial import of base cubes
+
+	// counter for B1-B6
+	var baseCubeCounter = Array.from({length:6}).fill(0);
+
+	// counter for E1-E4 (can add more later)
+	var stackCubeCounter = Array.from({length:4}).fill(0);
 
 	// assign basecubes file name for auto import of mesh. keep this all global
 	switch (baseCubeNum) {
@@ -343,12 +349,17 @@
 	User will be able to modify the base cubes 
 	*/
 	function importBaseCubes(scene,camera) {	
-		//initialise array (Note this is for rows!)
-		cubeCount = Array.from({length:baseCubeNum}).fill(1);
-		
+	//initialise array (Note this is for rows!)
+	cubeCount = Array.from({length:baseCubeNum}).fill(1);
+	
 	// SceneLoader.ImportMesh
 	// Loads the meshes from the file and appends them to the scene
 	console.log("[INFO] Imported B3 asset mesh"); 
+
+	// counting the number of base cubes	
+	var cubeID = parseInt(bcubesName[1]);		
+	baseCubeCounter[cubeID-1] = baseCubeCounter[cubeID-1] + 1;
+
 	BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubesName, scene, 
 	function (newMeshes) {
 
@@ -548,7 +559,7 @@
 
 			// update positions of the buttons and place stacking cubes
 			if (baseCubeNum >= 1 && baseCubeNum <= 6){
-				importStackCubes(scene, xyz[buttonIndex-1][0], xyz[buttonIndex-1][1], xyz[buttonIndex-1][2]);
+				importStackCubes(scene, xyz[buttonIndex-1][0], xyz[buttonIndex-1][1], xyz[buttonIndex-1][2], "E2");
 				button.moveToVector3(new BABYLON.Vector3(xyz[buttonIndex-1][0], xyz[buttonIndex-1][1]+0.295, 0), scene);
 				layerCounter += 1;
 			} 
@@ -559,9 +570,16 @@
 	} 
 
 	// import stacking cubes 
-	function importStackCubes(scene, x, y, z) {
+	function importStackCubes(scene, x, y, z, prefix) {
 		console.log("[INFO] Imported stack asset mesh"); 
-		BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", "E1-final.babylon", scene, 
+
+		// counting number of stack cubes
+		var postfix = "-final.babylon" 
+		var cubeName = prefix + postfix; // name of cube to be imported
+		var cubeID = parseInt(prefix[1]);		
+		stackCubeCounter[cubeID-1] = stackCubeCounter[cubeID-1] + 1;
+		
+		BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", cubeName, scene, 
 		function (stackcube) {
 			stackcube[0].position.x = x;
 			stackcube[0].position.y = y;
@@ -617,15 +635,15 @@
     var ctx =  dynamicTexture.getContext();
     var font = "10px arial";
     ctx.font= font; 
-    var width = ctx.measureText(text).width;
-    dynamicTexture.drawText(text, 256 - width/2, 52, font, "lightblue", "");
+    // var width = ctx.measureText(text).width;
+    dynamicTexture.drawText(text, 240, 35, font, "lightblue", "");
     dynamicTexture.uScale = 1;
     dynamicTexture.vScale = 0.125;
     dynamicTexture.update(false);
 
     var result = BABYLON.Mesh.CreatePlane("nameplate", 10, scene, false);
     result.rotation.x = Math.PI;
-    result.scaling.y = 0.125;
+    result.scaling.y = 0.1;
 	result.position = new BABYLON.Vector3(3, 2, -1)
     var mat = new BABYLON.StandardMaterial("nameplateMat", scene);
     mat.diffuseTexture = dynamicTexture;
