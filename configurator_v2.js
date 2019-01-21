@@ -79,7 +79,9 @@ function createRoomScene() {
 	var scene = new BABYLON.Scene(engine);
      
      // camera
-	var camera = createCamera(scene); 
+     var camera = createCamera(scene); 
+     // force camera to be centered at wall only
+
 
 	// light (sun directional)
 	createLights(scene); 
@@ -94,10 +96,13 @@ function createRoomScene() {
 	createRoof(scene); 
 
 	// create the outdoor env --> skybox!
-	createOutdEnv(scene); 
+     createOutdEnv(scene); 
+     
+     // define the mathematical grid to arrange cubes. call once only!
+     var gridMat = gridEngine(); 
 
      // Load cubes and event listener 
-	importBaseCubes(scene,camera); 
+	importBaseCubes(scene, gridMat); 
 	
     // finally ... 
     return scene; 
@@ -112,7 +117,7 @@ function createCamera(scene) {
      // limited arc rotate
      // note its coords are always defined in alpha, beta and radius .. https://doc.babylonjs.com/babylon101/cameras
      // Parameters: name, alpha, beta, radius, target position, scene 
-     var camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI/2, Math.PI/2, 4, new BABYLON.Vector3(2,1.25,0), scene); 
+     var camera = new BABYLON.ArcRotateCamera("camera", -Math.PI/2, Math.PI/2, 4, new BABYLON.Vector3(2,1.25,0), scene); 
      camera.attachControl(canvas, true);
      // set limits to camera movement so users dont get disorganized 
      camera.lowerRadiusLimit = 4;
@@ -121,14 +126,16 @@ function createCamera(scene) {
      camera.upperAlphaLimit = -1.3; 
      camera.lowerBetaLimit = 1.35; 
      camera.upperBetaLimit = 1.75; 
+
+     // totally deactivate panning (if developer requires to see beyond cube, comment this out in development)
+     scene.activeCamera.panningSensibility = 0;
+     scene.activeCamera = camera; // set it as active viewport
      
      /* for testing only
      var camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI/2, Math.PI/2, 4.5, new BABYLON.Vector3(2,1.25,0), scene); 
      camera.attachControl(canvas, true);
      */
- 
-     scene.activeCamera = camera; // set it as active viewport
- 
+
      return camera;  
  }
 
@@ -310,9 +317,61 @@ function createOutdEnv(scene) {
 
 // --------------------------------------------------------------------------------------------------------------------------------
 // Define Grid Data for 6 cubes, with a maximum height of circa 2.5m ~ max 7 stacked rows
-// This implies a matrix of size 7,6
-function defineGrid () {
+// This implies a matrix of size 7,6, with each matrix element being an array of length 3 (X,Y,Z)
+// REMINDER: ALL UNITS IN METERS! 
+
+// Lets define the grid! call this only once at the begining to init the data! 
+function gridEngine () {
+     var rn; // row number 
+     var cn; // column number --> as per convention described in the formulation of universalee method
+
+     // set horizontal local coord system w.r.t. global origin
+     // this will define where the cubes start stacking up (i.e. left most (viewer p.o.v.) cube position)
+     var horOffset = 1; 
+
+     // initialize empty 2d array with 7 rows and store in memory
+     var matCoords = Create2DArray(7);  // so we play with 'push' later
+     // matrix size
+     var nrows = 7; 
+     var ncols = 6; 
+
+     // EQN definition 
+     // this is valid for the ezbo stacking cubes dimensions 
+     // tightly coupled with the domain data i.e. dimensions, etc. if domain change, eqn will change as well 
+     function calcposXYFunc(rn,cn) {
+          var ypos = 0.1 + 0.195 + 0.39*(rn-1); // vertical coord w.r.t. origin
+          var xpos = horOffset + 0.01*cn + 0.3835*(cn-1) + 0.19175; // horizontal coord w.r.t origin
+          // note: just set a fixed number for orthogonal coord (in and out of page)
+          var zPos = -0.25; // constant w.r.t. origin
+          return [xpos, ypos, zPos]; // return as array
+     }
      
+     // Build the matrix of coordinates
+     for (var i=0; i < nrows; i++) { 
+          for (var j=0; j < ncols; j++) {
+               // compute the required x and y coords 
+               // make sure to do i+1 and j+1 since calcposXYFunc requires rn , cn which are real world cube stratification starting from 1
+               let tempvar = calcposXYFunc(i+1,j+1); 
+               // console.log(tempvar);
+               matCoords[i].push(tempvar); 
+          }
+     }
+
+     // return the matrix
+     //console.log(matCoords); 
+     return matCoords; 
+}
+
+// support func to create 2d arrays, since javascript only supports 1d
+// specify number of rows. columns will be specified as push lateron for specific purposes 
+function Create2DArray(rows) {
+     var arr = [];
+   
+     for (var i=0;i<rows;i++) {
+        arr[i] = []; // initialize with empty array where we can push elements into (this will be the column store)
+     }
+   
+     return arr;
 }
 
 
@@ -333,37 +392,43 @@ function createboxMaterial (scene) {
  }
 
 /*
-  import base cabinet cubes , reposition into the scene, at the far left corner of an imaginary maximum 6 cube space
-  User will be able to modify the base cubes 
+     Import base cabinet cubes , reposition into the scene, at the far left corner of an imaginary maximum 6 cube space
+     User should be able to modify the base cubes 
 */
-function importBaseCubes(scene,camera) {	
-     
+function importBaseCubes(scene,gridMat) {	
+
+     // with regards to gridMat, we take the first position at physical-box 1,1 or in the matrix as 0,0 index
+
     // SceneLoader.ImportMesh
     // Loads the meshes from the file and appends them to the scene
     console.log("[INFO] Imported B3 asset mesh"); 
     BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubesName, scene, 
-    function (newMeshes) {
+    function (newMesh) {
 
           // do something with the meshes (no particles or skeletons in this case)
 
-          // define position of base cube (meters)
-          var posx = 2;
-          var posy = 0.3;
-          var posz = -0.2; 
-          var roty = Math.PI/2;
+          // define euler position of base cube (meters)          
+		newMesh[0].position.x = gridMat[0][0][0]; // recall, row index, col index
+		newMesh[0].position.y = gridMat[0][0][1];
+          newMesh[0].position.z = gridMat[0][0][2];
           
-		newMeshes[0].position.x = posx;
-		newMeshes[0].position.y = posy;
-		newMeshes[0].position.z = posz;
-		newMeshes[0].rotation.y = roty;
+          // define mesh rotation
+		newMesh[0].rotation.y = Math.PI/2;
 
 		var boxMaterial = createboxMaterial(scene); 
-		newMeshes[0].material = boxMaterial;
+		newMesh[0].material = boxMaterial;
 
 		// add highlight upon mouse hover , 
 		// meshUnderPointer (https://doc.babylonjs.com/api/classes/babylon.actionevent)
-          //highlightMesh(scene, newMeshes); 
+          //highlightMesh(scene, newMesh); 
     }); 
 }
  
+
+/*
+     Import stacking cubes !! 
+*/
+
+
+
 
