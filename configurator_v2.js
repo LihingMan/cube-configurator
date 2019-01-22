@@ -2,23 +2,27 @@
 EZBO Stacking Cube Product Configurator Web App v2
 */
 
-var initBaseCube= 1; // base cube initialization case, 1-6 
+var basecubeArray = []; // to track the base cubes in the scene
+var stackcubeArray = []; // to track the stack cubes in the scene
+var accesoryArray = []; // to track the accesories 
+var postfix = "-final.babylon"; // define postfix for end of mesh file names
+var constZ = -0.3; // in meters, the constant global z position of all cubes 
 
-// assign basecubes file name for auto import of mesh. 
-var bcubesName; // initial import of base cubes
+// assign basecubes file prefix for auto import of mesh into the scene. (user will work upon this initialization)
+var initBaseCube= 1; // base cube initialization case, 1-6 , this will be adviced by the django view
 switch (initBaseCube) {
      case 1:
-          bcubesName = 'B1-final.babylon'; break;
+          var bcubesPrefix_init = 'B1'; break;
      case 2:
-          bcubesName = 'B2-final.babylon'; break;
+          var bcubesPrefix_init = 'B2'; break;
      case 3:
-          bcubesName = 'B3-final.babylon'; break; 
+          var bcubesPrefix_init = 'B3'; break; 
      case 4:
-          bcubesName = 'B4-final.babylon'; break; 
+          var bcubesPrefix_init = 'B4'; break; 
      case 5:
-          bcubesName = 'B5-final.babylon'; break; 
+          var bcubesPrefix_init = 'B5'; break; 
      case 6:
-          bcubesName = 'B6-final.babylon'; 
+          var bcubesPrefix_init = 'B6'; 
 }
 
 // Check if  browser supports webGL
@@ -80,8 +84,6 @@ function createRoomScene() {
      
      // camera
      var camera = createCamera(scene); 
-     // force camera to be centered at wall only
-
 
 	// light (sun directional)
 	createLights(scene); 
@@ -101,9 +103,12 @@ function createRoomScene() {
      // define the mathematical grid to arrange cubes. call once only!
      var gridMat = gridEngine(); 
 
-     // Load cubes and event listener 
-	importBaseCubes(scene, gridMat); 
-	
+     // Load base cubes and enable modifications
+	importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0);
+     
+     // Load buttons and text
+
+
     // finally ... 
     return scene; 
 }
@@ -342,7 +347,7 @@ function gridEngine () {
           var ypos = 0.1 + 0.195 + 0.39*(rn-1); // vertical coord w.r.t. origin
           var xpos = horOffset + 0.01*cn + 0.3835*(cn-1) + 0.19175; // horizontal coord w.r.t origin
           // note: just set a fixed number for orthogonal coord (in and out of page)
-          var zPos = -0.25; // constant w.r.t. origin
+          var zPos = constZ; // constant w.r.t. origin, set at global vars at the beginning 
           return [xpos, ypos, zPos]; // return as array
      }
      
@@ -395,26 +400,32 @@ function createboxMaterial (scene) {
      Import base cabinet cubes , reposition into the scene, at the far left corner of an imaginary maximum 6 cube space
      User should be able to modify the base cubes 
 */
-function importBaseCubes(scene,gridMat) {	
+function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy) { 
 
-     // with regards to gridMat, we take the first position at physical-box 1,1 or in the matrix as 0,0 index
+     // bcubesPrefix is the base cube product name for revisions i.e. addition/removal
+     // rx and cy are the respective row column position in gridMat (starting from index zero for gridMat) 
+     // RECALL ..i.e. with regards to gridMat, we take the first position at physical-box 1,1 or in the matrix as 0,0 index
+
+     // concat with the constant global postfix
+     var bcubename = bcubesPrefix + postfix; 
 
     // SceneLoader.ImportMesh
     // Loads the meshes from the file and appends them to the scene
     console.log("[INFO] Imported B3 asset mesh"); 
-    BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubesName, scene, 
+    BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubename, scene, 
     function (newMesh) {
 
           // do something with the meshes (no particles or skeletons in this case)
 
           // define euler position of base cube (meters)          
-		newMesh[0].position.x = gridMat[0][0][0]; // recall, row index, col index
-		newMesh[0].position.y = gridMat[0][0][1];
-          newMesh[0].position.z = gridMat[0][0][2];
+		newMesh[0].position.x = gridMat[rx][cy][0]; // recall, row index, col index
+		newMesh[0].position.y = gridMat[rx][cy][1];
+          newMesh[0].position.z = gridMat[rx][cy][2];
           
           // define mesh rotation
 		newMesh[0].rotation.y = Math.PI/2;
-
+          
+          // define mesh rotation
 		var boxMaterial = createboxMaterial(scene); 
 		newMesh[0].material = boxMaterial;
 
@@ -426,9 +437,28 @@ function importBaseCubes(scene,gridMat) {
  
 
 /*
-     Import stacking cubes !! 
+     Now it is time to define Imports of stacking cubes !! 
 */
 
+// callback function to import stacking cubes
+// import stacking cubes 
+function importStackCubes(scene, x, y, z, stackprefix) {
+     console.log("[INFO] Imported stack asset mesh"); 
 
+     // count number of stack cubes
+     var cubeName = stackprefix + postfix; // name of cube to be imported
+
+     // 
+     var cubeID = parseInt(prefix[1]);		
+     stackCubeCounter[cubeID-1] = stackCubeCounter[cubeID-1] + 1;
+     
+     BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", cubeName, scene, 
+     function (stackcube) {
+          stackcube[0].position.x = x;
+          stackcube[0].position.y = y;
+          stackcube[0].position.z = z;
+          stackcube[0].rotation.y = Math.PI/2;
+     });
+}
 
 

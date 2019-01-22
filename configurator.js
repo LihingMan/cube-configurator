@@ -574,7 +574,7 @@
 		console.log("[INFO] Imported stack asset mesh"); 
 
 		// counting number of stack cubes
-		var postfix = "-final.babylon" 
+		var postfix = "-final.babylon";
 		var cubeName = prefix + postfix; // name of cube to be imported
 		var cubeID = parseInt(prefix[1]);		
 		stackCubeCounter[cubeID-1] = stackCubeCounter[cubeID-1] + 1;
