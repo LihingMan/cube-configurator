@@ -3,8 +3,12 @@ EZBO Stacking Cube Product Configurator Web App v2
 */
 
 var basecubeArray = []; // to track the base cubes in the scene
+var basecubeCounter = 0; // this is updated +1 whenever a base cube is added into the scene , think of it as primary key in sql to track basecubeArray 
+                         // it will also be the single source of truth to name the buttons
+
 var stackcubeArray = []; // to track the stack cubes in the scene
 var accesoryArray = []; // to track the accesories 
+
 var postfix = "-final.babylon"; // define postfix for end of mesh file names
 var constZ = -0.3; // in meters, the constant global z position of all cubes 
 
@@ -34,7 +38,7 @@ if (BABYLON.Engine.isSupported()) {
      var engine = new BABYLON.Engine(canvas, true, { stencil: true });  // this is the Babylon class engine 
  
      // declare globally accesible variable of host url (for later concat)
-     var hostUrl = 'http://123sense.com/'
+     var hostUrl = 'http://123sense.com/'; 
  
      // make sure DOM is loaded first 
      window.addEventListener('DOMContentLoaded', function() {
@@ -307,17 +311,6 @@ function createOutdEnv(scene) {
      sidewall_r.material = wallMaterial;
      sidewall_l.material = wallMaterial;
  }
- /*
- // highlight mesh on mouse hover
- function highlightMesh (scene, newMeshes) {
- 
-      // activate highlight
-      var hl = new BABYLON.HighlightLayer("hl1", scene);
-      hl.addMesh(newMeshes[0], BABYLON.Color3.Green());
-  
-      // deactivate highlight
-      //hl.removeMesh(newMeshes[0]);
-  }*/
 
 
 // --------------------------------------------------------------------------------------------------------------------------------
@@ -413,28 +406,71 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy) {
     // Loads the meshes from the file and appends them to the scene
     console.log("[INFO] Imported B3 asset mesh"); 
     BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubename, scene, 
-    function (newMesh) {
+     function (newMesh) {
 
-          // do something with the meshes (no particles or skeletons in this case)
+               // do something with the meshes (no particles or skeletons in this case)
 
-          // define euler position of base cube (meters)          
-		newMesh[0].position.x = gridMat[rx][cy][0]; // recall, row index, col index
-		newMesh[0].position.y = gridMat[rx][cy][1];
-          newMesh[0].position.z = gridMat[rx][cy][2];
-          
-          // define mesh rotation
-		newMesh[0].rotation.y = Math.PI/2;
-          
-          // define mesh rotation
-		var boxMaterial = createboxMaterial(scene); 
-		newMesh[0].material = boxMaterial;
+               // define euler position of base cube (meters)          
+               newMesh[0].position.x = gridMat[rx][cy][0]; // recall, row index, col index
+               newMesh[0].position.y = gridMat[rx][cy][1];
+               newMesh[0].position.z = gridMat[rx][cy][2];
+               
+               // define mesh rotation
+               newMesh[0].rotation.y = Math.PI/2;
+               
+               // define mesh rotation
+               var boxMaterial = createboxMaterial(scene); 
+               newMesh[0].material = boxMaterial;
 
-		// add highlight upon mouse hover , 
-		// meshUnderPointer (https://doc.babylonjs.com/api/classes/babylon.actionevent)
-          //highlightMesh(scene, newMesh); 
-    }); 
+               // update global counter for base cubes and its counter
+               basecubeArray.push(bcubesPrefix);
+               basecubeCounter += 1; // important to update this global tracker
+     }); 
 }
- 
+
+
+/*
+     Button stuffs
+*/
+function guiBtn_BaseInit (scene, gridMat, bcubesPrefix,rx,cy) {
+
+     // this deserves its own callback since at the start, the pluses are added for the remaining base cube spaces
+     // i.e. if initially the 6cube base is imported, then no plus! 
+
+     // horizontal and vertical buttons for the base cubes manipulation
+     // this will add a base cube at the plus position that is being clicked. 
+     // will be initialized alongside the first base cube import  (*bcubesPrefix* refers to the base cube on first import)
+     
+     //  button stuff
+     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+     var button = BABYLON.GUI.Button.CreateImageOnlyButton(name, "https://cdn.shopify.com/s/files/1/0185/5092/products/symbols-0173_800x.png?v=1369543613");
+     button.width = "40px";
+     button.height = "40px";
+     button.color = "white";
+     button.background = hostUrl + 'static/bryantest/white-wall.jpg';
+     
+     // on click event for the button
+     button.onPointerUpObservable.add(function() {
+          // xyz coordinates
+          var xyz = allCoords[layerCounter];  // or 'row' counter!
+
+          buttonIndex = parseInt(button.name);
+          
+          // placing the stack cubes on the scene
+
+          // update positions of the buttons and place stacking cubes
+          if (baseCubeNum >= 1 && baseCubeNum <= 6){
+               importBaseCubes(scene, xyz[buttonIndex-1][0], xyz[buttonIndex-1][1], xyz[buttonIndex-1][2], "E2");
+               // position button
+               button.moveToVector3(new BABYLON.Vector3(xyz[buttonIndex-1][0], xyz[buttonIndex-1][1]+0.295, 0), scene);
+               layerCounter += 1;
+          } 
+     });
+
+     advancedTexture.addControl(button);
+     return button;
+}
+
 
 /*
      Now it is time to define Imports of stacking cubes !! 
