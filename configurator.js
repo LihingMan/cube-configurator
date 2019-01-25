@@ -21,7 +21,7 @@
 
 	// GLOBAL DECLARATIONS
 	var cubeCount; // to keep track of number of cubes
-	var baseCubeNum = 4; // number of base cubes
+	var baseCubeNum = 3; // number of base cubes
 	var buttonIndex;
 	var bcubesName; // initial import of base cubes
 	var displayCounter1, displayCounter2, displayCounter3, displayCounter4, displayCounter5, displayCounter6, displayCounter7, displayCounter8, displayCounter9, displayCounter10;

@@ -2,32 +2,26 @@
 EZBO Stacking Cube Product Configurator Web App v2
 */
 
+// trackers for base cube
 var basecubeArray = []; // to track the base cubes in the scene
 var basecubeCounter = 0; // this is updated +1 whenever a base cube is added into the scene , think of it as primary key in sql to track basecubeArray 
-                         // it will also be the single source of truth to name the buttons
+                         // it will also be the single source of truth to name the buttons (i.e. guaranteed unique)
+var basecubeID = []; // to keep track of 1:1 id with elements in basecubeArray 
 
-var stackcubeArray = []; // to track the stack cubes in the scene
+// trackers for stackcube
+var stackcubeArray = []; // to track the stack cubes in the scene 
+
+// trackers for accesories 
 var accesoryArray = []; // to track the accesories 
 
+// some global constants 
 var postfix = "-final.babylon"; // define postfix for end of mesh file names
 var constZ = -0.3; // in meters, the constant global z position of all cubes 
+var boxgridWidth = 0.3835; // in mtrs, the defined grid system box element width 
 
-// assign basecubes file prefix for auto import of mesh into the scene. (user will work upon this initialization)
-var initBaseCube= 1; // base cube initialization case, 1-6 , this will be adviced by the django view
-switch (initBaseCube) {
-     case 1:
-          var bcubesPrefix_init = 'B1'; break;
-     case 2:
-          var bcubesPrefix_init = 'B2'; break;
-     case 3:
-          var bcubesPrefix_init = 'B3'; break; 
-     case 4:
-          var bcubesPrefix_init = 'B4'; break; 
-     case 5:
-          var bcubesPrefix_init = 'B5'; break; 
-     case 6:
-          var bcubesPrefix_init = 'B6'; 
-}
+// INITALIZATION 
+// assign basecubes file prefix for auto import of mesh into the scene.
+var bcubesPrefix_init = 'B4'; // can be B1-B6, as passed by django view
 
 // Check if  browser supports webGL
 if (BABYLON.Engine.isSupported()) {
@@ -338,7 +332,7 @@ function gridEngine () {
      // tightly coupled with the domain data i.e. dimensions, etc. if domain change, eqn will change as well 
      function calcposXYFunc(rn,cn) {
           var ypos = 0.1 + 0.195 + 0.39*(rn-1); // vertical coord w.r.t. origin
-          var xpos = horOffset + 0.01*cn + 0.3835*(cn-1) + 0.19175; // horizontal coord w.r.t origin
+          var xpos = horOffset + 0.01*cn + boxgridWidth*(cn-1) + (boxgridWidth/2); // horizontal coord w.r.t origin
           // note: just set a fixed number for orthogonal coord (in and out of page)
           var zPos = constZ; // constant w.r.t. origin, set at global vars at the beginning 
           return [xpos, ypos, zPos]; // return as array
@@ -408,31 +402,55 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy) {
     BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubename, scene, 
      function (newMesh) {
 
-               // do something with the meshes (no particles or skeletons in this case)
+          // get base cube integer from prefix
+          let intprefix = parseInt(bcubesPrefix[1]); 
 
-               // define euler position of base cube (meters)          
+          // get modulus to see if it is odd or even
+          // if it is 1, then just import as is without offset to grid
+          if (intprefix == 1) {
                newMesh[0].position.x = gridMat[rx][cy][0]; // recall, row index, col index
                newMesh[0].position.y = gridMat[rx][cy][1];
                newMesh[0].position.z = gridMat[rx][cy][2];
-               
-               // define mesh rotation
-               newMesh[0].rotation.y = Math.PI/2;
-               
-               // define mesh rotation
-               var boxMaterial = createboxMaterial(scene); 
-               newMesh[0].material = boxMaterial;
+          } else {
+               if (intprefix % 2 == 0) {
+                    // if it is even i.e. 2,4,6, then move to right by (intprefix-1)*boxgridWidth
+                    newMesh[0].position.x = gridMat[rx][cy][0] + ((intprefix-1)*boxgridWidth/2); 
+                    newMesh[0].position.y = gridMat[rx][cy][1];
+                    newMesh[0].position.z = gridMat[rx][cy][2];
 
-               // update global counter for base cubes and its counter
-               basecubeArray.push(bcubesPrefix);
-               basecubeCounter += 1; // important to update this global tracker
+               } else {
+                    // else if it is odd i.e. 3,5 then move to right by (floor(intprefix/2))*boxgridWidth
+                    newMesh[0].position.x = gridMat[rx][cy][0] + (boxgridWidth*Math.floor(intprefix/2)); 
+                    newMesh[0].position.y = gridMat[rx][cy][1];
+                    newMesh[0].position.z = gridMat[rx][cy][2];
+
+               }
+          }
+          
+          // define mesh rotation
+          newMesh[0].rotation.y = Math.PI/2;
+          
+          // define mesh material
+          var boxMaterial = createboxMaterial(scene); 
+          newMesh[0].material = boxMaterial;
+
+          // update global counter for base cubes and its counter
+          basecubeArray.push(bcubesPrefix);
+          basecubeCounter += 1; // important to update this global tracker
+
+          // assign horizontal button related to this cube
+          
+
      }); 
 }
 
 
 /*
-     Button stuffs
+     Button stuffs, as callbacks into cube functions 
 */
-function guiBtn_BaseInit (scene, gridMat, bcubesPrefix,rx,cy) {
+
+// for the base cubes, horizontal pluses 
+function btn_BaseHor (scene, gridMat, bcubesPrefix,rx,cy) {
 
      // this deserves its own callback since at the start, the pluses are added for the remaining base cube spaces
      // i.e. if initially the 6cube base is imported, then no plus! 
