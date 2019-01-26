@@ -388,7 +388,7 @@ function createboxMaterial (scene) {
      Import base cabinet cubes , reposition into the scene, at the far left corner of an imaginary maximum 6 cube space
      User should be able to modify the base cubes 
 */
-function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) { 
+function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy) { 
 
      // bcubesPrefix is the base cube product name for revisions i.e. addition/removal
      // rx and cy are the respective row column position in gridMat (starting from index zero for gridMat) 
@@ -435,10 +435,16 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                }
 
                // assign horizontal buttons related to this base cube configuration using btn_BaseHor callback 
-               
+
 
           } else if (type == 'next') {
-               // next base cubes (added after the initial)
+               // next base cubes (added after the initial), no need to add offset. just use the direct rx cy gridmat positions
+               // ENSURE to use 'B1' only with this. i.e. user can only replace every one plus with 1:1 B1 
+               newMesh[0].position.x = gridMat[rx][cy][0]; // recall, row index, col index
+               newMesh[0].position.y = gridMat[rx][cy][1];
+               newMesh[0].position.z = gridMat[rx][cy][2];
+
+               // no need to do anything with the remaining buttons, if any. just leave as is. 
 
           } else {
                console.log('[ERROR] Unrecognized type for function importBaseCubes passed via args type')
@@ -456,7 +462,6 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
           basecubeCounter += 1; // important to update this global tracker (so the id will start from 1)
           basecubeID.push(basecubeCounter); // push in basecubeID array
           basecubePos.push([newMesh[0].position.x,newMesh[0].position.y,newMesh[0].position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z        
-
      }); 
 }
 
@@ -493,7 +498,7 @@ function btn_BaseHor (scene, gridMat, bcubesPrefix,rx,cy) {
           // importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy) -- > recall this is the callback 
 
           // remove the buttons and in their place, put the base cube B1
-          importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy); 
+          importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,'next'); 
           // position button relative to the grid 
           button.moveToVector3(new BABYLON.Vector3(xyz[buttonIndex-1][0], xyz[buttonIndex-1][1]+0.295, 0), scene);
           layerCounter += 1;
