@@ -6,7 +6,8 @@ EZBO Stacking Cube Product Configurator Web App v2
 var basecubeArray = []; // to track the base cubes in the scene
 var basecubeCounter = 0; // this is updated +1 whenever a base cube is added into the scene , think of it as primary key in sql to track basecubeArray 
                          // it will also be the single source of truth to name the buttons (i.e. guaranteed unique)
-var basecubeID = []; // to keep track of 1:1 id with elements in basecubeArray 
+var basecubeID = []; // to keep track of 1:1 id with elements in basecubeArray , used in conjunction with basecubeCounter
+var basecubePos =[]; // to keep track of 1:1 position in the grid matrix (i.e. 0,1 etc etc) 
 
 // trackers for stackcube
 var stackcubeArray = []; // to track the stack cubes in the scene 
@@ -21,7 +22,7 @@ var boxgridWidth = 0.3835; // in mtrs, the defined grid system box element width
 
 // INITALIZATION 
 // assign basecubes file prefix for auto import of mesh into the scene.
-var bcubesPrefix_init = 'B4'; // can be B1-B6, as passed by django view
+var bcubesPrefix_init = 'B6'; // can be B1-B6, as passed by django view
 
 // Check if  browser supports webGL
 if (BABYLON.Engine.isSupported()) {
@@ -102,7 +103,7 @@ function createRoomScene() {
      var gridMat = gridEngine(); 
 
      // Load base cubes and enable modifications
-	importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0);
+	importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0, 'init');
      
      // Load buttons and text
 
@@ -387,11 +388,15 @@ function createboxMaterial (scene) {
      Import base cabinet cubes , reposition into the scene, at the far left corner of an imaginary maximum 6 cube space
      User should be able to modify the base cubes 
 */
-function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy) { 
+function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) { 
 
      // bcubesPrefix is the base cube product name for revisions i.e. addition/removal
      // rx and cy are the respective row column position in gridMat (starting from index zero for gridMat) 
      // RECALL ..i.e. with regards to gridMat, we take the first position at physical-box 1,1 or in the matrix as 0,0 index
+
+     // IMPORTANT
+     // type is to flag it as 'init' or 'next' base cube. in order to initialize a default base cube with its btns then use 'init'. 
+     // else if for any other base cube import from clicking the horizontal buttons, use 'next' 
 
      // concat with the constant global postfix
      var bcubename = bcubesPrefix + postfix; 
@@ -402,29 +407,41 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy) {
     BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubename, scene, 
      function (newMesh) {
 
-          // get base cube integer from prefix
-          let intprefix = parseInt(bcubesPrefix[1]); 
+          if (type == 'init') {
+               // initial base cube
 
-          // get modulus to see if it is odd or even
-          // if it is 1, then just import as is without offset to grid
-          if (intprefix == 1) {
-               newMesh[0].position.x = gridMat[rx][cy][0]; // recall, row index, col index
-               newMesh[0].position.y = gridMat[rx][cy][1];
-               newMesh[0].position.z = gridMat[rx][cy][2];
-          } else {
-               if (intprefix % 2 == 0) {
-                    // if it is even i.e. 2,4,6, then move to right by (intprefix-1)*boxgridWidth
-                    newMesh[0].position.x = gridMat[rx][cy][0] + ((intprefix-1)*boxgridWidth/2); 
+               // get base cube integer from prefix
+               let intprefix = parseInt(bcubesPrefix[1]); 
+
+               // get modulus to see if it is odd or even
+               // if it is 1, then just import as is without offset to grid
+               if (intprefix == 1) {
+                    newMesh[0].position.x = gridMat[rx][cy][0]; // recall, row index, col index
                     newMesh[0].position.y = gridMat[rx][cy][1];
                     newMesh[0].position.z = gridMat[rx][cy][2];
-
                } else {
-                    // else if it is odd i.e. 3,5 then move to right by (floor(intprefix/2))*boxgridWidth
-                    newMesh[0].position.x = gridMat[rx][cy][0] + (boxgridWidth*Math.floor(intprefix/2)); 
-                    newMesh[0].position.y = gridMat[rx][cy][1];
-                    newMesh[0].position.z = gridMat[rx][cy][2];
+                    if (intprefix % 2 == 0) {
+                         // if it is even i.e. 2,4,6, then move to right by (intprefix-1)*boxgridWidth
+                         newMesh[0].position.x = gridMat[rx][cy][0] + ((intprefix-1)*boxgridWidth/2); 
+                         newMesh[0].position.y = gridMat[rx][cy][1];
+                         newMesh[0].position.z = gridMat[rx][cy][2];
 
+                    } else {
+                         // else if it is odd i.e. 3,5 then move to right by (floor(intprefix/2))*boxgridWidth
+                         newMesh[0].position.x = gridMat[rx][cy][0] + (boxgridWidth*Math.floor(intprefix/2)); 
+                         newMesh[0].position.y = gridMat[rx][cy][1];
+                         newMesh[0].position.z = gridMat[rx][cy][2];
+                    }
                }
+
+               // assign horizontal buttons related to this base cube configuration using btn_BaseHor callback 
+               
+
+          } else if (type == 'next') {
+               // next base cubes (added after the initial)
+
+          } else {
+               console.log('[ERROR] Unrecognized type for function importBaseCubes passed via args type')
           }
           
           // define mesh rotation
@@ -436,10 +453,9 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy) {
 
           // update global counter for base cubes and its counter
           basecubeArray.push(bcubesPrefix);
-          basecubeCounter += 1; // important to update this global tracker
-
-          // assign horizontal button related to this cube
-          
+          basecubeCounter += 1; // important to update this global tracker (so the id will start from 1)
+          basecubeID.push(basecubeCounter); // push in basecubeID array
+          basecubePos.push([newMesh[0].position.x,newMesh[0].position.y,newMesh[0].position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z        
 
      }); 
 }
@@ -455,9 +471,9 @@ function btn_BaseHor (scene, gridMat, bcubesPrefix,rx,cy) {
      // this deserves its own callback since at the start, the pluses are added for the remaining base cube spaces
      // i.e. if initially the 6cube base is imported, then no plus! 
 
-     // horizontal and vertical buttons for the base cubes manipulation
+     // horizontal btns for the base cubes manipulation
      // this will add a base cube at the plus position that is being clicked. 
-     // will be initialized alongside the first base cube import  (*bcubesPrefix* refers to the base cube on first import)
+     // will be initialized alongside the first base cube import
      
      //  button stuff
      var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -469,20 +485,18 @@ function btn_BaseHor (scene, gridMat, bcubesPrefix,rx,cy) {
      
      // on click event for the button
      button.onPointerUpObservable.add(function() {
-          // xyz coordinates
-          var xyz = allCoords[layerCounter];  // or 'row' counter!
 
           buttonIndex = parseInt(button.name);
           
           // placing the stack cubes on the scene
 
-          // update positions of the buttons and place stacking cubes
-          if (baseCubeNum >= 1 && baseCubeNum <= 6){
-               importBaseCubes(scene, xyz[buttonIndex-1][0], xyz[buttonIndex-1][1], xyz[buttonIndex-1][2], "E2");
-               // position button
-               button.moveToVector3(new BABYLON.Vector3(xyz[buttonIndex-1][0], xyz[buttonIndex-1][1]+0.295, 0), scene);
-               layerCounter += 1;
-          } 
+          // importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy) -- > recall this is the callback 
+
+          // remove the buttons and in their place, put the base cube B1
+          importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy); 
+          // position button relative to the grid 
+          button.moveToVector3(new BABYLON.Vector3(xyz[buttonIndex-1][0], xyz[buttonIndex-1][1]+0.295, 0), scene);
+          layerCounter += 1;
      });
 
      advancedTexture.addControl(button);
