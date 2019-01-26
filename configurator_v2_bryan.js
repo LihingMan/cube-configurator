@@ -22,7 +22,7 @@ var boxgridWidth = 0.3835; // in mtrs, the defined grid system box element width
 
 // INITALIZATION 
 // assign basecubes file prefix for auto import of mesh into the scene.
-var bcubesPrefix_init = 'B1'; // can be B1-B6, as passed by django view
+var bcubesPrefix_init = 'B6'; // can be B1-B6, as passed by django view
 
 // Check if  browser supports webGL
 if (BABYLON.Engine.isSupported()) {
@@ -450,20 +450,44 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                          horBtn_2 = btn_BaseHorInit (scene, gridMat, 2, 0, 3);
                          horBtn_3 = btn_BaseHorInit (scene, gridMat, 3, 0, 4);
                          horBtn_4 = btn_BaseHorInit (scene, gridMat, 4, 0, 5);
+
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 1, 0);
+                         stackBtn_2 = btn_Stack(scene, gridMat, 2, 1, 1);
                          break; 
                     case 3: 
                          horBtn_1 = btn_BaseHorInit (scene, gridMat, 1, 0, 3);
                          horBtn_2 = btn_BaseHorInit (scene, gridMat, 2, 0, 4);
                          horBtn_3 = btn_BaseHorInit (scene, gridMat, 3, 0, 5);
+
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 1, 0);
+                         stackBtn_2 = btn_Stack(scene, gridMat, 2, 1, 1);
+                         stackBtn_3 = btn_Stack(scene, gridMat, 3, 1, 2);
                          break; 
                     case 4:
                          horBtn_1 = btn_BaseHorInit (scene, gridMat, 1, 0, 4);
                          horBtn_2 = btn_BaseHorInit (scene, gridMat, 2, 0, 5);
+
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 1, 0);
+                         stackBtn_2 = btn_Stack(scene, gridMat, 2, 1, 1);
+                         stackBtn_3 = btn_Stack(scene, gridMat, 3, 1, 2);
+                         stackBtn_4 = btn_Stack(scene, gridMat, 4, 1, 3);
                          break; 
                     case 5:
                          horBtn_1 = btn_BaseHorInit (scene, gridMat, 1, 0, 5);
+
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 1, 0);
+                         stackBtn_2 = btn_Stack(scene, gridMat, 2, 1, 1);
+                         stackBtn_3 = btn_Stack(scene, gridMat, 3, 1, 2);
+                         stackBtn_4 = btn_Stack(scene, gridMat, 4, 1, 3);
+                         stackBtn_5 = btn_Stack(scene, gridMat, 5, 1, 4);
                          break; 
                     default:
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 1, 0);
+                         stackBtn_2 = btn_Stack(scene, gridMat, 2, 1, 1);
+                         stackBtn_3 = btn_Stack(scene, gridMat, 3, 1, 2);
+                         stackBtn_4 = btn_Stack(scene, gridMat, 4, 1, 3);
+                         stackBtn_5 = btn_Stack(scene, gridMat, 5, 1, 4);
+                         stackBtn_6 = btn_Stack(scene, gridMat, 6, 1, 5);
                          break; // case 6 has zero horizontal pluses 
                }
 
@@ -588,12 +612,11 @@ function btn_Stack(scene, gridMat, btnInt, rx_target,cy_target) {
 
      // on click event for the button
      button.onPointerUpObservable.add(function() {
-          let intprefix = parseInt(bcubesPrefix_init[1]); 
-          if (intprefix == 1){
-               button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target+1][cy_target][1], 0), scene)
-               importStackCubes(scene, gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], gridMat[rx_target][cy_target][2], "E1");
-               rx_target += 1;
-          }
+          // let intprefix = parseInt(bcubesPrefix_init[1]); 
+          button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target+1][cy_target][1], 0), scene)
+          importStackCubes(scene, gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], gridMat[rx_target][cy_target][2], "E1");
+          rx_target += 1;
+          
           
      });
 
