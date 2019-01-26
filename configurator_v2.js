@@ -4,9 +4,6 @@ EZBO Stacking Cube Product Configurator Web App v2
 
 // trackers for base cube
 var basecubeArray = []; // to track the base cubes in the scene
-var basecubeCounter = 0; // this is updated +1 whenever a base cube is added into the scene , think of it as primary key in sql to track basecubeArray 
-                         // it will also be the single source of truth to name the buttons (i.e. guaranteed unique)
-var basecubeID = []; // to keep track of 1:1 id with elements in basecubeArray , used in conjunction with basecubeCounter
 var basecubePos =[]; // to keep track of 1:1 position in the grid matrix (i.e. 0,1 etc etc) 
 
 // trackers for stackcube
@@ -22,7 +19,7 @@ var boxgridWidth = 0.3835; // in mtrs, the defined grid system box element width
 
 // INITALIZATION 
 // assign basecubes file prefix for auto import of mesh into the scene.
-var bcubesPrefix_init = 'B2'; // can be B1-B6, as passed by django view
+var bcubesPrefix_init = 'B1'; // can be B1-B6, as passed by django view
 
 // Check if  browser supports webGL
 if (BABYLON.Engine.isSupported()) {
@@ -102,7 +99,7 @@ function createRoomScene() {
      // define the mathematical grid to arrange cubes. call once only!
      var gridMat = gridEngine(); 
 
-     // Load base cubes and enable modifications
+     // Load base cubes and enable modifications to the base cubes 
 	importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0, 'init');
 
     // finally ... 
@@ -398,6 +395,28 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
      // concat with the constant global postfix
      var bcubename = bcubesPrefix + postfix; 
 
+     // Function to assign position coordinates to mesh object in euler coords
+     function assignPosMeshEuler (intprefix, rx, cy, mesh) {
+          if (intprefix == 1) {
+               mesh[0].position.x = gridMat[rx][cy][0]; // recall, row index, col index
+               mesh[0].position.y = gridMat[rx][cy][1];
+               mesh[0].position.z = gridMat[rx][cy][2];
+          } else {
+               if (intprefix % 2 == 0) {
+                    // if it is even i.e. 2,4,6, then move to right by (intprefix-1)*boxgridWidth
+                    mesh[0].position.x = gridMat[rx][cy][0] + ((intprefix-1)*boxgridWidth/2); 
+                    mesh[0].position.y = gridMat[rx][cy][1];
+                    mesh[0].position.z = gridMat[rx][cy][2];
+
+               } else {
+                    // else if it is odd i.e. 3,5 then move to right by (floor(intprefix/2))*boxgridWidth
+                    mesh[0].position.x = gridMat[rx][cy][0] + (boxgridWidth*Math.floor(intprefix/2)); 
+                    mesh[0].position.y = gridMat[rx][cy][1];
+                    mesh[0].position.z = gridMat[rx][cy][2];
+               }
+          }
+     }
+
     // SceneLoader.ImportMesh
     // Loads the meshes from the file and appends them to the scene
     console.log("[INFO] Imported B3 asset mesh"); 
@@ -413,24 +432,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                // get modulus to see if it is odd or even
                // if it is 1, then just import as is without offset to grid
                // this is to ensure that the boxes fit the grid logic and 'start' at the btmmost left
-               if (intprefix == 1) {
-                    newMesh[0].position.x = gridMat[rx][cy][0]; // recall, row index, col index
-                    newMesh[0].position.y = gridMat[rx][cy][1];
-                    newMesh[0].position.z = gridMat[rx][cy][2];
-               } else {
-                    if (intprefix % 2 == 0) {
-                         // if it is even i.e. 2,4,6, then move to right by (intprefix-1)*boxgridWidth
-                         newMesh[0].position.x = gridMat[rx][cy][0] + ((intprefix-1)*boxgridWidth/2); 
-                         newMesh[0].position.y = gridMat[rx][cy][1];
-                         newMesh[0].position.z = gridMat[rx][cy][2];
-
-                    } else {
-                         // else if it is odd i.e. 3,5 then move to right by (floor(intprefix/2))*boxgridWidth
-                         newMesh[0].position.x = gridMat[rx][cy][0] + (boxgridWidth*Math.floor(intprefix/2)); 
-                         newMesh[0].position.y = gridMat[rx][cy][1];
-                         newMesh[0].position.z = gridMat[rx][cy][2];
-                    }
-               }
+               assignPosMeshEuler(intprefix, rx, cy, newMesh); 
 
                // assign horizontal buttons related to this base cube configuration using btn_BaseHorInit callback 
                // hard code the logic here for each base cube B1-B6. no need to do automated loop...it makes it more heavy!
@@ -464,35 +466,78 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                          break; // case 6 has zero horizontal pluses 
                }
 
-               // update global counter for base cubes and its counter
+               // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
                basecubeArray.push(bcubesPrefix);
-               basecubeCounter += 1; // important to update this global tracker (so the id will start from 1)
-               basecubeID.push(basecubeCounter); // push in basecubeID array
                basecubePos.push([newMesh[0].position.x,newMesh[0].position.y,newMesh[0].position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
 
           } else if (type == 'next') {
+
+               let X = gridMat[rx][cy][0]; // assign x-y like this to reuse it 
+               let Y = gridMat[rx][cy][1];
+               let Z = gridMat[rx][cy][2];
+
+               // next we check the position of this cube whether or not it is next door to any other cube
+
                // next base cubes (added after the initial), no need to add offset. just use the direct rx cy gridmat positions
                // ENSURE to use 'B1' only with this. i.e. user can only replace every one plus with 1:1 B1 
-               newMesh[0].position.x = gridMat[rx][cy][0]; // recall, row index, col index
-               newMesh[0].position.y = gridMat[rx][cy][1];
-               newMesh[0].position.z = gridMat[rx][cy][2];
-               // no need to do anything with the remaining buttons, if any. just leave them as is. 
-
+               //newMesh[0].position.x = X; // recall, row index, col index
+               //newMesh[0].position.y = Y;
+               //newMesh[0].position.z = Z;
+               
                /*
                ADVANCED LOGIC, USING THE GLOBAL BASECUBE TRACKING ARRAYS : 
                After adding the base cube B1, lets check if it is in proximity to any other cubes and aggregate them
                 i.e. if added B1 is close to another B1 then it becomes B2 ... if added B1 is close to another B2 then it becomes B3.
-                RULE: (use only the z-y plane, since this logic is for horizontal cubes only)
-                    1. Find near neightbouring cube to the newly imported B1. Near is defined by a tolerance constant. 
-                         1.1 If there is only one neighbouring cube
+                RULE: (use only the x-y plane, since this logic is for horizontal cubes only)
+                    1. Find neighbouring cube to the newly imported B1. Near is defined by a tolerance constant. 
+                         1.1 If there is only one neighbouring cube i.e. to the right or left, whichever...
                               1.1.1 Then check this neighbour's basecubeprefix, and feed them both into the combinatory logic callback
                          1.2 If there are two neighbouring cube (this is maximum possible!)
                               1.2.1 Then check these neighbour's basecubeprefix, and feed them both into the combinatory logic callback
                */
-                             
 
-               // dont forget to update the bcubesPrefix of affected cubes Too!! 
+               // evaluate newly imported B1 against its neighbours via looping basecubePos array. 
+               // IMPORTANT! --> we use the gridmat NOT the actual cube dimensions!
+               let MEASURE_UPPER = boxgridWidth + 0.05; // upper bound c-c grid hor spacing
+               let MEASURE_MID = boxgridWidth; // in meters, measure of neighbours set at the c-c spacing of the grid
+               let MEASURE_LOWER = boxgridWidth - 0.05; // lower bound c-c grid hor spacing
 
+               // predefine BLeft and BRight (the flanking cubes, if any) as empty strings
+               var BLeft = '';
+               var BRight = ''; 
+          
+               // loop through basecubePos's x-y coordinates to check if the difference between them is within the MEASURE range bound which means they are neighbours
+               for (var i=0; i < basecubePos.length; i++) {
+                    
+               }
+
+               // if BLeft or BRight is not '' , then there is a match so we ...
+               if (BLeft != '' || BRight != '') {
+                    // pass it through the combinatory callback func --> prefixbaseCubeComb -- to get the new cube prefix
+
+
+                    // and then import the new base cube in its new adjusted position by calling back importBaseCubes with type==quick
+
+
+               } else if (BLeft == '' && BRight == '') {
+                    // else if both are still '', meaning no match so we can do business as usual and place the new B1 at the grid box r-c center 
+                    newMesh[0].position.x = X; // recall, row index, col index
+                    newMesh[0].position.y = Y;
+                    newMesh[0].position.z = Z;
+               }
+
+               // dont forget to update the bcubesPrefix of affected cubes in basecubeArray AND basecubePos !! 
+
+
+          } else if (type=='quick') { // this is a general purpose mesh import subroutine for basecube
+
+               let bcubename = bcubesPrefix + postfix; 
+
+               // this is for use within this function, to do a quick import of a new mesh
+               BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubename, scene, 
+                    function (newMesh) {
+                         return 0; 
+               }); 
 
           } else {
                console.log('[ERROR] Unrecognized type for function importBaseCubes passed via args type');
@@ -506,6 +551,28 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
           newMesh[0].material = boxMaterial;
       
      }); 
+}
+
+
+/*
+     Product combinatory stuffs 
+*/
+// for the base cubes business logic combinations (i.e. B1 + B1 is B2, B1 + B2 is B3, etc)
+// takes maximum three args, the string type base cube prefixes of ... 
+//   -- BNew (the new B1 imported), BLeft (identified left flanking cube), BRight (identified right flanking cube)
+// IMPORTANT RULE
+//   -- IF NO MATCH i.e. BRight has no match, then it should be assigned as 'B0' during callback! 
+function prefixbaseCubeComb (BNew, BLeft, BRight) {
+
+     // first convert to integer so we can do some addition
+     var intBNew = parseInt(BNew[1]);
+     var intBLeft = parseInt(BLeft[1]);
+     var intBRight = parseInt(BRight[1]);
+
+     // add ...............
+
+     // return the new combination prefix 
+     return 0; 
 }
 
 
