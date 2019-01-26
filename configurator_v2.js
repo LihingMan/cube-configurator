@@ -388,7 +388,7 @@ function createboxMaterial (scene) {
      Import base cabinet cubes , reposition into the scene, at the far left corner of an imaginary maximum 6 cube space
      User should be able to modify the base cubes 
 */
-function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy) { 
+function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) { 
 
      // bcubesPrefix is the base cube product name for revisions i.e. addition/removal
      // rx and cy are the respective row column position in gridMat (starting from index zero for gridMat) 
