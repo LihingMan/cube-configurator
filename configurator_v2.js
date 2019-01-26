@@ -434,7 +434,6 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
 
                // assign horizontal buttons related to this base cube configuration using btn_BaseHorInit callback 
                // hard code the logic here for each base cube B1-B6. no need to do automated loop...it makes it more heavy!
-               // then move the button to appropriate position
                switch(intprefix) {
                     case 1: // for B1, we will have five pluses to its right, each at the native grid (no mods)
                          horBtn_1 = btn_BaseHorInit (scene, gridMat, 1, 0,1);
@@ -465,13 +464,35 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                          break; // case 6 has zero horizontal pluses 
                }
 
+               // update global counter for base cubes and its counter
+               basecubeArray.push(bcubesPrefix);
+               basecubeCounter += 1; // important to update this global tracker (so the id will start from 1)
+               basecubeID.push(basecubeCounter); // push in basecubeID array
+               basecubePos.push([newMesh[0].position.x,newMesh[0].position.y,newMesh[0].position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
+
           } else if (type == 'next') {
                // next base cubes (added after the initial), no need to add offset. just use the direct rx cy gridmat positions
                // ENSURE to use 'B1' only with this. i.e. user can only replace every one plus with 1:1 B1 
                newMesh[0].position.x = gridMat[rx][cy][0]; // recall, row index, col index
                newMesh[0].position.y = gridMat[rx][cy][1];
                newMesh[0].position.z = gridMat[rx][cy][2];
-               // no need to do anything with the remaining buttons, if any. just leave as is. 
+               // no need to do anything with the remaining buttons, if any. just leave them as is. 
+
+               /*
+               ADVANCED LOGIC, USING THE GLOBAL BASECUBE TRACKING ARRAYS : 
+               After adding the base cube B1, lets check if it is in proximity to any other cubes and aggregate them
+                i.e. if added B1 is close to another B1 then it becomes B2 ... if added B1 is close to another B2 then it becomes B3.
+                RULE: (use only the z-y plane, since this logic is for horizontal cubes only)
+                    1. Find near neightbouring cube to the newly imported B1. Near is defined by a tolerance constant. 
+                         1.1 If there is only one neighbouring cube
+                              1.1.1 Then check this neighbour's basecubeprefix, and feed them both into the combinatory logic callback
+                         1.2 If there are two neighbouring cube (this is maximum possible!)
+                              1.2.1 Then check these neighbour's basecubeprefix, and feed them both into the combinatory logic callback
+               */
+                             
+
+               // dont forget to update the bcubesPrefix of affected cubes Too!! 
+
 
           } else {
                console.log('[ERROR] Unrecognized type for function importBaseCubes passed via args type');
@@ -483,12 +504,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
           // define mesh material
           var boxMaterial = createboxMaterial(scene); 
           newMesh[0].material = boxMaterial;
-
-          // update global counter for base cubes and its counter
-          basecubeArray.push(bcubesPrefix);
-          basecubeCounter += 1; // important to update this global tracker (so the id will start from 1)
-          basecubeID.push(basecubeCounter); // push in basecubeID array
-          basecubePos.push([newMesh[0].position.x,newMesh[0].position.y,newMesh[0].position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z        
+      
      }); 
 }
 
