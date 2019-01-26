@@ -10,7 +10,7 @@ var basecubeID = []; // to keep track of 1:1 id with elements in basecubeArray ,
 var basecubePos =[]; // to keep track of 1:1 position in the grid matrix (i.e. 0,1 etc etc) 
 
 // trackers for stackcube
-var stackcubeArray = []; // to track the stack cubes in the scene 
+var stackcubeArray = []; // to track the stack cubes in the scene
 
 // trackers for accesories 
 var accesoryArray = []; // to track the accesories 
@@ -18,11 +18,20 @@ var accesoryArray = []; // to track the accesories
 // some global constants 
 var postfix = "-final.babylon"; // define postfix for end of mesh file names
 var constZ = -0.3; // in meters, the constant global z position of all cubes 
-var boxgridWidth = 0.3835; // in mtrs, the defined grid system box element width 
+var boxgridWidth = 0.3835; // in mtrs, the defined grid system box element width
+
+// variables for displaying the counters for each of the cubes
+var displayCounter1, displayCounter2, displayCounter3, displayCounter4, displayCounter5, displayCounter6, displayCounter7, displayCounter8, displayCounter9, displayCounter10;
+
+// counter for B1-B6 (TEMPORARY SOLUTION)
+var baseCubeCounter = Array.from({length:6}).fill(0);
+
+// counter for E1-E4 (TEMPORARY SOLUTION)
+var stackCubeCounter = Array.from({length:4}).fill(0); 
 
 // INITALIZATION 
 // assign basecubes file prefix for auto import of mesh into the scene.
-var bcubesPrefix_init = 'B6'; // can be B1-B6, as passed by django view
+var bcubesPrefix_init = 'B2'; // can be B1-B6, as passed by django view
 
 // Check if  browser supports webGL
 if (BABYLON.Engine.isSupported()) {
@@ -59,6 +68,19 @@ function mainApp() {
      // Load room scene with native Babylon funcs
      // important: must run this first, as this will set the scene for the cubes
      var scene = createRoomScene(); 
+
+     // for displaying cube
+     displayCounter1 = displayCube("E1", stackCubeCounter[0], scene, [3.5,2,0]);
+     displayCounter2 = displayCube("E2", stackCubeCounter[1], scene, [3.5,1.9,0]);
+     displayCounter3 = displayCube("E3", stackCubeCounter[2], scene, [3.5,1.8,0]);
+     displayCounter4 = displayCube("E4", stackCubeCounter[3], scene, [3.5,1.7,0]);
+
+     displayCounter5 = displayCube("B1", baseCubeCounter[0], scene, [3.5,1.6,0]); 
+     displayCounter6 = displayCube("B2", baseCubeCounter[1], scene, [3.5,1.5,0]);
+     displayCounter7 = displayCube("B3", baseCubeCounter[2], scene, [3.5,1.4,0]);
+     displayCounter8 = displayCube("B4", baseCubeCounter[3], scene, [3.5,1.3,0]);
+     displayCounter9 = displayCube("B5", baseCubeCounter[4], scene, [3.5,1.2,0]);
+     displayCounter10 = displayCube("B6", baseCubeCounter[5], scene, [3.5,1.1,0]);
  
      // Render
      engine.runRenderLoop(function () {
@@ -396,19 +418,21 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
      // else if for any other base cube import from clicking the horizontal buttons, use 'next' 
 
      // concat with the constant global postfix
-     var bcubename = bcubesPrefix + postfix; 
+     var bcubename = bcubesPrefix + postfix;
 
-    // SceneLoader.ImportMesh
-    // Loads the meshes from the file and appends them to the scene
-    console.log("[INFO] Imported B3 asset mesh"); 
-    BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubename, scene, 
+     // get base cube integer from prefix
+     var intprefix = parseInt(bcubesPrefix[1]); 
+
+     // increment the counter
+     baseCubeCounter[intprefix-1] += 1;
+
+     // SceneLoader.ImportMesh
+     // Loads the meshes from the file and appends them to the scene
+     console.log("[INFO] Imported B3 asset mesh"); 
+     BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubename, scene, 
      function (newMesh) {
-
           if (type == 'init') {
                // initial base cube
-
-               // get base cube integer from prefix
-               let intprefix = parseInt(bcubesPrefix[1]); 
 
                // get modulus to see if it is odd or even
                // if it is 1, then just import as is without offset to grid
@@ -502,6 +526,26 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
           } else {
                console.log('[ERROR] Unrecognized type for function importBaseCubes passed via args type');
           }
+
+          // display the number of cubes
+          if (bcubesPrefix_init == "B1"){
+               changeText(displayCounter5, baseCubeCounter[intprefix-1]);
+          }
+          else if (bcubesPrefix_init == "B2"){
+               changeText(displayCounter6, baseCubeCounter[intprefix-1]);
+          }
+          else if (bcubesPrefix_init == "B3"){
+               changeText(displayCounter7, baseCubeCounter[intprefix-1]);
+          }
+          else if (bcubesPrefix_init == "B4"){
+               changeText(displayCounter8, baseCubeCounter[intprefix-1]);
+          }
+          else if (bcubesPrefix_init == "B5"){
+               changeText(displayCounter9, baseCubeCounter[intprefix-1]);
+          }
+          else if (bcubesPrefix_init == "B6"){
+               changeText(displayCounter10, baseCubeCounter[intprefix-1]);
+          }
           
           // define mesh rotation
           newMesh[0].rotation.y = Math.PI/2;
@@ -574,9 +618,11 @@ function importStackCubes(scene, x, y, z, stackprefix) {
 
      // count number of stack cubes
      var cubeName = stackprefix + postfix; // name of cube to be imported
-
-     // 
-     // var cubeID = parseInt(stackprefix[1]);		
+ 
+     var intprefix = parseInt(stackprefix[1]);	
+     
+     // increment the counter
+     stackCubeCounter[intprefix-1] += 1;
      
      BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", cubeName, scene, 
      function (stackcube) {
@@ -584,6 +630,20 @@ function importStackCubes(scene, x, y, z, stackprefix) {
           stackcube[0].position.y = y;
           stackcube[0].position.z = z;
           stackcube[0].rotation.y = Math.PI/2;
+
+          // displaying the number of cubes
+		if (stackprefix == "E1"){
+			changeText(displayCounter1, stackCubeCounter[intprefix-1]);
+		}
+		else if (stackprefix == "E2"){
+			changeText(displayCounter2, stackCubeCounter[intprefix-1]);
+		}
+		else if (stackprefix == "E3"){
+			changeText(displayCounter3, stackCubeCounter[intprefix-1]);
+		}
+		else if (stackprefix == "E4"){
+			changeText(displayCounter4, stackCubeCounter[intprefix-1]);
+		}
      });
 }
 
@@ -615,13 +675,29 @@ function btn_Stack(scene, gridMat, btnInt, rx_target,cy_target) {
           // let intprefix = parseInt(bcubesPrefix_init[1]); 
           button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target+1][cy_target][1], 0), scene)
           importStackCubes(scene, gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], gridMat[rx_target][cy_target][2], "E1");
-          rx_target += 1;
-          
-          
+          rx_target += 1;          
      });
 
      advancedTexture.addControl(button);
      button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], 0), scene);
 
      return button;
+}
+
+function displayCube(name, quantity, scene, xyz){
+     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+     var cubeNum = new BABYLON.GUI.TextBlock(name);
+     cubeNum.text = name + ": " + quantity;
+     cubeNum.color = "black";
+     cubeNum.fontSize = 24;
+     advancedTexture.addControl(cubeNum);
+     scene.registerBeforeRender(function(){
+          cubeNum.moveToVector3(new BABYLON.Vector3(xyz[0], xyz[1], xyz[2]), scene) ;
+     });
+     return cubeNum;
+}
+
+function changeText(textBlock, quantity){
+     var temp = textBlock.text;
+     textBlock.text = temp.substring(0, 3) + " " + quantity;
 }
