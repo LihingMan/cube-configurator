@@ -104,9 +104,6 @@ function createRoomScene() {
 
      // Load base cubes and enable modifications
 	importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0, 'init');
-     
-     // Load buttons and text
-
 
     // finally ... 
     return scene; 
@@ -471,7 +468,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
 */
 
 // for the base cubes, horizontal pluses 
-function btn_BaseHor (scene, gridMat, bcubesPrefix,rx,cy) {
+function btn_BaseHor (scene, gridMat, bcubesPrefix) {
 
      // this deserves its own callback since at the start, the pluses are added for the remaining base cube spaces
      // i.e. if initially the 6cube base is imported, then no plus! 
@@ -487,9 +484,13 @@ function btn_BaseHor (scene, gridMat, bcubesPrefix,rx,cy) {
      button.height = "40px";
      button.color = "white";
      button.background = hostUrl + 'static/bryantest/white-wall.jpg';
+
+     // place the horizontal buttons with regard to bcubesPrefix
+     var rx = ;
+     var cy = ; 
      
      // on click event for the button
-     button.onPointerUpObservable.add(function() {
+     button.onPointerUpObservable.add(function(rx,cy) {
 
           buttonIndex = parseInt(button.name);
           
@@ -498,10 +499,7 @@ function btn_BaseHor (scene, gridMat, bcubesPrefix,rx,cy) {
           // importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy) -- > recall this is the callback 
 
           // remove the buttons and in their place, put the base cube B1
-          importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,'next'); 
-          // position button relative to the grid 
-          button.moveToVector3(new BABYLON.Vector3(xyz[buttonIndex-1][0], xyz[buttonIndex-1][1]+0.295, 0), scene);
-          layerCounter += 1;
+          importBaseCubes(scene,gridMat,'B1',rx,cy,'next'); 
      });
 
      advancedTexture.addControl(button);
