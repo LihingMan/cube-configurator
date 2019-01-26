@@ -528,9 +528,8 @@ function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
           importBaseCubes(scene,gridMat,'B1',rx_target,cy_target,'next'); 
      });
 
-     button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], 0), scene);
-
      advancedTexture.addControl(button);
+     button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], 0), scene);
 
      return button;
 }
