@@ -585,7 +585,7 @@
 		button.color = "white";
 		button.background = hostUrl + 'static/bryantest/white-wall.jpg';
 		
-		// on click event for the button
+		// on click / pointer event for the button
 		button.onPointerUpObservable.add(function() {
 			// xyz coordinates
 			var xyz = allCoords[layerCounter];  // or 'row' counter!
