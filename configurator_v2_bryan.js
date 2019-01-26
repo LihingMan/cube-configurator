@@ -12,6 +12,9 @@ var accesoryArray = []; // to track the accesories
 var postfix = "-final.babylon"; // define postfix for end of mesh file names
 var constZ = -0.3; // in meters, the constant global z position of all cubes 
 
+// define the mathematical grid to arrange cubes. call once only!
+var gridMat = gridEngine();
+
 // assign basecubes file prefix for auto import of mesh into the scene. (user will work upon this initialization)
 var initBaseCube= 1; // base cube initialization case, 1-6 , this will be adviced by the django view
 switch (initBaseCube) {
@@ -105,12 +108,13 @@ function createRoomScene() {
      createOutdEnv(scene); 
      
      // define the mathematical grid to arrange cubes. call once only!
-     var gridMat = gridEngine(); 
+    //  var gridMat = gridEngine(); 
 
      // Load base cubes and enable modifications
-	importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0);
+	importBaseCubes(scene, bcubesPrefix_init, 0, 0);
      
-     // Load buttons and text
+	 // Load buttons and text
+	 fillButtons(scene);
 
 
     // finally ... 
@@ -129,12 +133,12 @@ function createCamera(scene) {
      var camera = new BABYLON.ArcRotateCamera("camera", -Math.PI/2, Math.PI/2, 4, new BABYLON.Vector3(2,1.25,0), scene); 
      camera.attachControl(canvas, true);
      // set limits to camera movement so users dont get disorganized 
-     camera.lowerRadiusLimit = 4;
-     camera.upperRadiusLimit = 4; 
-     camera.lowerAlphaLimit = -1.8; // rmbr this is radians!  
-     camera.upperAlphaLimit = -1.3; 
-     camera.lowerBetaLimit = 1.35; 
-     camera.upperBetaLimit = 1.75; 
+     // camera.lowerRadiusLimit = 4;
+     // camera.upperRadiusLimit = 4; 
+     // camera.lowerAlphaLimit = -1.8; // rmbr this is radians!  
+     // camera.upperAlphaLimit = -1.3; 
+     // camera.lowerBetaLimit = 1.35; 
+     // camera.upperBetaLimit = 1.75; 
 
      // totally deactivate panning (if developer requires to see beyond cube, comment this out in development)
      scene.activeCamera.panningSensibility = 0;
@@ -157,7 +161,7 @@ function createOutdEnv(scene) {
      
      // sky material 
      var skyMaterial = new BABYLON.SkyMaterial("skyMaterial", scene);
-     skyMaterial.backFaceCulling = false;     
+     skyMaterial.backFaceCulling = false;
      // Manually set the sun position
      skyMaterial.useSunPosition = true; // Do not set sun position from azimuth and inclination
      skyMaterial.sunPosition = new BABYLON.Vector3(10, 5, 0);
@@ -303,7 +307,7 @@ function createOutdEnv(scene) {
     
      // create roof material
      var wallMaterial = new BABYLON.StandardMaterial("wallMaterial", scene);
-     var wallTextureUrl = hostUrl + 'static/bryantest/white-wall.jpg'; 
+     var wallTextureUrl = hostUrl + 'static/bryantest/woodtexture.jpg'; 
      //wallMaterial.diffuseTexture = new BABYLON.Texture(wallTextureUrl,scene);
      wallMaterial.ambientTexture = new BABYLON.Texture(wallTextureUrl,scene);
      // apply the material to meshes
@@ -393,7 +397,7 @@ function createboxMaterial (scene) {
      Import base cabinet cubes , reposition into the scene, at the far left corner of an imaginary maximum 6 cube space
      User should be able to modify the base cubes 
 */
-function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy) { 
+function importBaseCubes(scene,bcubesPrefix,rx,cy) { 
 
      // bcubesPrefix is the base cube product name for revisions i.e. addition/removal
      // rx and cy are the respective row column position in gridMat (starting from index zero for gridMat) 
@@ -432,15 +436,15 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy) {
 /*
      Button stuffs
 */
-function guiBtn_BaseInit (scene, gridMat, bcubesPrefix,rx,cy) {
+function guiBtn_BaseInit (scene, name) {
 
      // this deserves its own callback since at the start, the pluses are added for the remaining base cube spaces
      // i.e. if initially the 6cube base is imported, then no plus! 
 
      // horizontal and vertical buttons for the base cubes manipulation
      // this will add a base cube at the plus position that is being clicked. 
-     // will be initialized alongside the first base cube import  (*bcubesPrefix* refers to the base cube on first import)
-     
+          // will be initialized alongside the first base cube import  (*bcubesPrefix* refers to the base cube on first import)
+
      //  button stuff
      var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
      var button = BABYLON.GUI.Button.CreateImageOnlyButton(name, "https://cdn.shopify.com/s/files/1/0185/5092/products/symbols-0173_800x.png?v=1369543613");
@@ -448,27 +452,35 @@ function guiBtn_BaseInit (scene, gridMat, bcubesPrefix,rx,cy) {
      button.height = "40px";
      button.color = "white";
      button.background = hostUrl + 'static/bryantest/white-wall.jpg';
+	
+	// on click event for the button
+	button.onPointerUpObservable.add(function() {
+		// xyz coordinates
+		var xyz = gridMat[0];  // or 'row' counter!
+
+		buttonIndex = parseInt(button.name);
+		
+		// update positions of the buttons and place stacking cubes
      
-     // on click event for the button
-     button.onPointerUpObservable.add(function() {
-          // xyz coordinates
-          var xyz = allCoords[layerCounter];  // or 'row' counter!
+          importBaseCubes(scene, bcubesPrefix_init, 0, buttonIndex);
+          // position button
+          button.moveToVector3(new BABYLON.Vector3(xyz[buttonIndex][0], xyz[buttonIndex][1], xyz[buttonIndex-1][2]), scene);
+		
+	});
 
-          buttonIndex = parseInt(button.name);
-          
-          // placing the stack cubes on the scene
+	advancedTexture.addControl(button);
+	return button;
+}
 
-          // update positions of the buttons and place stacking cubes
-          if (baseCubeNum >= 1 && baseCubeNum <= 6){
-               importBaseCubes(scene, xyz[buttonIndex-1][0], xyz[buttonIndex-1][1], xyz[buttonIndex-1][2], "E2");
-               // position button
-               button.moveToVector3(new BABYLON.Vector3(xyz[buttonIndex-1][0], xyz[buttonIndex-1][1]+0.295, 0), scene);
-               layerCounter += 1;
-          } 
-     });
-
-     advancedTexture.addControl(button);
-     return button;
+function fillButtons(scene){
+	var baseCoords = gridMat[initBaseCube-1];
+	for (var i=initBaseCube; i<baseCoords.length; i++){
+          var xyz = baseCoords[i];
+          var buttonName = i.toString();
+          scene.updateTransformMatrix(); 
+		var button = guiBtn_BaseInit(scene, buttonName);
+		button.moveToVector3(new BABYLON.Vector3(xyz[0], xyz[1], xyz[2]), scene);
+	}
 }
 
 
@@ -479,22 +491,22 @@ function guiBtn_BaseInit (scene, gridMat, bcubesPrefix,rx,cy) {
 // callback function to import stacking cubes
 // import stacking cubes 
 function importStackCubes(scene, x, y, z, stackprefix) {
-     console.log("[INFO] Imported stack asset mesh"); 
+	console.log("[INFO] Imported stack asset mesh"); 
 
-     // count number of stack cubes
-     var cubeName = stackprefix + postfix; // name of cube to be imported
+	// count number of stack cubes
+	var cubeName = stackprefix + postfix; // name of cube to be imported
 
-     // 
-     var cubeID = parseInt(prefix[1]);		
-     stackCubeCounter[cubeID-1] = stackCubeCounter[cubeID-1] + 1;
-     
-     BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", cubeName, scene, 
-     function (stackcube) {
-          stackcube[0].position.x = x;
-          stackcube[0].position.y = y;
-          stackcube[0].position.z = z;
-          stackcube[0].rotation.y = Math.PI/2;
-     });
+	// 
+	var cubeID = parseInt(prefix[1]);		
+	stackCubeCounter[cubeID-1] = stackCubeCounter[cubeID-1] + 1;
+	
+	BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", cubeName, scene, 
+	function (stackcube) {
+		stackcube[0].position.x = x;
+		stackcube[0].position.y = y;
+		stackcube[0].position.z = z;
+		stackcube[0].rotation.y = Math.PI/2;
+	});
 }
 
 
