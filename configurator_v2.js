@@ -471,11 +471,6 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
 
           } else if (type == 'next') {
 
-               let newX = gridMat[rx][cy][0]; // assign x-y like this to reuse it 
-               let newY = gridMat[rx][cy][1];
-               let newZ = gridMat[rx][cy][2]; // actually Z is constant...see how gridMat is defined! 
-               // also use these coords as the reference 
-
                // next we need to check the position of this cube whether or not it is next door to any other cube
                /*
                ADVANCED LOGIC, USING THE GLOBAL BASECUBE TRACKING ARRAYS : 
@@ -488,6 +483,12 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                          1.2 If there are two neighbouring cube (this is maximum possible!)
                               1.2.1 Then check these neighbour's basecubeprefix, and feed them both into the combinatory logic callback
                */
+
+               // define the imported B1 cube's coordinates as newXXXX
+               let newX = gridMat[rx][cy][0]; 
+               let newY = gridMat[rx][cy][1];
+               let newZ = gridMat[rx][cy][2]; // actually Z is constant...see how gridMat is defined! 
+               // also use these coords as the reference 
 
                // evaluate newly imported B1 against its neighbours via looping basecubePos array. 
                // IMPORTANT! --> we use the gridmat NOT the actual cube dimensions!
@@ -505,10 +506,14 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     var xExist = basecubePos[i][0];
                     var yExist = basecubePos[i][1];
 
-                    // check if the 
+                    // check if this active cube is left to the new B1 import
                     
+                    
+                    // or check if this active cube is right to the new B1 import 
+
 
                     // find the median coordinate (horizontal) for the composite cube 
+                    // and return them as rx_coord , cy_coord
 
                }
 
@@ -523,7 +528,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     newMesh.dispose(); newMesh = null; // nullify to tell GC to collect 
 
                     // and then import the new base cube in its new adjusted position by calling back importBaseCubes with type=='quick'
-                    // this implements just a simple mesh import with reference to rx cy. 
+                    // this implements just a simple mesh import directly to rx_coord, cy_coord which are specific coordinates 
                     importBaseCubes(scene,gridMat,bcubesPrefix,rx_coord,cy_coord,'quick');
 
                } else if (BLeft == '' && BRight == '') {
@@ -538,7 +543,8 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
 
           } else if (type=='quick') { // this is a general purpose mesh import subroutine for basecube
 
-               // in this case, the rx cy args are coordinates!  (see rx_coord / cy_coord args input in quick callback)
+               // IMPORTANT NOTICE!--> in this case of 'quick', 
+               //             the rx cy args are euler coordinates! NOT gridMat index! (see rx_coord / cy_coord args input in quick callback)
 
                let bcubename = bcubesPrefix + postfix; 
 
