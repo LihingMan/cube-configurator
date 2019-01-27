@@ -388,9 +388,13 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
      // rx and cy are the respective row column position in gridMat (starting from index zero for gridMat) 
      // RECALL ..i.e. with regards to gridMat, we take the first position at physical-box 1,1 or in the matrix as 0,0 index
 
-     // IMPORTANT
-     // type is to flag it as 'init' or 'next' base cube. in order to initialize a default base cube with its btns then use 'init'. 
+     // IMPORTANT -- TYPE arg
+     // type is to flag it as 'init' or 'next' or 'quick' base cube. in order to initialize a default base cube with its btns then use 'init'. 
      // else if for any other base cube import from clicking the horizontal buttons, use 'next' 
+     // to use simple importing of mesh, use 'quick' 
+
+     // IMPORTANT -- flagImp arg
+     // is to flag it either null (should be default), B
 
      // concat with the constant global postfix
      var bcubename = bcubesPrefix + postfix; 
@@ -469,7 +473,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
 
                let newX = gridMat[rx][cy][0]; // assign x-y like this to reuse it 
                let newY = gridMat[rx][cy][1];
-               let newZ = gridMat[rx][cy][2];
+               let newZ = gridMat[rx][cy][2]; // actually Z is constant...see how gridMat is defined! 
                // also use these coords as the reference 
 
                // next we need to check the position of this cube whether or not it is next door to any other cube
@@ -497,9 +501,15 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
           
                // loop through basecubePos's x-y coordinates to check if the difference between them is within the MEASURE range bound which means they are neighbours
                for (var i=0; i < basecubePos.length; i++) {
-                    // extract the x-y coord for every iter
-                    var xTemp = basecubePos[i][0];
-                    var yTemp = basecubePos[i][1];
+                    // extract the x-y coord for every other cube in the array
+                    var xExist = basecubePos[i][0];
+                    var yExist = basecubePos[i][1];
+
+                    // check if the 
+                    
+
+                    // find the median coordinate (horizontal) for the composite cube 
+
                }
 
                // if BLeft or BRight is not '' , then there is a match so we ...
@@ -512,29 +522,29 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     // destroy the B1 (since this is new import of basecube it MUST be B1! if not check the callback bug!) newMesh obj
                     newMesh.dispose(); newMesh = null; // nullify to tell GC to collect 
 
-                    // and then import the new base cube in its new adjusted position by calling back importBaseCubes with type==quick
-                    // rx, cy is the locality of the new B1 import. we use this as a reference to position the composite cube i.e. >B1 (logic inside the quick subroutine)
-                    importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,'quick');
+                    // and then import the new base cube in its new adjusted position by calling back importBaseCubes with type=='quick'
+                    // this implements just a simple mesh import with reference to rx cy. 
+                    importBaseCubes(scene,gridMat,bcubesPrefix,rx_coord,cy_coord,'quick');
 
                } else if (BLeft == '' && BRight == '') {
                     // else if both are still '', meaning no match so we can do business as usual and place the new B1 at the grid box r-c center 
                     newMesh[0].position.x = newX; // recall, row index, col index
                     newMesh[0].position.y = newY;
-                    newMesh[0].position.z = newZ;
+                    newMesh[0].position.z = newZ; // actually Z is constant...see how gridMat is defined! 
                }
-               
+
                // dont forget to update the bcubesPrefix of affected cubes in basecubeArray AND basecubePos !! 
 
 
           } else if (type=='quick') { // this is a general purpose mesh import subroutine for basecube
+
+               // in this case, the rx cy args are coordinates!  (see rx_coord / cy_coord args input in quick callback)
 
                let bcubename = bcubesPrefix + postfix; 
 
                // this is for use within this function, to do a quick import of a new mesh
                BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubename, scene, 
                     function (newMesh) {
-                         // deal with the positioning logic of combined base cubes here
-                         
                }); 
 
           } else {
@@ -547,7 +557,6 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
           // define mesh material
           var boxMaterial = createboxMaterial(scene); 
           newMesh[0].material = boxMaterial;
-      
      }); 
 }
 
@@ -569,7 +578,7 @@ function prefixBaseCubeComb (BNew, BLeft, BRight) {
      // compose the B-prefix
      var compositePrefix = 'B' + compositeIntStr;
 
-     // return the new combination prefix 
+     // return the new combination prefix , this is a string !
      return compositePrefix; 
 }
 
