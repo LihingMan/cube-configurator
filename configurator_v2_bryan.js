@@ -363,7 +363,7 @@ function gridEngine () {
           for (var j=0; j < ncols; j++) {
                // compute the required x and y coords 
                // make sure to do i+1 and j+1 since calcposXYFunc requires rn , cn which are real world cube stratification starting from 1
-               let tempvar = calcposXYFunc(i+1,j+1); 
+               var tempvar = calcposXYFunc(i+1,j+1); 
                // console.log(tempvar);
                matCoords[i].push(tempvar); 
           }

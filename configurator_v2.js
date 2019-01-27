@@ -338,7 +338,7 @@ function gridEngine () {
           for (var j=0; j < ncols; j++) {
                // compute the required x and y coords 
                // make sure to do i+1 and j+1 since calcposXYFunc requires rn , cn which are real world cube stratification starting from 1
-               let tempvar = calcposXYFunc(i+1,j+1); 
+               var tempvar = calcposXYFunc(i+1,j+1); 
                // console.log(tempvar);
                matCoords[i].push(tempvar); 
           }
@@ -410,7 +410,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                // initial base cube
 
                // get base cube integer from prefix
-               let intprefix = parseInt(bcubesPrefix[1]); 
+               var intprefix = parseInt(bcubesPrefix[1]); 
 
                // get modulus to see if it is odd or even
                // if it is 1, then just import as is without offset to grid
@@ -486,15 +486,15 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                */
 
                // define the imported B1 cube's coordinates as newXXXX
-               let newX = gridMat[rx][cy][0]; 
-               let newY = gridMat[rx][cy][1];
-               let newZ = gridMat[rx][cy][2]; // actually Z is constant...see how gridMat is defined! 
+               var newX = gridMat[rx][cy][0]; 
+               var newY = gridMat[rx][cy][1];
+               var newZ = gridMat[rx][cy][2]; // actually Z is constant...see how gridMat is defined! 
                // also use these coords as the reference 
 
                // evaluate newly imported B1 against its neighbours via looping basecubePos array. 
                // IMPORTANT! --> we use the gridmat NOT the actual cube dimensions!
-               let MEASURE_UPPER = boxgridWidth + 0.05; // upper bound c-c grid hor spacing
-               let MEASURE_LOWER = boxgridWidth - 0.05; // lower bound c-c grid hor spacing
+               var MEASURE_UPPER = boxgridWidth + 0.05; // upper bound c-c grid hor spacing
+               var MEASURE_LOWER = boxgridWidth - 0.05; // lower bound c-c grid hor spacing
 
                // predefine BLeft and BRight (the flanking cubes, if any) as empty strings
                var BLeft = '';
@@ -551,7 +551,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                // IMPORTANT NOTICE!--> in this case of 'quick', 
                //             the rx cy args are euler coordinates! NOT gridMat index! (see rx_coord / cy_coord args input in quick callback)
 
-               let bcubename = bcubesPrefix + postfix; 
+               var bcubename = bcubesPrefix + postfix; 
 
                // this is for use within this function, to do a quick import of a new mesh
                BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubename, scene, 
