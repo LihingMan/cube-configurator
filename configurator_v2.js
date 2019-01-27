@@ -527,7 +527,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     // destroy the new B1 (since this is new import of basecube it MUST be B1! if not check the callback bug!) newMesh obj
                     newMesh.dispose(); newMesh = null; // nullify to tell GC to collect 
 
-                    // destroy all 'old' jointed existing meshes
+                    // similarly destroy all 'old' jointed existing meshes
 
 
                     // and then import the new base cube in its new adjusted position by calling back importBaseCubes with type=='quick'
@@ -544,8 +544,6 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                }
 
                
-
-
           } else if (type=='quick') { // this is a general purpose mesh import subroutine for internal use within importbasecube
 
                // IMPORTANT NOTICE!--> in this case of 'quick', 
@@ -638,10 +636,10 @@ function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
 
 /*
      Mesh cube removal, highlight and manipulation stuffs
-     see.. https://doc.babylonjs.com/babylon101/picking_collisions
+     see.. https://doc.babylonjs.com/babylon101/picking_collisions for picking meshes
 */
 
-// this is a generic function to remove mesh based on its position (automated, i.e. NOT event driven)
+// this is a function to remove mesh based on its position (automated, i.e. NOT event driven)
 function noevtCubeRemover() {
      return 0; 
 }
