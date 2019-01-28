@@ -4,7 +4,8 @@ EZBO Stacking Cube Product Configurator Web App v2
 
 // trackers for base cube
 var basecubeArray = []; // to track the base cubes in the scene
-var basecubePos =[]; // to keep track of 1:1 position in the grid matrix (i.e. 0,1 etc etc) 
+var basecubePos =[]; // to keep track of 1:1 position in euler coords (i.e. 0.1,0.25 etc etc) 
+var basecubeCtr= 0; // start from index tracking of 0 for base cubes
 
 // trackers for stackcube
 var stackcubeArray = []; // to track the stack cubes in the scene 
@@ -56,6 +57,8 @@ function mainApp() {
      // Load room scene with native Babylon funcs
      // important: must run this first, as this will set the scene for the cubes
      var scene = createRoomScene(); 
+
+     console.log(scene.meshes); 
 
      // Render
      engine.runRenderLoop(function () {
@@ -404,10 +407,17 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
     // Loads the meshes from the file and appends them to the scene
     console.log("[INFO] Imported B3 asset mesh"); 
     BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubename, scene, 
-     function (newMesh) {
+     function (newMeshes) {
+
+          // dirty hack to get around not being able to assign name and id to mesh
+          var newMesh = newMeshes[0]; 
 
           if (type == 'init') {
                // initial base cube
+
+               // give the mesh a unique ID 
+               newMesh.id = String(basecubeCtr); 
+               newMesh.name = String(basecubeCtr); 
 
                // get base cube integer from prefix
                var intprefix = parseInt(bcubesPrefix[1]); 
@@ -416,21 +426,21 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                // if it is 1, then just import as is without offset to grid
                // this is to ensure that the boxes fit the grid logic and 'start' at the btmmost left
                if (intprefix == 1) {
-                    newMesh[0].position.x = gridMat[rx][cy][0]; // recall, row index, col index
-                    newMesh[0].position.y = gridMat[rx][cy][1];
-                    newMesh[0].position.z = gridMat[rx][cy][2];
+                    newMesh.position.x = gridMat[rx][cy][0]; // recall, row index, col index
+                    newMesh.position.y = gridMat[rx][cy][1];
+                    newMesh.position.z = gridMat[rx][cy][2];
                } else {
                     if (intprefix % 2 == 0) {
                          // if it is even i.e. 2,4,6, then move to right by (intprefix-1)*boxgridWidth
-                         newMesh[0].position.x = gridMat[rx][cy][0] + ((intprefix-1)*boxgridWidth/2); 
-                         newMesh[0].position.y = gridMat[rx][cy][1];
-                         newMesh[0].position.z = gridMat[rx][cy][2];
+                         newMesh.position.x = gridMat[rx][cy][0] + ((intprefix-1)*boxgridWidth/2); 
+                         newMesh.position.y = gridMat[rx][cy][1];
+                         newMesh.position.z = gridMat[rx][cy][2];
      
                     } else {
                          // else if it is odd i.e. 3,5 then move to right by (floor(intprefix/2))*boxgridWidth
-                         newMesh[0].position.x = gridMat[rx][cy][0] + (boxgridWidth*Math.floor(intprefix/2)); 
-                         newMesh[0].position.y = gridMat[rx][cy][1];
-                         newMesh[0].position.z = gridMat[rx][cy][2];
+                         newMesh.position.x = gridMat[rx][cy][0] + (boxgridWidth*Math.floor(intprefix/2)); 
+                         newMesh.position.y = gridMat[rx][cy][1];
+                         newMesh.position.z = gridMat[rx][cy][2];
                     }
                }
 
@@ -468,7 +478,25 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
 
                // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
                basecubeArray.push(bcubesPrefix);
-               basecubePos.push([newMesh[0].position.x,newMesh[0].position.y,newMesh[0].position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
+               basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
+               basecubeCtr = basecubeCtr +  1; 
+
+          } else if (type=='quick') { // this is a general purpose mesh import subroutine for internal use within importbasecube
+
+               // IMPORTANT NOTICE!--> in this case of 'quick', 
+               //             the rx cy args are euler coordinates! NOT gridMat index! (see rx_coord / cy_coord args input in quick callback)
+
+               var bcubename = bcubesPrefix + postfix; 
+
+               // this is for use within this function, to do a quick import of a new mesh
+               BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubename, scene, 
+                    function (newMeshes002) {
+
+                         // dirty hack to get the sole mesh , to enable us to mess with its name and id 
+                         var newMesh002 = newMeshes002[0]; 
+
+                         // Update the bcubesPrefix of affected cubes in basecubeArray AND basecubePos !! 
+               }); 
 
           } else if (type == 'next') {
 
@@ -534,38 +562,29 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     // this implements just a simple mesh import directly to rx_coord, cy_coord which are specific coordinates 
                     importBaseCubes(scene,gridMat,bcubesPrefix,rx_coord,cy_coord,'quick');
 
-                    // dont forget to update the bcubesPrefix of affected cubes in basecubeArray AND basecubePos !! 
+                    // Update the bcubesPrefix of affected cubes in basecubeArray AND basecubePos !! 
+
 
                } else if (BLeft == '' && BRight == '') {
                     // else if both are still '', meaning no match so we can do business as usual and place the new B1 at the grid box r-c center 
-                    newMesh[0].position.x = newX; // recall, row index, col index
-                    newMesh[0].position.y = newY;
-                    newMesh[0].position.z = newZ; // actually Z is constant...see how gridMat is defined! 
+                    newMesh.position.x = newX; // recall, row index, col index
+                    newMesh.position.y = newY;
+                    newMesh.position.z = newZ; // actually Z is constant...see how gridMat is defined! 
+
+                    // Update the bcubesPrefix of affected cubes in basecubeArray AND basecubePos !! 
                }
 
                
-          } else if (type=='quick') { // this is a general purpose mesh import subroutine for internal use within importbasecube
-
-               // IMPORTANT NOTICE!--> in this case of 'quick', 
-               //             the rx cy args are euler coordinates! NOT gridMat index! (see rx_coord / cy_coord args input in quick callback)
-
-               var bcubename = bcubesPrefix + postfix; 
-
-               // this is for use within this function, to do a quick import of a new mesh
-               BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubename, scene, 
-                    function (newMesh002) {
-               }); 
-
           } else {
                console.log('[ERROR] Unrecognized type for function importBaseCubes passed via args type');
           }
           
           // define mesh rotation
-          newMesh[0].rotation.y = Math.PI/2;
+          newMesh.rotation.y = Math.PI/2;
           
           // define mesh material
           var boxMaterial = createboxMaterial(scene); 
-          newMesh[0].material = boxMaterial;
+          newMesh.material = boxMaterial;
      }); 
 }
 
@@ -636,19 +655,11 @@ function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
 
 /*
      Mesh cube removal, highlight and manipulation stuffs
-     see.. https://doc.babylonjs.com/babylon101/picking_collisions for picking meshes
 */
 
-// this is a function to remove mesh based on its position (automated, i.e. NOT event driven)
-function noevtCubeRemover() {
-     return 0; 
-}
+// this is a function to remove mesh based on its position (automated, i.e. NOT click etc driven)
+// https://doc.babylonjs.com/babylon101/picking_collisions for picking meshes
 
-
-// this is a function to remove cube mesh based on its position relative to pointer (i.e. event driven)
-function evtCubeRemover() {
-     return 0; 
-}
 
 // this is a function to highlight cube mesh based on pointer event
 // inspired by https://playground.babylonjs.com/#TC2K69#1
