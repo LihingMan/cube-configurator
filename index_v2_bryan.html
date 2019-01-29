@@ -3,16 +3,23 @@
     <head>
         <meta charset="UTF-8">
         <title>ezbo</title>
-
+        <canvas id="main_app"></canvas>'
         <!-- event handler for touch events -->
         <!-- <script> src="https://cdnjs.cloudflare.com/ajax/libs/jquery.pep/0.4.0/jquery.pep.min.js"</script> --> 
         <!-- earcut: polygon triangulation for webgl apps, required by babylon's polygon funcs -->
         <script src="https://unpkg.com/earcut@2.1.4/dist/earcut.min.js"></script>
 
+        <script 
+            src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous">
+        </script>
+
         <!-- babylon javascripts -->
         <script src="babylonv4a.custom.js"></script>
         <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
         <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+        
         
         <style>
             html, body {
@@ -31,7 +38,44 @@
     </head> 
 
     <body>
-        <canvas id="main_app"></canvas>'
+        <p>
+            E1: <span id="E1"></span><br>
+            E2: <span id="E2"></span><br>
+            E3: <span id="E3"></span><br>
+            E4: <span id="E4"></span><br>
+
+            B1: <span id="B1"></span><br>
+            B2: <span id="B2"></span><br>
+            B3: <span id="B3"></span><br>
+            B4: <span id="B4"></span><br>
+            B5: <span id="B5"></span><br>
+            B6: <span id="B6"></span><br>
+        </p>
+
+        <script>
+            window.addEventListener("stack", function(){
+                var stackcube = sessionStorage.getItem("stackCubeCounter");
+                stackcube = JSON.parse(stackcube);
+                
+                document.getElementById("E1").textContent = stackcube[0].toString();
+                document.getElementById("E2").textContent = stackcube[1].toString();
+                document.getElementById("E3").textContent = stackcube[2].toString();
+                document.getElementById("E4").textContent = stackcube[3].toString();
+            });
+
+            window.addEventListener("base", function(){
+                var basecube = sessionStorage.getItem("baseCubeCounter");
+                basecube = JSON.parse(basecube);
+
+                document.getElementById("B1").textContent = basecube[0].toString();
+                document.getElementById("B2").textContent = basecube[1].toString();
+                document.getElementById("B3").textContent = basecube[2].toString();
+                document.getElementById("B4").textContent = basecube[3].toString();
+                document.getElementById("B5").textContent = basecube[4].toString();
+                document.getElementById("B6").textContent = basecube[5].toString();
+            });
+            
+        </script>
         
         <script src="configurator_v2_bryan.js"></script>
     </body>
