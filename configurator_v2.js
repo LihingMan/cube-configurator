@@ -5,7 +5,7 @@ EZBO Stacking Cube Product Configurator Web App v2
 // trackers for base cube
 var basecubeArray = []; // to track the base cubes in the scene
 var basecubePos =[]; // to keep track of 1:1 position in euler coords (i.e. 0.1,0.25 etc etc) 
-var basecubeCtr= 0; // start from index tracking of 0 for base cubes
+var basecubeCtr= 0; // start from index tracking of 0 for base cubes. only +1 whenever a cube has been added
 
 // trackers for stackcube
 var stackcubeArray = []; // to track the stack cubes in the scene 
@@ -415,7 +415,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
           if (type == 'init') {
                // initial base cube
 
-               // give the mesh a unique ID 
+               // give the mesh a unique ID (do this for every 'if')
                newMesh.id = String(basecubeCtr); 
                newMesh.name = String(basecubeCtr); 
 
@@ -481,10 +481,14 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
                basecubeCtr = basecubeCtr +  1; 
 
-          } else if (type=='quick') { // this is a general purpose mesh import subroutine for internal use within importbasecube
+          } else if (type=='quickADD') { // this is a general purpose mesh import subroutine for internal use within importbasecube
 
                // IMPORTANT NOTICE!--> in this case of 'quick', 
                //             the rx cy args are euler coordinates! NOT gridMat index! (see rx_coord / cy_coord args input in quick callback)
+
+               // give the mesh a unique ID (do this for every 'if')
+               newMesh.id = String(basecubeCtr); 
+               newMesh.name = String(basecubeCtr); 
 
                var bcubename = bcubesPrefix + postfix; 
 
@@ -498,7 +502,12 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                          // Update the bcubesPrefix of affected cubes in basecubeArray AND basecubePos !! 
                }); 
 
-          } else if (type == 'next') {
+               // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
+               basecubeArray.push(bcubesPrefix);
+               basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
+               basecubeCtr = basecubeCtr +  1; 
+
+          } else if (type == 'nextLOGIC') {
 
                // next we need to check the position of this cube whether or not it is next door to any other cube
                /*
@@ -512,6 +521,8 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                          1.2 If there are two neighbouring cube (this is maximum possible!)
                               1.2.1 Then check these neighbour's basecubeprefix, and feed them both into the combinatory logic callback
                */
+
+               // NOTE: no need to name the mesh or add it to the master array yet here. 
 
                // define the imported B1 cube's coordinates as newXXXX
                var newX = gridMat[rx][cy][0]; 
@@ -560,10 +571,8 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
 
                     // and then import the new base cube in its new adjusted position by calling back importBaseCubes with type=='quick'
                     // this implements just a simple mesh import directly to rx_coord, cy_coord which are specific coordinates 
-                    importBaseCubes(scene,gridMat,bcubesPrefix,rx_coord,cy_coord,'quick');
-
-                    // Update the bcubesPrefix of affected cubes in basecubeArray AND basecubePos !! 
-
+                    // NOTE : no need to update global counter here since the importBaseCubes quickLOGIC
+                    importBaseCubes(scene,gridMat,bcubesPrefix,rx_coord,cy_coord,'quickADD');
 
                } else if (BLeft == '' && BRight == '') {
                     // else if both are still '', meaning no match so we can do business as usual and place the new B1 at the grid box r-c center 
@@ -571,7 +580,14 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     newMesh.position.y = newY;
                     newMesh.position.z = newZ; // actually Z is constant...see how gridMat is defined! 
 
-                    // Update the bcubesPrefix of affected cubes in basecubeArray AND basecubePos !! 
+                    // give the mesh a unique ID (do this for every 'if')
+                    newMesh.id = String(basecubeCtr); 
+                    newMesh.name = String(basecubeCtr); 
+
+                    // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
+                    basecubeArray.push(bcubesPrefix);
+                    basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
+                    basecubeCtr = basecubeCtr +  1; 
                }
 
                
@@ -643,7 +659,7 @@ function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
           // importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy) -- > recall this is the callback to import base cubes and use 'next' as type! 
           // remove the button and in its place, put the base cube B1
           button.dispose(); 
-          importBaseCubes(scene,gridMat,'B1',rx_target,cy_target,'next'); 
+          importBaseCubes(scene,gridMat,'B1',rx_target,cy_target,'nextLOGIC'); 
      });
 
      advancedTexture.addControl(button);
@@ -656,8 +672,6 @@ function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
 /*
      Mesh cube removal, highlight and manipulation stuffs
 */
-
-// this is a function to remove mesh based on its position (automated, i.e. NOT click etc driven)
 // https://doc.babylonjs.com/babylon101/picking_collisions for picking meshes
 
 
