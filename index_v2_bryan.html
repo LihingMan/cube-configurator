@@ -34,7 +34,7 @@
                     overflow-x: hidden;
                     -webkit-overflow-scrolling: touch;
                     font: 12pt Titillium;
-                    color: lightgrey;
+                    color: black;
                     -webkit-user-select: none;
                     -moz-user-select: none;
                     -ms-user-select: none;
@@ -62,11 +62,18 @@
 
                 .data {
                     position: absolute;
-                    top: 50%;
+                    top: 30%;
+                    right: 21.2%;
                     transform: translateY(-50%);
                     z-index: 2;
+                    font-size: 20px;
                 }
                 
+                table, th, td, tr s{
+                    border: 1px solid black;
+                    border-collapse: collapse;
+                    text-align: center;
+                }
                 
         </style>
     </head> 
@@ -74,21 +81,52 @@
     <body>
 
         <canvas id="main_app"></canvas>
-        <div class='data'>
-            <p>
-                E1: <span id="E1"></span><br>
-                E2: <span id="E2"></span><br>
-                E3: <span id="E3"></span><br>
-                E4: <span id="E4"></span><br>
-
-                B1: <span id="B1"></span><br>
-                B2: <span id="B2"></span><br>
-                B3: <span id="B3"></span><br>
-                B4: <span id="B4"></span><br>
-                B5: <span id="B5"></span><br>
-                B6: <span id="B6"></span><br>
-            </p>
-        </div>
+        <table class="data">
+            <tr>
+              <th>Type</th>
+              <th>Quantity</th> 
+            </tr>
+            <tr>
+              <td>E1</td>
+              <td><span id="E1"></span></td>
+            </tr>
+            <tr>
+              <td>E2</td>
+              <td><span id="E2"></span></td>
+            </tr>
+            <tr>
+                <td>E3</td>
+                <td><span id="E3"></span></td>
+            </tr>
+            <tr>
+                <td>E4</td>
+                <td><span id="E4"></span></td>
+            </tr>
+            <tr>
+                <td>B1</td>
+                <td><span id="B1"></span></td>
+            </tr>
+            <tr>
+                <td>B2</td>
+                <td><span id="B2"></span></td>
+            </tr>
+            <tr>
+                <td>B3</td>
+                <td><span id="B3"></span></td>
+            </tr>
+            <tr>
+                <td>B4</td>
+                <td><span id="B4"></span></td>
+            </tr>
+            <tr>
+                <td>B5</td>
+                <td><span id="B5"></span></td>
+            </tr>
+            <tr>
+                <td>B6</td>
+                <td><span id="B6"></span></td>
+            </tr>
+          </table>
 
         <script>
             window.addEventListener("stack", function(){
