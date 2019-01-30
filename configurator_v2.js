@@ -5,7 +5,7 @@ EZBO Stacking Cube Product Configurator Web App v2
 // trackers for base cube
 var basecubeArray = []; // to track the base cubes in the scene
 var basecubePos =[]; // to keep track of 1:1 position in euler coords (i.e. 0.1,0.25 etc etc) 
-var basecubeCtr= 0; // start from index tracking of 0 for base cubes. only +1 whenever a cube has been added
+var basecubeCtr= 0; // start from index tracking of 0 for base cubes. only +1 whenever a cube has been added. this is to primarily track the cubes
 
 // trackers for stackcube
 var stackcubeArray = []; // to track the stack cubes in the scene 
@@ -384,6 +384,7 @@ function createboxMaterial (scene) {
 /*
      Import base cabinet cubes , reposition into the scene, at the far left corner of an imaginary maximum 6 cube space
      User should be able to modify the base cubes 
+     NOTE THAT THIS IS THE ONLY FUNCTION THAT CAN IMPORT BASE CUBES 
 */
 function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) { 
 
@@ -567,7 +568,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     newMesh.dispose(); newMesh = null; // nullify to tell GC to collect 
 
                     // similarly destroy all 'old' jointed existing meshes
-
+                    
 
                     // and then import the new base cube in its new adjusted position by calling back importBaseCubes with type=='quick'
                     // this implements just a simple mesh import directly to rx_coord, cy_coord which are specific coordinates 
