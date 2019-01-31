@@ -127,12 +127,12 @@ function createCamera(scene) {
      var camera = new BABYLON.ArcRotateCamera("camera", -Math.PI/2, Math.PI/2, 4, new BABYLON.Vector3(2,1.25,0), scene); 
      camera.attachControl(canvas, true);
      // set limits to camera movement so users dont get disorganized 
-     // camera.lowerRadiusLimit = 4;
-     // camera.upperRadiusLimit = 4; 
-     // camera.lowerAlphaLimit = -1.8; // rmbr this is radians!  
-     // camera.upperAlphaLimit = -1.3; 
-     // camera.lowerBetaLimit = 1.35; 
-     // camera.upperBetaLimit = 1.75; 
+     camera.lowerRadiusLimit = 4;
+     camera.upperRadiusLimit = 4; 
+     camera.lowerAlphaLimit = -1.8; // rmbr this is radians!  
+     camera.upperAlphaLimit = -1.3; 
+     camera.lowerBetaLimit = 1.35; 
+     camera.upperBetaLimit = 1.75; 
 
      // totally deactivate panning (if developer requires to see beyond cube, comment this out in development)
      scene.activeCamera.panningSensibility = 0;
