@@ -62,6 +62,15 @@
                     z-index: 2;
                     font-size: 20px;
                 }
+
+                .price {
+                    position: absolute;
+                    top: 92%;
+                    right: 50%;
+                    transform: translateY(-50%);
+                    z-index: 2;
+                    font-size: 25px;
+                }
                 
                 table, th, td, tr s{
                     border: 1px solid black;
@@ -120,22 +129,50 @@
                 <td>B6</td>
                 <td><span id="B6"></span></td>
             </tr>
-          </table>
+
+            <p class="price">
+                You are now <span id="price">RM0</span> poorer
+            </p>
+        </table>
+
+        <script src="configurator_v2_bryan.js"></script>
 
         <script>
+            // variables for storing quantity of cubes in scene
+            var stackcube;
+            var basecube;
+
+            // variables for storing the cube price arrays
+            var stackPrices = sessionStorage.getItem("stackCubePrices");
+            stackPrices = JSON.parse(stackPrices);
+
+            var basePrices = sessionStorage.getItem("baseCubePrices");
+            basePrices = JSON.parse(basePrices);
+
+            // variables to hold the prices
+            var stack = 0;
+            var base = 0;
+
             window.addEventListener("stack", function(){
-                var stackcube = sessionStorage.getItem("stackCubeCounter");
+                stackcube = sessionStorage.getItem("stackCubeCounter");
                 stackcube = JSON.parse(stackcube);
+
+                stack = calcPrice(stackPrices, stackcube);
                 
                 document.getElementById("E1").textContent = stackcube[0].toString();
                 document.getElementById("E2").textContent = stackcube[1].toString();
                 document.getElementById("E3").textContent = stackcube[2].toString();
                 document.getElementById("E4").textContent = stackcube[3].toString();
+
+                var curPrice = stack + base;
+                document.getElementById("price").textContent = "RM" + curPrice;
             });
 
             window.addEventListener("base", function(){
-                var basecube = sessionStorage.getItem("baseCubeCounter");
+                basecube = sessionStorage.getItem("baseCubeCounter");
                 basecube = JSON.parse(basecube);
+
+                base = calcPrice(basePrices, basecube);
 
                 document.getElementById("B1").textContent = basecube[0].toString();
                 document.getElementById("B2").textContent = basecube[1].toString();
@@ -143,10 +180,23 @@
                 document.getElementById("B4").textContent = basecube[3].toString();
                 document.getElementById("B5").textContent = basecube[4].toString();
                 document.getElementById("B6").textContent = basecube[5].toString();
+
+                var curPrice = stack + base;
+                document.getElementById("price").textContent = "RM" + curPrice;
             });
-            
+
+            function calcPrice(prices, cubeArr){
+                var total = 0;
+                for (var i=0; i<prices.length; i++){
+                    if (cubeArr[i] > 0){
+                        total += prices[i]*cubeArr[i];
+                    }
+                }
+                
+                return total
+            }
         </script>
         
-        <script src="configurator_v2_bryan.js"></script>
+        
     </body>
 </html>    

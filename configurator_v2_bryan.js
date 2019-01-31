@@ -26,6 +26,18 @@ var baseCubeCounter = Array.from({length:6}).fill(0);
 // counter for E1-E4 (TEMPORARY SOLUTION)
 var stackCubeCounter = Array.from({length:4}).fill(0); 
 
+
+// storing the price array
+var stackCubePrices = [10, 20, 30, 40];
+
+var baseCubePrices = [10, 20, 30, 40, 50, 60];
+
+sessionStorage.setItem("stackCubePrices", JSON.stringify(stackCubePrices));
+var x = sessionStorage.getItem("stackCubePrices");
+console.log(x);
+sessionStorage.setItem("baseCubePrices", JSON.stringify(baseCubePrices));
+
+
 // INITALIZATION 
 // assign basecubes file prefix for auto import of mesh into the scene.
 var bcubesPrefix_init = 'B2'; // can be B1-B6, as passed by django view
