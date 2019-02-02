@@ -1,11 +1,13 @@
 /*
 EZBO Stacking Cube Product Configurator Web App v2
 */
+// GLOBAL Cube counter
+// start from index tracking of 0 . only +1 whenever a cube has been added. this is to primarily give the cubes their id and name when imported to scene
+var cubeCtr= 0; 
 
 // trackers for base cube
 var basecubeArray = []; // to track the base cubes in the scene
 var basecubePos =[]; // to keep track of 1:1 position in euler coords (i.e. 0.1,0.25 etc etc) 
-var basecubeCtr= 0; // start from index tracking of 0 for base cubes. only +1 whenever a cube has been added. this is to primarily track the cubes
 
 // trackers for stackcube
 var stackcubeArray = []; // to track the stack cubes in the scene 
@@ -417,8 +419,8 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                // initial base cube
 
                // give the mesh a unique ID (do this for every 'if')
-               newMesh.id = String(basecubeCtr); 
-               newMesh.name = String(basecubeCtr); 
+               newMesh.id = String(cubeCtr); 
+               newMesh.name = String(cubeCtr); 
 
                // get base cube integer from prefix
                var intprefix = parseInt(bcubesPrefix[1]); 
@@ -480,7 +482,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
                basecubeArray.push(bcubesPrefix);
                basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
-               basecubeCtr = basecubeCtr +  1; 
+               cubeCtr = cubeCtr +  1; 
 
           } else if (type=='quickADD') { // this is a general purpose mesh import subroutine for internal use within importbasecube
 
@@ -488,8 +490,8 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                //             the rx cy args are euler coordinates! NOT gridMat index! (see rx_coord / cy_coord args input in quick callback)
 
                // give the mesh a unique ID (do this for every 'if')
-               newMesh.id = String(basecubeCtr); 
-               newMesh.name = String(basecubeCtr); 
+               newMesh.id = String(cubeCtr); 
+               newMesh.name = String(cubeCtr); 
 
                var bcubename = bcubesPrefix + postfix; 
 
@@ -506,7 +508,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
                basecubeArray.push(bcubesPrefix);
                basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
-               basecubeCtr = basecubeCtr +  1; 
+               cubeCtr = cubeCtr +  1; 
 
           } else if (type == 'nextLOGIC') {
 
@@ -582,16 +584,15 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     newMesh.position.z = newZ; // actually Z is constant...see how gridMat is defined! 
 
                     // give the mesh a unique ID (do this for every 'if')
-                    newMesh.id = String(basecubeCtr); 
-                    newMesh.name = String(basecubeCtr); 
+                    newMesh.id = String(cubeCtr); 
+                    newMesh.name = String(cubeCtr); 
 
                     // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
                     basecubeArray.push(bcubesPrefix);
                     basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
-                    basecubeCtr = basecubeCtr +  1; 
+                    cubeCtr = cubeCtr +  1; 
                }
 
-               
           } else {
                console.log('[ERROR] Unrecognized type for function importBaseCubes passed via args type');
           }
