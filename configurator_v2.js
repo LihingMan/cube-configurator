@@ -493,17 +493,8 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                newMesh.id = String(cubeCtr); 
                newMesh.name = String(cubeCtr); 
 
-               var bcubename = bcubesPrefix + postfix; 
+               // give mesh position based on rx_coord and cy_coord
 
-               // this is for use within this function, to do a quick import of a new mesh
-               BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubename, scene, 
-                    function (newMeshes002) {
-
-                         // dirty hack to get the sole mesh , to enable us to mess with its name and id 
-                         var newMesh002 = newMeshes002[0]; 
-
-                         // Update the bcubesPrefix of affected cubes in basecubeArray AND basecubePos !! 
-               }); 
 
                // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
                basecubeArray.push(bcubesPrefix);
@@ -572,7 +563,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     // similarly destroy all 'old' jointed existing meshes
                     
 
-                    // and then import the new base cube in its new adjusted position by calling back importBaseCubes with type=='quick'
+                    // and then import the new base cube in its new adjusted position by calling back importBaseCubes with type=='quickADD'
                     // this implements just a simple mesh import directly to rx_coord, cy_coord which are specific coordinates 
                     // NOTE : no need to update global counter here since the importBaseCubes quickLOGIC
                     importBaseCubes(scene,gridMat,bcubesPrefix,rx_coord,cy_coord,'quickADD');
