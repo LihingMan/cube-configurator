@@ -4,7 +4,7 @@ EZBO Stacking Cube Product Configurator Web App v2
 
 // trackers for base cube
 var basecubeArray = []; // to track the base cubes in the scene
-var basecubePos =[]; // to keep track of 1:1 position in euler coords (i.e. 0.1,0.25 etc etc) 
+var basecubePos = []; // to keep track of 1:1 position in euler coords (i.e. 0.1,0.25 etc etc) 
 // start from index tracking of 0 . only +1 whenever a base cube has been added. this is to primarily give 
 // the cubes their id and name when imported to scene
 var basecubeCtr = []; 
@@ -31,10 +31,10 @@ if (BABYLON.Engine.isSupported()) {
      var canvas = document.getElementById("main_app");
      // note to create with engine with stencil set to true so we can highlight a mesh
      var engine = new BABYLON.Engine(canvas, true, { stencil: true });  // this is the Babylon class engine 
- 
+     
      // declare globally accesible variable of host url (for later concat)
      var hostUrl = 'http://123sense.com/'; 
- 
+     
      // make sure DOM is loaded first 
      window.addEventListener('DOMContentLoaded', function() {
           // then run the main app's code
@@ -122,7 +122,7 @@ function createCamera(scene) {
      // Parameters: name, alpha, beta, radius, target position, scene 
      var camera = new BABYLON.ArcRotateCamera("camera", -Math.PI/2, Math.PI/2, 4, new BABYLON.Vector3(2,1.25,0), scene); 
      camera.attachControl(canvas, true);
-     // set limits to camera movement so users dont get disorganized 
+     // set limits to camera movement so users dont get disorganized  
      camera.lowerRadiusLimit = 4;
      camera.upperRadiusLimit = 4; 
      camera.lowerAlphaLimit = -1.8; // rmbr this is radians!  
@@ -419,8 +419,8 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                // initial base cube
 
                // give the mesh a unique ID (do this for every 'if')
-               newMesh.id = String(cubeCtr); 
-               newMesh.name = String(cubeCtr); 
+               newMesh.id = String(basecubeCtr); 
+               newMesh.name = String(basecubeCtr); 
 
                // get base cube integer from prefix
                var intprefix = parseInt(bcubesPrefix[1]); 
@@ -483,19 +483,19 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                basecubeArray.push(bcubesPrefix);
                basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
                basecubeCtr = basecubeCtr +  1; 
-
+               
           } else if (type=='quickADD') { 
                // this is a general purpose mesh import subroutine for internal use within importbasecube
 
                // IMPORTANT NOTICE!--> in this case of 'quick', 
                //      the rx cy args are euler coordinates! NOT gridMat index! (see rx_coord / cy_coord args input in quick callback)
-               //      we will just reuse the rx cy args only 
+               //      we will just reuse the rx cy args only  
 
                // give the mesh a unique ID (do this for every 'if')
-               newMesh.id = String(cubeCtr); 
-               newMesh.name = String(cubeCtr); 
+               newMesh.id = String(basecubeCtr); 
+               newMesh.name = String(basecubeCtr); 
 
-               // give mesh position based on rx_coord and cy_coord
+               // give mesh position based on rx == rx_coord and cy == cy_coord
                newMesh.position.x = rx; 
                newMesh.position.y = cy;
                newMesh.position.z = gridMat[rx][cy][2]; // this one is constant for all base cubes 
@@ -575,14 +575,15 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     importBaseCubes(scene,gridMat,bcubesPrefix,rx_coord,cy_coord,'quickADD');
 
                } else if (BLeft == '' && BRight == '') {
+
                     // else if both are still '', meaning no match so we can do business as usual and place the new B1 at the grid box r-c center 
                     newMesh.position.x = newX; // recall, row index, col index
                     newMesh.position.y = newY;
                     newMesh.position.z = newZ; // actually Z is constant...see how gridMat is defined! 
 
                     // give the mesh a unique ID (do this for every 'if')
-                    newMesh.id = String(cubeCtr); 
-                    newMesh.name = String(cubeCtr); 
+                    newMesh.id = String(basecubeCtr); 
+                    newMesh.name = String(basecubeCtr); 
 
                     // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
                     basecubeArray.push(bcubesPrefix);
@@ -634,7 +635,7 @@ function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
 
      // this deserves its own callback since at the start, the pluses are added for the remaining base cube spaces
      // i.e. if initially the 6cube base is imported, then no plus! 
-     
+
      // horizontal btns for the base cubes manipulation
      // this will add a base cube at the plus position that is being clicked. 
      // will be initialized alongside the first base cube import
