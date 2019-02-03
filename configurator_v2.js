@@ -1,13 +1,13 @@
 /*
 EZBO Stacking Cube Product Configurator Web App v2
 */
-// GLOBAL Cube counter
-// start from index tracking of 0 . only +1 whenever a cube has been added. this is to primarily give the cubes their id and name when imported to scene
-var cubeCtr= 0; 
 
 // trackers for base cube
 var basecubeArray = []; // to track the base cubes in the scene
 var basecubePos =[]; // to keep track of 1:1 position in euler coords (i.e. 0.1,0.25 etc etc) 
+// start from index tracking of 0 . only +1 whenever a base cube has been added. this is to primarily give 
+// the cubes their id and name when imported to scene
+var basecubeCtr = []; 
 
 // trackers for stackcube
 var stackcubeArray = []; // to track the stack cubes in the scene 
@@ -379,9 +379,9 @@ function createboxMaterial (scene) {
       var boxMaterialUrl = hostUrl + 'static/bryantest/walnut-fine-wood.jpg'; 
       boxMaterial.diffuseTexture = new BABYLON.Texture(boxMaterialUrl,scene);
      //boxMaterial.ambientTexture = new BABYLON.Texture(boxMaterialUrl,scene);
- 
+     
      return boxMaterial; 
- }
+}
 
 /*
      Import base cabinet cubes , reposition into the scene, at the far left corner of an imaginary maximum 6 cube space
@@ -482,24 +482,28 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
                basecubeArray.push(bcubesPrefix);
                basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
-               cubeCtr = cubeCtr +  1; 
+               basecubeCtr = basecubeCtr +  1; 
 
-          } else if (type=='quickADD') { // this is a general purpose mesh import subroutine for internal use within importbasecube
+          } else if (type=='quickADD') { 
+               // this is a general purpose mesh import subroutine for internal use within importbasecube
 
                // IMPORTANT NOTICE!--> in this case of 'quick', 
-               //             the rx cy args are euler coordinates! NOT gridMat index! (see rx_coord / cy_coord args input in quick callback)
+               //      the rx cy args are euler coordinates! NOT gridMat index! (see rx_coord / cy_coord args input in quick callback)
+               //      we will just reuse the rx cy args only 
 
                // give the mesh a unique ID (do this for every 'if')
                newMesh.id = String(cubeCtr); 
                newMesh.name = String(cubeCtr); 
 
                // give mesh position based on rx_coord and cy_coord
-
+               newMesh.position.x = rx; 
+               newMesh.position.y = cy;
+               newMesh.position.z = gridMat[rx][cy][2]; // this one is constant for all base cubes 
 
                // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
                basecubeArray.push(bcubesPrefix);
                basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
-               cubeCtr = cubeCtr +  1; 
+               basecubeCtr = basecubeCtr +  1; 
 
           } else if (type == 'nextLOGIC') {
 
@@ -550,6 +554,8 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
 
                }
 
+               // now sort the base cubes out 
+
                // if BLeft or BRight is not '' , then there is a match so we ...
                if (BLeft != '' || BRight != '') {
 
@@ -581,7 +587,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
                     basecubeArray.push(bcubesPrefix);
                     basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
-                    cubeCtr = cubeCtr +  1; 
+                    basecubeCtr = basecubeCtr +  1; 
                }
 
           } else {
