@@ -7,7 +7,7 @@ var basecubeArray = []; // to track the base cubes in the scene
 var basecubePos = []; // to keep track of 1:1 position in euler coords (i.e. 0.1,0.25 etc etc) 
 // start from index tracking of 0 . only +1 whenever a base cube has been added. this is to primarily give 
 // the cubes their id and name when imported to scene
-var basecubeCtr = []; 
+var basecubeCtr = 0; 
 
 // trackers for stackcube
 var stackcubeArray = []; // to track the stack cubes in the scene 
@@ -388,9 +388,46 @@ function createboxMaterial (scene) {
      User should be able to modify the base cubes 
      NOTE THAT THIS IS THE ONLY FUNCTION THAT CAN IMPORT BASE CUBES 
 */
+function importBaseCubes_SUPP(scene,gridMat,bcubesPrefix,rx,cy) {
+     // concat with the constant global postfix to give import name 
+     var bcubename = bcubesPrefix + postfix; 
+
+     BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubename, scene, 
+     function (newMeshes) {
+
+          // dirty hack to get around not being able to assign name and id to mesh
+          var newMesh = newMeshes[0]; 
+
+          // this is a general purpose mesh import subroutine for internal use within importbasecube
+
+          // IMPORTANT NOTICE!--> in this case of 'quick', 
+          //      the rx cy args are euler coordinates! NOT gridMat index! (see rx_coord / cy_coord args input in quick callback)
+          //      we will just reuse the rx cy args only  
+          // give the mesh a unique ID (do this for every 'if')
+          newMesh.id = String('B' + basecubeCtr); 
+          newMesh.name = String('B' + basecubeCtr); 
+          // console.log(basecubeArray);
+          // give mesh position based on rx == rx_coord and cy == cy_coord
+          // REMINDER: STUPID! THIS IS THE PROBLEM OF ALL MOTHERFUCKERS! 
+          // RX AND CY IN THIS CASE ARE THE COORDINATES! DIRECTLY , NOT THE GRID MAT MATRIX INDEXES
+          newMesh.position.x = rx; 
+          newMesh.position.y = cy;
+          newMesh.position.z = gridMat[0][0][2]; // this one is constant for all base cubes 
+
+          // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
+          basecubeArray.push(bcubesPrefix);
+          basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
+          basecubeCtr = basecubeCtr +  1; 
+
+          console.log(basecubeArray);
+     }); 
+}
+
+
+
 function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) { 
 
-     // bcubesPrefix is the base cube product name for revisions i.e. addition/removal
+     // bcubesPrefix is the base cube product name for revisions i.e. addition/removal , such as B1, B2 etc 
 
      // rx and cy are the respective row column position in gridMat (starting from index zero for gridMat) 
      // RECALL ..i.e. with regards to gridMat, we take the first position at physical-box 1,1 or in the matrix as 0,0 index
@@ -403,7 +440,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
      // IMPORTANT -- flagImp arg
      // is to flag it either null (should be default), 
 
-     // concat with the constant global postfix
+     // concat with the constant global postfix to give import name 
      var bcubename = bcubesPrefix + postfix; 
 
     // SceneLoader.ImportMesh
@@ -419,8 +456,8 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                // initial base cube
 
                // give the mesh a unique ID (do this for every 'if')
-               newMesh.id = String(basecubeCtr); 
-               newMesh.name = String(basecubeCtr); 
+               newMesh.id = String('B' + basecubeCtr); 
+               newMesh.name = String('B' + basecubeCtr); 
 
                // get base cube integer from prefix
                var intprefix = parseInt(bcubesPrefix[1]); 
@@ -484,27 +521,6 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
                basecubeCtr = basecubeCtr +  1; 
                
-          } else if (type=='quickADD') { 
-               // this is a general purpose mesh import subroutine for internal use within importbasecube
-
-               // IMPORTANT NOTICE!--> in this case of 'quick', 
-               //      the rx cy args are euler coordinates! NOT gridMat index! (see rx_coord / cy_coord args input in quick callback)
-               //      we will just reuse the rx cy args only  
-
-               // give the mesh a unique ID (do this for every 'if')
-               newMesh.id = String(basecubeCtr); 
-               newMesh.name = String(basecubeCtr); 
-
-               // give mesh position based on rx == rx_coord and cy == cy_coord
-               newMesh.position.x = rx; 
-               newMesh.position.y = cy;
-               newMesh.position.z = gridMat[rx][cy][2]; // this one is constant for all base cubes 
-
-               // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
-               basecubeArray.push(bcubesPrefix);
-               basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
-               basecubeCtr = basecubeCtr +  1; 
-
           } else if (type == 'nextLOGIC') {
 
                // next we need to check the position of this cube whether or not it is next door to any other cube
@@ -524,7 +540,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
 
                // define the imported B1 cube's coordinates as newXXXX
                var newX = gridMat[rx][cy][0]; 
-               var newY = gridMat[rx][cy][1];
+               var newY = gridMat[rx][cy][1]; // this is a constant for base cubes , can just reuse this number
                var newZ = gridMat[rx][cy][2]; // actually Z is constant...see how gridMat is defined! 
                // also use these coords as the reference 
 
@@ -532,58 +548,120 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                // IMPORTANT! --> we use the gridmat NOT the actual cube dimensions!
                var MEASURE_UPPER = boxgridWidth + 0.05; // upper bound c-c grid hor spacing
                var MEASURE_LOWER = boxgridWidth - 0.05; // lower bound c-c grid hor spacing
-
-               // predefine BLeft and BRight (the flanking cubes, if any) as empty strings
-               var BLeft = '';
-               var BRight = ''; 
           
                // loop through basecubePos's x-y coordinates to check if the difference between them is within the MEASURE range bound which means they are neighbours
-               for (var i=0; i < basecubePos.length; i++) {
-                    // extract the x-y coord for every other cube in the array
-                    var xExist = basecubePos[i][0];
+               // RUle is , a single B1 new import mesh can atmost have two neighbours i.e. Right and left 
+               // so we first define the vars to hold temporary data/flag with regards to Right and Left 
+               var RightExistCubePrefix = '';
+               var RightExistCubePos = 0; 
+               var RightExistCubeInd = 0; // this is the index of the basecube which we will use to manipulate the mesh later
+               var LeftExistCubePrefix = '';
+               var LeftExistCubePos = 0; 
+               var LeftExistCubeInd = 0; // this is the index of the basecube which we will use to manipulate the mesh later
 
-                    // check if this existing active cube is left to the new B1 import (meaning the existing active cube has lower x value)
-                    if (newX > xExist && (newX - xExist) >= MEASURE_LOWER && (newX - xExist) <= MEASURE_UPPER) {
+               var rx_coordAdjust = 0; // this is the adjustment factor to the existing cube's horizontal coordinate
+
+               for (var i=0; i < basecubePos.length; i++) { // note that we can also use i as the index tracker
+
+                    var basecubeInt = parseInt(basecubeArray[i][1]); // get the looped existing base cube number
+
+                    if (basecubeInt == 1) {
+                         // if it is base cube 1 then just use the position as is (i.e. single value for left right testing)
+                         // extract the x coord
+                         var BLeftX = basecubePos[i][0];
+                         var BRightX = basecubePos[i][0];
+                    } else { // if it is more than 1, then need to assign left and right x coordinate
+                         // then use this formulae to figure out right most and left most cubes
+                         var tempLimit = ((basecubeInt/2) - 0.5)*boxgridWidth; 
                          
-                    } else if (xExist > newX && (newX - xExist) >= MEASURE_LOWER && (newX - xExist) <= MEASURE_UPPER) { // or check if this existing active cube is right to the new B1 import 
+                         // BRight by add to the centroid (cube mesh center) , recall all X coords
+                         var BRightX = basecubePos[i][0] + tempLimit;
+                         // BLeft by subtract from the centroid (cube mesh center)
+                         var BLeftX = basecubePos[i][0] - tempLimit;
+                    }
 
-                    } // else dont kacau! 
-                    
-                    // find the median coordinate (horizontal) for the composite cube 
-                    // and define them as rx_coord , cy_coord
+                    // check if this existing looped cube is left to the new B1 import (meaning the existing active cube has lower x value)
+                    if (LeftExistCubePrefix == '' && newX > BRightX && (newX - BRightX) >= MEASURE_LOWER && (newX - BRightX) <= MEASURE_UPPER) {
+                         // if the existing cube is left neighbour to the new B1 import, then...
+                         // find the median coordinate (horizontal) for the composite cube 
+                         // and define them as rx_coord , cy_coord
+                         // note that if Left var is already populated , then it means that there is already one left match. 
+                         //  ...   so this if statement will not pass, since we can only have one left neighbour for each B1 import 
+                         
+                         // populate Left var with the basecubeprefix of the existing cube 
+                         LeftExistCubePrefix = basecubeArray[i]; 
+                         // populate associated X position (original)
+                         LeftExistCubePos = basecubePos[i][0]
+                         // populate the index with i. we need this to remove the mesh later
+                         LeftExistCubeInd = i; 
 
+                         // RULE is, for every existing cube to the left, we subtract boxgridWidth/2 to the NEW cube's mesh centroid
+                         var rx_coordAdjust = rx_coordAdjust - (boxgridWidth/2);
+                         
+                    // or check if this existing active cube is right to the new B1 import 
+                    } else if (RightExistCubePrefix == '' && BLeftX > newX && (BLeftX - newX) >= MEASURE_LOWER && (BLeft - newX) <= MEASURE_UPPER) { 
+                         // if the existing cube is right neighbour to the new B1 import,then ... 
+
+                         // populate Left var with the basecubeprefix of the existing cube 
+                         RightExistCubePrefix = basecubeArray[i];
+                         // populate associated X position
+                         RightExistCubePos = basecubePos[i][0]
+                         // populate the index with i. we need this to remove the mesh later
+                         RightExistCubeInd = i; // note this is not only index in the array but also the mesh's unique ID
+                         // reminder to append 'B' to the i integer to identify name and mesh 
+
+                         // RULE is, for every cube added to the right , we add boxgridWidth/2 to the NEW cube's mesh centroid
+                         var rx_coordAdjust = rx_coordAdjust + (boxgridWidth/2); 
+                    } 
+                    // else just keep looping untill the end of the base cube array storage 
                }
 
-               // now sort the base cubes out 
+               // now sort the rx_coord out by simply summing the adjustment with the NEW cube's horizontal coord
+               var rx_coord = newX + rx_coordAdjust; 
 
-               // if BLeft or BRight is not '' , then there is a match so we ...
-               if (BLeft != '' || BRight != '') {
+               // if the prefixes are not '' , then there is a match so we ...
+               if (RightExistCubePrefix != '' || LeftExistCubePrefix != '') {
 
                     // pass it through the combinatory callback func --> prefixbaseCubeComb -- to get the new cube prefix
                     // simply override the bcubesPrefix
-                    bcubesPrefix = prefixBaseCubeComb ('B1', BLeft, BRight); 
+                    bcubesPrefix = prefixBaseCubeComb('B1', LeftExistCubePrefix, RightExistCubePrefix); 
 
-                    // destroy the new B1 (since this is new import of basecube it MUST be B1! if not check the callback bug!) newMesh obj
+                    // destroy the NEw B1 (since this is new import of basecube it MUST be B1! if not check the callback bug!) newMesh obj
                     newMesh.dispose(); newMesh = null; // nullify to tell GC to collect 
 
-                    // similarly destroy all 'old' jointed existing meshes
-                    
+                    // similarly destroy all 'old' EXISTING meshes to the left and right 
+                    // this implies the right and left (potential, if any) neighbouring cubes 
+                    // apply this to left and right cubes individually
+                    if (RightExistCubePrefix != '') {
+                         var meshid_R = 'B' + String(RightExistCubeInd); 
+                         var getMeshObj_R = scene.getMeshByID(meshid_R);
+                         getMeshObj_R.dispose(); 
+                         getMeshObj_R = null;
+                         console.log("INFO - Obtained right neighbour cube mesh via id");
+                    } else if (LeftExistCubePrefix != '') {
+                         var meshid_L = 'B' + String(LeftExistCubeInd);
+                         var getMeshObj_L = scene.getMeshByID(meshid_L);
+                         getMeshObj_L.dispose(); 
+                         getMeshObj_L = null;
+                         console.log("INFO - Obtained left neighbour cube mesh via id");
+                    }
 
                     // and then import the new base cube in its new adjusted position by calling back importBaseCubes with type=='quickADD'
                     // this implements just a simple mesh import directly to rx_coord, cy_coord which are specific coordinates 
                     // NOTE : no need to update global counter here since the importBaseCubes quickLOGIC
-                    importBaseCubes(scene,gridMat,bcubesPrefix,rx_coord,cy_coord,'quickADD');
+                    // use newY as the y coord since its the same for all base cubes 
+                    importBaseCubes_SUPP(scene,gridMat,bcubesPrefix,rx_coord,newY);
 
-               } else if (BLeft == '' && BRight == '') {
+               } else if (RightExistCubePrefix == '' && LeftExistCubePrefix == '') {
 
                     // else if both are still '', meaning no match so we can do business as usual and place the new B1 at the grid box r-c center 
                     newMesh.position.x = newX; // recall, row index, col index
                     newMesh.position.y = newY;
                     newMesh.position.z = newZ; // actually Z is constant...see how gridMat is defined! 
 
-                    // give the mesh a unique ID (do this for every 'if')
-                    newMesh.id = String(basecubeCtr); 
-                    newMesh.name = String(basecubeCtr); 
+                    // give the mesh a unique ID (do this for every 'if'). since this is base cube, it is B1 B2 B3 B4 .. BN
+                    newMesh.id = String('B' + basecubeCtr); 
+                    newMesh.name = String('B' + basecubeCtr); 
 
                     // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
                     basecubeArray.push(bcubesPrefix);
@@ -612,10 +690,18 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
 // takes maximum three args, the string type base cube prefixes of ... 
 //   -- BNew (the new B1 imported), BLeft (identified left flanking cube), BRight (identified right flanking cube)
 // IMPORTANT RULE
-//   -- IF NO MATCH i.e. BRight has no match, then it should be assigned as 'B0' during callback! 
+//   -- IF NO MATCH i.e. BRight has no match, then it should be assigned as 'B0'! 
 //   -- During callback, BNew is typically 'B1'! 
 function prefixBaseCubeComb (BNew, BLeft, BRight) {
 
+     // catch if either BLeft and/or BRight is '' i.e. no match and assign as int 'B0'
+     if (BLeft == '') {
+          BLeft = 'B0'; 
+     } 
+     if (BRight == '') {
+          BRight = 'B0'; 
+     }
+     
      // add them up together 
      var compositeIntStr = String(parseInt(BNew[1]) + parseInt(BLeft[1]) + parseInt(BRight[1])); 
 
