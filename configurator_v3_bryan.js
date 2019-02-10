@@ -311,8 +311,9 @@ function createOutdEnv(scene) {
     
      // create roof material
      var wallMaterial = new BABYLON.StandardMaterial("wallMaterial", scene);
-     var wallTextureUrl = hostUrl + 'static/bryantest/woodtexture.jpg'; 
-     //wallMaterial.diffuseTexture = new BABYLON.Texture(wallTextureUrl,scene);
+     //var wallTextureUrl = hostUrl + 'static/bryantest/woodtexture.jpg'; 
+     var wallTextureUrl = hostUrl + 'static/bryantest/white-wall.jpg'; // use white wall texture for realistic plaster feel
+     wallMaterial.diffuseTexture = new BABYLON.Texture(wallTextureUrl,scene);
      wallMaterial.ambientTexture = new BABYLON.Texture(wallTextureUrl,scene);
      // apply the material to meshes
      backwall.material = wallMaterial;
