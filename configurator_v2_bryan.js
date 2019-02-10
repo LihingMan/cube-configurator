@@ -45,19 +45,19 @@ var bcubesPrefix_init = 'B2'; // can be B1-B6, as passed by django view
 // Check if  browser supports webGL
 if (BABYLON.Engine.isSupported()) {
 
-     // if it does, declare all the global variables outside mainApp func 
-     var canvas = document.getElementById("main_app");
-     // note to create with engine with stencil set to true so we can highlight a mesh
-     var engine = new BABYLON.Engine(canvas, true, { stencil: true });  // this is the Babylon class engine 
- 
-     // declare globally accesible variable of host url (for later concat)
-     var hostUrl = 'http://123sense.com/'; 
- 
-     // make sure DOM is loaded first 
-     window.addEventListener('DOMContentLoaded', function() {
-          // then run the main app's code
-          mainApp(); 
-     }); 
+// if it does, declare all the global variables outside mainApp func 
+var canvas = document.getElementById("main_app");
+// note to create with engine with stencil set to true so we can highlight a mesh
+var engine = new BABYLON.Engine(canvas, true, { stencil: true });  // this is the Babylon class engine 
+
+// declare globally accesible variable of host url (for later concat)
+var hostUrl = 'http://123sense.com/'; 
+
+// make sure DOM is loaded first 
+window.addEventListener('DOMContentLoaded', function() {
+	// then run the main app's codev
+	mainApp(); 
+}); 
  
  } else {
      // display error message
@@ -100,7 +100,7 @@ function createRoomScene() {
 	var scene = new BABYLON.Scene(engine);
      
      // camera
-     var camera = createCamera(scene); 
+	var camera = createCamera(scene); 
 
 	// light (sun directional)
 	createLights(scene); 
@@ -115,14 +115,14 @@ function createRoomScene() {
 	createRoof(scene); 
 
 	// create the outdoor env --> skybox!
-     createOutdEnv(scene); 
+	createOutdEnv(scene); 
      
-     // define the mathematical grid to arrange cubes. call once only!
-     var gridMat = gridEngine(); 
+	// define the mathematical grid to arrange cubes. call once only!
+	var gridMat = gridEngine(); 
 
-     // Load base cubes and enable modifications
-     importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0, 'init');
-     
+	// Load base cubes and enable modifications
+	importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0, 'init');
+	// make3Dbutton(scene);
     // finally ... 
     return scene; 
 }
@@ -562,16 +562,33 @@ function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
      // no need to track the button index for the horizontal cubes since its permutations are very small 
      
      //  button stuff
-     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-     var button = BABYLON.GUI.Button.CreateImageOnlyButton(btnInt, "https://cdn.shopify.com/s/files/1/0185/5092/products/symbols-0173_800x.png?v=1369543613");
-     button.width = "40px";
-     button.height = "40px";
-     button.color = "white";
-     button.background = hostUrl + 'static/bryantest/white-wall.jpg';
+     // var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+     // var button = BABYLON.GUI.Button.CreateImageOnlyButton(btnInt, "https://cdn.shopify.com/s/files/1/0185/5092/products/symbols-0173_800x.png?v=1369543613");
+     // button.width = "40px";
+     // button.height = "40px";
+     // button.color = "white";
+     // button.background = hostUrl + 'static/bryantest/white-wall.jpg';
 
-     // position the button at rx_target and cy_target, using gridMat, unmodified
+     // // position the button at rx_target and cy_target, using gridMat, unmodified
      
-     // on click event for the button
+     // // on click event for the button
+     // button.onPointerUpObservable.add(function() {
+     //      var btnInt = parseInt(bcubesPrefix_init[1]);
+     //      // importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy) -- > recall this is the callback to import base cubes and use 'next' as type! 
+     //      // remove the button and in its place, put the base cube B1
+     //      button.dispose(); 
+     //      importBaseCubes(scene,gridMat,'B1',rx_target,cy_target,'next'); 
+     //      btn_Stack(scene, gridMat, btnInt, rx_target+1, cy_target);
+     // });
+
+     // advancedTexture.addControl(button);
+     // button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], 0), scene);
+
+     var manager = new BABYLON.GUI.GUI3DManager(scene);
+	var button = new BABYLON.GUI.Button3D(btnInt);
+     manager.addControl(button);
+     button.scaling = new BABYLON.Vector3(0.2, 0.2, constZ);
+
      button.onPointerUpObservable.add(function() {
           var btnInt = parseInt(bcubesPrefix_init[1]);
           // importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy) -- > recall this is the callback to import base cubes and use 'next' as type! 
@@ -581,8 +598,8 @@ function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
           btn_Stack(scene, gridMat, btnInt, rx_target+1, cy_target);
      });
 
-     advancedTexture.addControl(button);
-     button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], 0), scene);
+     button.position = new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], 0);
+     button.scaling = new BABYLON.Vector3(0.2, 0.2, constZ);
 
      return button;
 }
@@ -634,25 +651,40 @@ function btn_Stack(scene, gridMat, btnInt, rx_target,cy_target) {
      // no need to track the button index for the horizontal cubes since its permutations are very small 
      
      //  button stuff
-     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-     var button = BABYLON.GUI.Button.CreateImageOnlyButton(btnInt, "https://cdn.shopify.com/s/files/1/0185/5092/products/symbols-0173_800x.png?v=1369543613");
-     button.width = "40px";
-     button.height = "40px";
-     button.color = "white";
-     button.background = hostUrl + 'static/bryantest/white-wall.jpg';
+     // var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+     // var button = BABYLON.GUI.Button.CreateImageOnlyButton(btnInt, "https://cdn.shopify.com/s/files/1/0185/5092/products/symbols-0173_800x.png?v=1369543613");
+     // button.width = "40px";
+     // button.height = "40px";
+     // button.color = "white";
+     // button.background = hostUrl + 'static/bryantest/white-wall.jpg';
 
-     // position the button at rx_target and cy_target, using gridMat, unmodified
+     // // position the button at rx_target and cy_target, using gridMat, unmodified
 
-     // on click event for the button
+     // // on click event for the button
+     // button.onPointerUpObservable.add(function() {
+     //      // let intprefix = parseInt(bcubesPrefix_init[1]); 
+     //      button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target+1][cy_target][1], 0), scene)
+     //      importStackCubes(scene, gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], gridMat[rx_target][cy_target][2], "E1");
+     //      rx_target += 1;          
+     // });
+
+     // advancedTexture.addControl(button);
+     // button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], 0), scene);
+
+     var manager = new BABYLON.GUI.GUI3DManager(scene);
+	var button = new BABYLON.GUI.Button3D(btnInt);
+     manager.addControl(button);
+     button.scaling = new BABYLON.Vector3(0.2, 0.2, constZ);
+     button.position = new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1]);
+
      button.onPointerUpObservable.add(function() {
           // let intprefix = parseInt(bcubesPrefix_init[1]); 
-          button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target+1][cy_target][1], 0), scene)
+          button.position = new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target+1][cy_target][1], 0);
+          button.scaling = new BABYLON.Vector3(0.2, 0.2, constZ);
           importStackCubes(scene, gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], gridMat[rx_target][cy_target][2], "E1");
           rx_target += 1;          
      });
 
-     advancedTexture.addControl(button);
-     button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], 0), scene);
 
      return button;
 }
@@ -661,4 +693,14 @@ function makeEvent(type){
      var event = document.createEvent("event");
      event.initEvent(type, true, true);
      window.dispatchEvent(event);
+}
+
+function make3Dbutton(scene) {
+	var manager = new BABYLON.GUI.GUI3DManager(scene);
+	var button = new BABYLON.GUI.Button3D("");
+	manager.addControl(button);
+	button.position.z = -0.5;
+	button.position.x = 2;
+	button.position.y = 2
+	button.scaling = new BABYLON.Vector3(0.2, 0.2, constZ);
 }
