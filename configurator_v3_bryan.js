@@ -460,6 +460,14 @@ function importBaseCubes_SUPP(scene,gridMat,bcubesPrefix,rx,cy) {
         })
     );
 
+    newMesh.actionManager.registerAction(
+        new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(m){
+            makeEvent("popup");
+            var mesh = m.meshUnderPointer;
+            hl.addMesh(mesh, BABYLON.Color3.Red())
+        })
+    );
+
         // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
         basecubeArray.push(bcubesPrefix);
         basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
@@ -807,6 +815,8 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
         newMesh.actionManager.registerAction(
             new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(m){
                 makeEvent("popup");
+                var mesh = m.meshUnderPointer;
+                hl.addMesh(mesh, BABYLON.Color3.Red())
             })
         );
 
@@ -926,7 +936,6 @@ function evtCubeHighlighter(scene, canvas, camera) {
             var name = pickResult.pickedMesh.name;
             console.log(name);
             var mesh = pickResult.pickedMesh;
-            var hl = new BABYLON.HighlightLayer("hl1", scene);
             mesh.material.diffuseColor = BABYLON.Color3.Green();
         }
         
