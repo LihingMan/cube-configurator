@@ -121,6 +121,8 @@ function createRoomScene() {
      // Load base cubes and enable modifications to the base cubes 
      importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0, 'init');
 
+    //  evtCubeHighlighter(scene, canvas, camera);
+
     // finally ... 
     return scene; 
 }
@@ -179,6 +181,7 @@ function createOutdEnv(scene) {
  
      // sky mesh (box) 
      var skybox = BABYLON.Mesh.CreateBox("skyBox", 1000.0, scene);
+     skybox.isPickable = false;
      skybox.material = skyMaterial;
  }
  
@@ -208,7 +211,7 @@ function createOutdEnv(scene) {
  
      // Extrude polygon
      var floorMesh = new BABYLON.MeshBuilder.ExtrudePolygon("floor", {shape:floorCorners, depth: 0.05}, scene);
- 
+     floorMesh.isPickable = false;
      // create floor material
      var floorMaterial = new BABYLON.StandardMaterial("floorMaterial", scene);
      var floorTextureUrl = hostUrl + 'static/bryantest/woodtexture.jpg'; 
@@ -233,6 +236,7 @@ function createOutdEnv(scene) {
  
      // Extrude polygon
      var roofMesh = new BABYLON.MeshBuilder.ExtrudePolygon("roof", {shape:roofCorners, depth: 0.05}, scene);
+     roofMesh.isPickable = false;
      // offset it to become roof
      roofMesh.position.y = 2.5; 
  
@@ -299,16 +303,18 @@ function createOutdEnv(scene) {
      
      // extrude the walls 
      var backwall = BABYLON.MeshBuilder.ExtrudePolygon("wall", {shape:backwallGeo, depth: 0.05}, scene);
+     backwall.isPickable = false;
      // then rotate 90deg to make the horizontal extrusion to be vertical 
      backwall.rotation.x =  -Math.PI/2;
      // do the same for side walls (each with diff rotation)
      var sidewall_r = BABYLON.MeshBuilder.ExtrudePolygon("wall_r", {shape:sidewallGeo_r, holes:holeData, depth: 0.05}, scene);
+     sidewall_r.isPickable = false;
      sidewall_r.rotation.z = Math.PI/2;  
      sidewall_r.position.y = -1.5; // this is like a weird bug since it is rotating some distance away from the global origin 0,0,0
      sidewall_r.position.x = 4;
      var sidewall_l = BABYLON.MeshBuilder.ExtrudePolygon("wall_l", {shape:sidewallGeo_l, depth: 0.05}, scene);
      sidewall_l.rotation.z = Math.PI/2;  // naturally rotates in position since it has a node at origin 
-    
+     sidewall_l.isPickable = false;
      // create roof material
      var wallMaterial = new BABYLON.StandardMaterial("wallMaterial", scene);
      //var wallTextureUrl = hostUrl + 'static/bryantest/woodtexture.jpg'; 
@@ -402,42 +408,60 @@ function createboxMaterial (scene) {
      NOTE THAT THIS IS THE ONLY FUNCTION THAT CAN IMPORT BASE CUBES 
 */
 function importBaseCubes_SUPP(scene,gridMat,bcubesPrefix,rx,cy) {
-     // concat with the constant global postfix to give import name 
-     var bcubename = bcubesPrefix + postfix; 
+    // concat with the constant global postfix to give import name 
+    var bcubename = bcubesPrefix + postfix; 
 
-     BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubename, scene, 
-     function (newMeshes) {
+    BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubename, scene, 
+    function (newMeshes) {
 
-          // dirty hack to get around not being able to assign name and id to mesh
-          var newMesh = newMeshes[0]; 
+        // dirty hack to get around not being able to assign name and id to mesh
+        var newMesh = newMeshes[0]; 
 
-          // this is a general purpose mesh import subroutine for internal use within importbasecube
+        newMesh.actionManager = new BABYLON.ActionManager(scene);
 
-          // IMPORTANT NOTICE!--> in this case of 'quick', 
-          //      the rx cy args are euler coordinates! NOT gridMat index! (see rx_coord / cy_coord args input in quick callback)
-          //      we will just reuse the rx cy args only  
-          // give the mesh a unique ID (do this for every 'if')
-          newMesh.id = String('B' + basecubeCtr); 
-          newMesh.name = String('B' + basecubeCtr); 
-          // give mesh position based on rx == rx_coord and cy == cy_coord
-          // REMINDER: STUPID! THIS IS THE PROBLEM OF ALL MOTHERFUCKERS! 
-          // RX AND CY IN THIS CASE ARE THE COORDINATES! DIRECTLY , NOT THE GRID MAT MATRIX INDEXES
-          newMesh.position.x = rx; 
-          newMesh.position.y = cy;
-          newMesh.position.z = gridMat[0][0][2]; // this one is constant for all base cubes 
+        // this is a general purpose mesh import subroutine for internal use within importbasecube
 
-          // define mesh rotation
-          newMesh.rotation.y = Math.PI/2;
-          
-          // define mesh material
-          var boxMaterial = createboxMaterial(scene); 
-          newMesh.material = boxMaterial;
+        // IMPORTANT NOTICE!--> in this case of 'quick', 
+        //      the rx cy args are euler coordinates! NOT gridMat index! (see rx_coord / cy_coord args input in quick callback)
+        //      we will just reuse the rx cy args only  
+        // give the mesh a unique ID (do this for every 'if')
+        newMesh.id = String('B' + basecubeCtr); 
+        newMesh.name = String('B' + basecubeCtr); 
+        // give mesh position based on rx == rx_coord and cy == cy_coord
+        // REMINDER: STUPID! THIS IS THE PROBLEM OF ALL MOTHERFUCKERS! 
+        // RX AND CY IN THIS CASE ARE THE COORDINATES! DIRECTLY , NOT THE GRID MAT MATRIX INDEXES
+        newMesh.position.x = rx; 
+        newMesh.position.y = cy;
+        newMesh.position.z = gridMat[0][0][2]; // this one is constant for all base cubes 
 
-          // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
-          basecubeArray.push(bcubesPrefix);
-          basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
-          basecubeCtr = basecubeCtr +  1; 
-     }); 
+        // define mesh rotation
+        newMesh.rotation.y = Math.PI/2;
+        
+        // define mesh material
+        var boxMaterial = createboxMaterial(scene); 
+        newMesh.material = boxMaterial;
+
+        var hl = new BABYLON.HighlightLayer("hl", scene);
+
+        newMesh.actionManager.registerAction(
+        new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOverTrigger, function(m){
+            var mesh = m.meshUnderPointer;
+            hl.addMesh(mesh, BABYLON.Color3.Red());
+            console.log(mesh.name);
+        })
+    );
+    newMesh.actionManager.registerAction(
+        new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOutTrigger, function(m){
+            var mesh = m.meshUnderPointer;
+            hl.removeMesh(mesh);
+        })
+    );
+
+        // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
+        basecubeArray.push(bcubesPrefix);
+        basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
+        basecubeCtr = basecubeCtr +  1; 
+    }); 
 }
 
 
@@ -479,7 +503,12 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
 
         // dirty hack to get around not being able to assign name and id to mesh
         var newMesh = newMeshes[0]; 
+        newMesh.isPickable = true;
 
+        // register this mesh for actions
+        newMesh.actionManager = new BABYLON.ActionManager(scene);
+        
+        
         if (type == 'init') {
             // initial base cube
 
@@ -752,6 +781,25 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
         // define mesh material
         var boxMaterial = createboxMaterial(scene); 
         newMesh.material = boxMaterial;
+
+        var hl = new BABYLON.HighlightLayer("hl", scene); // highlight definition
+
+        // one mouse over the mesh, it'll be highlighted
+        newMesh.actionManager.registerAction(
+            new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOverTrigger, function(m){
+                var mesh = m.meshUnderPointer;
+                hl.addMesh(mesh, BABYLON.Color3.Red());
+                console.log(mesh.name);
+            })
+        );
+
+        // on mouse off, it'll be un-highlighted
+        newMesh.actionManager.registerAction(
+            new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOutTrigger, function(m){
+                var mesh = m.meshUnderPointer;
+                hl.removeMesh(mesh);
+            })
+        );
     }); 
 }
 
@@ -791,26 +839,61 @@ function prefixBaseCubeComb (BNew, BLeft, BRight) {
 */
 // for the base cubes' horizontal pluses , use once for initialization of the default base cube only! 
 function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
-    var manager = new BABYLON.GUI.GUI3DManager(scene);
-	var button = new BABYLON.GUI.Button3D(btnInt);
-    manager.addControl(button);
-    button.position = new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], 0); // position the button on top of the base cubes
-    button.scaling = new BABYLON.Vector3(0.2, 0.2, constZ);
+    // this deserves its own callback since at the start, the pluses are added for the remaining base cube spaces
+    // i.e. if initially the 6cube base is imported, then no plus! 
 
-    var text1 = new BABYLON.GUI.TextBlock();
-    text1.text = "+"
-    text1.color = "white";
-    text1.fontSize = 40;
-    button.content = text1;  
+    // horizontal btns for the base cubes manipulation
+    // this will add a base cube at the plus position that is being clicked. 
+    // will be initialized alongside the first base cube import
 
+    // btnInt can only be an integer and it is to serve as a unique number for each button
+    // no need to track the button index for the horizontal cubes since its permutations are very small 
+    
+    //  button stuff
+    var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+    var button = BABYLON.GUI.Button.CreateImageOnlyButton(btnInt, "https://cdn.shopify.com/s/files/1/0185/5092/products/symbols-0173_800x.png?v=1369543613");
+    button.width = "20px";
+    button.height = "20px";
+    button.color = "white";
+    button.background = hostUrl + 'static/bryantest/white-wall.jpg';
+
+    // position the button at rx_target and cy_target, using gridMat, unmodified
+    
+    // on click event for the button
     button.onPointerUpObservable.add(function() {
         var btnInt = parseInt(bcubesPrefix_init[1]);
         // importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy) -- > recall this is the callback to import base cubes and use 'next' as type! 
         // remove the button and in its place, put the base cube B1
         button.dispose(); 
         importBaseCubes(scene,gridMat,'B1',rx_target,cy_target,'nextLOGIC'); 
-        btn_Stack(scene, gridMat, btnInt, rx_target+1, cy_target); // put the buttons to import stack meshes on top of the base cubes
+        btn_Stack(scene, gridMat, btnInt, rx_target+1, cy_target);
     });
+
+    advancedTexture.addControl(button);
+    button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], 0), scene);
+
+
+
+    // var manager = new BABYLON.GUI.GUI3DManager(scene);
+	// var button = new BABYLON.GUI.Button3D(btnInt);
+    // manager.addControl(button);
+    // button.position = new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], 0); // position the button on top of the base cubes
+    // button.scaling = new BABYLON.Vector3(0.2, 0.2, constZ);
+
+    // var text1 = new BABYLON.GUI.TextBlock();
+    // text1.text = "+"
+    // text1.color = "white";
+    // text1.fontSize = 40;
+    // button.content = text1;  
+
+    // button.onPointerUpObservable.add(function() {
+    //     var btnInt = parseInt(bcubesPrefix_init[1]);
+    //     // importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy) -- > recall this is the callback to import base cubes and use 'next' as type! 
+    //     // remove the button and in its place, put the base cube B1
+    //     button.dispose(); 
+    //     importBaseCubes(scene,gridMat,'B1',rx_target,cy_target,'nextLOGIC'); 
+    //     btn_Stack(scene, gridMat, btnInt, rx_target+1, cy_target); // put the buttons to import stack meshes on top of the base cubes
+    // });
 
     
 }
@@ -824,8 +907,22 @@ function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
 
 // this is a function to highlight cube mesh based on pointer event
 // inspired by https://playground.babylonjs.com/#TC2K69#1
-function evtCubeHighlighter() {
-     return 0; 
+
+// if register action is not good enough, we can try to use this one
+function evtCubeHighlighter(scene, canvas, camera) {
+    var onPointerMove = function(){
+        var pickResult = scene.pick(scene.pointerX, scene.pointerY,null,null,camera);
+        if (pickResult.hit){
+            var name = pickResult.pickedMesh.name;
+            console.log(name);
+            var mesh = pickResult.pickedMesh;
+            var hl = new BABYLON.HighlightLayer("hl1", scene);
+            mesh.material.diffuseColor = BABYLON.Color3.Green();
+        }
+        
+    }
+    canvas.addEventListener("pointermove", onPointerMove, false);
+
 }
 
 /*
@@ -853,35 +950,91 @@ function importStackCubes(scene, x, y, z, stackprefix) {
 
     BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", cubeName, scene, 
     function (stackcube) {
-        stackcube[0].position.x = x;
-        stackcube[0].position.y = y;
-        stackcube[0].position.z = z;
-        stackcube[0].rotation.y = Math.PI/2;
+        stackCube = stackcube[0];
+
+        stackCube.actionManager = new BABYLON.ActionManager(scene); // register the mesh for actions
+
+        stackCube.isPickable = true;
+        stackCube.position.x = x;
+        stackCube.position.y = y;
+        stackCube.position.z = z;
+        stackCube.rotation.y = Math.PI/2;
+
+        var hl = new BABYLON.HighlightLayer("h2", scene); // highlight definition
+
+        // one mouse over the mesh, it'll be highlighted
+        stackCube.actionManager.registerAction(
+            new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOverTrigger, function(m){
+                var mesh = m.meshUnderPointer;
+                hl.addMesh(mesh, BABYLON.Color3.Green());
+                console.log(mesh.name);
+            })
+        );
+
+        // on mouse off, it'll be un-highlighted
+        stackCube.actionManager.registerAction(
+            new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOutTrigger, function(m){
+                var mesh = m.meshUnderPointer;
+                hl.removeMesh(mesh);
+            })
+        );
     });
 }
 
 function btn_Stack(scene, gridMat, btnInt, rx_target,cy_target) {
-    var manager = new BABYLON.GUI.GUI3DManager(scene); 
-	var button = new BABYLON.GUI.Button3D(btnInt);
-    manager.addControl(button); // add a button control to the scene
+    // this deserves its own callback since at the start, the pluses are added for the remaining base cube spaces
+    // i.e. if initially the 6cube base is imported, then no plus! 
 
-    button.position = new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1]);
-    button.scaling = new BABYLON.Vector3(0.2, 0.2, constZ); // scale the button size because for some reason it resizes when repositioned
+    // horizontal btns for the base cubes manipulation
+    // this will add a base cube at the plus position that is being clicked. 
+    // will be initialized alongside the first base cube import
+
+    // btnInt can only be an integer and it is to serve as a unique number for each button
+    // no need to track the button index for the horizontal cubes since its permutations are very small 
     
-    var text1 = new BABYLON.GUI.TextBlock();
-    text1.text = "+"
-    text1.color = "white";
-    text1.fontSize = 40;
-    button.content = text1;
-    
+    //  button stuff
+    var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+    var button = BABYLON.GUI.Button.CreateImageOnlyButton(btnInt, "https://cdn.shopify.com/s/files/1/0185/5092/products/symbols-0173_800x.png?v=1369543613");
+    button.width = "20px";
+    button.height = "20px";
+    button.color = "white";
+    button.background = hostUrl + 'static/bryantest/white-wall.jpg';
+
+    // position the button at rx_target and cy_target, using gridMat, unmodified
+
+    // on click event for the button
     button.onPointerUpObservable.add(function() {
-        button.position = new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target+1][cy_target][1], 0); // change button position to above the 
-        button.scaling = new BABYLON.Vector3(0.2, 0.2, constZ);
+        // let intprefix = parseInt(bcubesPrefix_init[1]); 
+        button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target+1][cy_target][1], 0), scene)
         importStackCubes(scene, gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], gridMat[rx_target][cy_target][2], "E1");
-        rx_target += 1; // increment the row for the buttons to be placed on
+        rx_target += 1;          
     });
 
+    advancedTexture.addControl(button);
+    button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], 0), scene);
+
     return button;
+    // var manager = new BABYLON.GUI.GUI3DManager(scene); 
+	// var button = new BABYLON.GUI.Button3D(btnInt);
+    // manager.addControl(button); // add a button control to the scene
+
+    // button.position = new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1]);
+    // button.scaling = new BABYLON.Vector3(0.2, 0.2, constZ); // scale the button size because for some reason it resizes when repositioned
+    
+    // var text1 = new BABYLON.GUI.TextBlock();
+    // text1.text = "+"
+    // text1.color = "white";
+    // text1.fontSize = 40;
+    // button.content = text1;
+    
+    // button.onPointerUpObservable.add(function() {
+    //     button.position = new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target+1][cy_target][1], 0); // change button position to above the 
+    //     button.scaling = new BABYLON.Vector3(0.2, 0.2, constZ);
+    //     importStackCubes(scene, gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], gridMat[rx_target][cy_target][2], "E1");
+    //     rx_target += 1; // increment the row for the buttons to be placed on
+    // });
+
+    // return button;
 }
 
 function makeEvent(type){
