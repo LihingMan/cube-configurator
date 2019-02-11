@@ -9,6 +9,10 @@ var basecubePos = []; // to keep track of 1:1 position in euler coords (i.e. 0.1
 // the cubes their id and name when imported to scene
 var basecubeCtr = 0; 
 
+var stackcubeArray = [];
+var stackcubePos = [];
+var stackcubeCtr = 0;
+
 // trackers for stackcube
 var stackcubeArray = []; // to track the stack cubes in the scene 
 
@@ -447,7 +451,6 @@ function importBaseCubes_SUPP(scene,gridMat,bcubesPrefix,rx,cy) {
         new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOverTrigger, function(m){
             var mesh = m.meshUnderPointer;
             hl.addMesh(mesh, BABYLON.Color3.Red());
-            console.log(mesh.name);
         })
     );
     newMesh.actionManager.registerAction(
@@ -789,8 +792,8 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
             new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOverTrigger, function(m){
                 var mesh = m.meshUnderPointer;
                 hl.addMesh(mesh, BABYLON.Color3.Red());
-                console.log(mesh.name);
             })
+            
         );
 
         // on mouse off, it'll be un-highlighted
@@ -800,6 +803,13 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                 hl.removeMesh(mesh);
             })
         );
+        
+        newMesh.actionManager.registerAction(
+            new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(m){
+                makeEvent("popup");
+            })
+        );
+
     }); 
 }
 
@@ -952,6 +962,9 @@ function importStackCubes(scene, x, y, z, stackprefix) {
     function (stackcube) {
         stackCube = stackcube[0];
 
+        stackCube.id = String('E' + stackcubeCtr); 
+        stackCube.name = String('E' + stackcubeCtr); 
+
         stackCube.actionManager = new BABYLON.ActionManager(scene); // register the mesh for actions
 
         stackCube.isPickable = true;
@@ -966,8 +979,7 @@ function importStackCubes(scene, x, y, z, stackprefix) {
         stackCube.actionManager.registerAction(
             new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOverTrigger, function(m){
                 var mesh = m.meshUnderPointer;
-                hl.addMesh(mesh, BABYLON.Color3.Green());
-                console.log(mesh.name);
+                hl.addMesh(mesh, BABYLON.Color3.Green()); // highlight the mesh
             })
         );
 
@@ -975,9 +987,19 @@ function importStackCubes(scene, x, y, z, stackprefix) {
         stackCube.actionManager.registerAction(
             new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOutTrigger, function(m){
                 var mesh = m.meshUnderPointer;
-                hl.removeMesh(mesh);
+                hl.removeMesh(mesh); // stop highlighting the mesh once pointer is out
             })
         );
+
+        stackCube.actionManager.registerAction(
+            new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(m){
+                makeEvent("popup");
+            })
+        );
+
+        stackcubeArray.push(stackprefix);
+        stackcubePos.push([stackCube.position.x, stackCube.position.y, stackCube.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z
+        stackcubeCtr += 1;
     });
 }
 

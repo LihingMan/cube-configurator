@@ -5,12 +5,16 @@
         <title>ezbo</title>
         
         <!-- event handler for touch events -->
-        <!-- <script> src="https://cdnjs.cloudflare.com/ajax/libs/jquery.pep/0.4.0/jquery.pep.min.js"</script> --> 
+        <!-- <script> src="https://cdnjs.cloudflare.com/ajax/libs/jquery.pep/0.4.0/jquery.pep.min.js"</script>  -->
         <!-- earcut: polygon triangulation for webgl apps, required by babylon's polygon funcs -->
-        <script src="https://unpkg.com/earcut@2.1.4/dist/earcut.min.js"></script>
+
+        <script src="https://unpkg.com/earcut@2.1.4/dist/earcut.min.js"></script>        
+
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"></script>
 
         <!-- babylon javascripts -->
         <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+
         <script src="babylonv4a.custom.js"></script>
     
         <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
@@ -78,6 +82,16 @@
                     border-collapse: collapse;
                     text-align: center;
                 }
+                .button {
+                    background-color: #4CAF50; /* Green */
+                    border: none;
+                    color: white;
+                    padding: 15px 32px;
+                    text-align: center;
+                    text-decoration: none;
+                    display: inline-block;
+                    font-size: 16px;
+                }
                 
         </style>
     </head> 
@@ -132,11 +146,30 @@
             </tr>
 
         </table>-->
+
+        <script src="configurator_v3_bryan.js"></script>
+
         <p class="price">
             <span id="price"></span>
         </p>
 
-        <script src="configurator_v3_bryan.js"></script>
+        <div class="modal" id="pop-up-modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title">
+                            Accessories
+                        </h1>
+                    </div>
+                    <div class="modal-body">
+                        xd
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <script>
             // variables for storing quantity of cubes in scene
@@ -186,6 +219,12 @@
                 document.getElementById("price").textContent = "RM" + curPrice;
             });
 
+        
+            $(document).ready(function () {
+                window.addEventListener("popup", function(){
+                    $('#pop-up-modal').modal('show');
+                });
+            });
             function calcPrice(prices, cubeArr){
                 var total = 0;
                 for (var i=0; i<prices.length; i++){
@@ -198,6 +237,7 @@
             }
         </script>
         
-        
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <script> src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"</script>
     </body>
 </html>    
