@@ -11,6 +11,7 @@ var basecubeCtr = 0;
 
 // trackers for stackcube
 var stackcubeArray = []; // to track the stack cubes in the scene 
+var stackcubeCtr = 0; // for naming
 
 // trackers for accesories 
 var accesoryArray = []; // to track the accesories 
@@ -298,7 +299,7 @@ function createOutdEnv(scene) {
      // create roof material
      var wallMaterial = new BABYLON.StandardMaterial("wallMaterial", scene);
      var wallTextureUrl = hostUrl + 'static/bryantest/white-wall.jpg'; 
-     //wallMaterial.diffuseTexture = new BABYLON.Texture(wallTextureUrl,scene);
+     wallMaterial.diffuseTexture = new BABYLON.Texture(wallTextureUrl,scene);
      wallMaterial.ambientTexture = new BABYLON.Texture(wallTextureUrl,scene);
      // apply the material to meshes
      backwall.material = wallMaterial;
@@ -368,7 +369,7 @@ function Create2DArray(rows) {
 // --------------------------------------------------------------------------------------------------------------------------------
 // Import and handling of the cubes 
 
-// first, define the cube materials
+// Define the cube materials
 // should be efficient since we reference to a single texture image file for all boxes (cache friendly also)
 // note that only this product configurator loads babylon files directly.  
 function createboxMaterial (scene) {
@@ -379,6 +380,38 @@ function createboxMaterial (scene) {
      //boxMaterial.ambientTexture = new BABYLON.Texture(boxMaterialUrl,scene);
      
      return boxMaterial; 
+}
+
+// callback func for mesh under selection and control using actionManager
+function meshSelectControl (scene, meshObj) {
+
+     // attach actionmanager to the scene 
+     meshObj.actionManager = new BABYLON.ActionManager(scene);
+
+     // define highlight 
+     var hl = new BABYLON.HighlightLayer("hl", scene);
+
+     // register actions
+     meshObj.actionManager.registerAction(
+          new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOverTrigger, function(m){
+               var mesh = m.meshUnderPointer;
+               hl.addMesh(mesh, BABYLON.Color3.Blue());
+          })
+     ); 
+     meshObj.actionManager.registerAction(
+          new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOutTrigger, function(m){
+              var mesh = m.meshUnderPointer;
+              hl.removeMesh(mesh);
+          })
+     );
+     // this is for jquery to pick up ?
+     stackCube.actionManager.registerAction(
+          new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(m){
+                    makeEvent("popup");
+               }
+          )
+     );
+     
 }
 
 /*
@@ -422,9 +455,11 @@ function importBaseCubes_SUPP(scene,gridMat,bcubesPrefix,rx,cy) {
           basecubeArray.push(bcubesPrefix);
           basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
           basecubeCtr = basecubeCtr +  1; 
+
+          // configure actionManager
+          meshSelectControl (scene, newMesh);
      }); 
 }
-
 
 
 function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) { 
@@ -485,42 +520,81 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     }
                }
 
-               // assign horizontal buttons related to this base cube configuration using btn_BaseHorInit callback 
-               // hard code the logic here for each base cube B1-B6. no need to do automated loop...it makes it more heavy!
+               // assign horizontal and vertical buttons related to this base cube configuration using appropriate callbacks 
                switch(intprefix) {
-                    case 1: // for B1, we will have five pluses to its right, each at the native grid (no mods)
+                    case 1: 
+                         // for B1, we will have five pluses to its right, each at the native grid (no mods)
                          horBtn_1 = btn_BaseHorInit (scene, gridMat, 1, 0,1);
                          horBtn_2 = btn_BaseHorInit (scene, gridMat, 2, 0,2);
                          horBtn_3 = btn_BaseHorInit (scene, gridMat, 3, 0,3);
                          horBtn_4 = btn_BaseHorInit (scene, gridMat, 4, 0,4);
                          horBtn_5 = btn_BaseHorInit (scene, gridMat, 5, 0,5);
+                         // associated vertical
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 1, 0);
                          break; 
-                    case 2: // for B2, we will have four pluses to its right
+                    case 2: 
+                         // for B2, we will have four pluses to its right
                          horBtn_1 = btn_BaseHorInit (scene, gridMat, 1, 0,2);
                          horBtn_2 = btn_BaseHorInit (scene, gridMat, 2, 0,3);
                          horBtn_3 = btn_BaseHorInit (scene, gridMat, 3, 0,4);
                          horBtn_4 = btn_BaseHorInit (scene, gridMat, 4, 0,5);
+                         // associated vertical
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 1, 0);
+                         stackBtn_2 = btn_Stack(scene, gridMat, 2, 1, 1);
                          break; 
                     case 3: 
                          horBtn_1 = btn_BaseHorInit (scene, gridMat, 1, 0,3);
                          horBtn_2 = btn_BaseHorInit (scene, gridMat, 2, 0,4);
                          horBtn_3 = btn_BaseHorInit (scene, gridMat, 3, 0,5);
+                         // associated vertical
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 1, 0);
+                         stackBtn_2 = btn_Stack(scene, gridMat, 2, 1, 1);
+                         stackBtn_3 = btn_Stack(scene, gridMat, 3, 1, 2);
                          break; 
                     case 4:
                          horBtn_1 = btn_BaseHorInit (scene, gridMat, 1, 0,4);
                          horBtn_2 = btn_BaseHorInit (scene, gridMat, 2, 0,5);
+                         // associated vertical
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 1, 0);
+                         stackBtn_2 = btn_Stack(scene, gridMat, 2, 1, 1);
+                         stackBtn_3 = btn_Stack(scene, gridMat, 3, 1, 2);
+                         stackBtn_4 = btn_Stack(scene, gridMat, 4, 1, 3);
                          break; 
                     case 5:
                          horBtn_1 = btn_BaseHorInit (scene, gridMat, 1, 0,5);
+                         // associated vertical
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 1, 0);
+                         stackBtn_2 = btn_Stack(scene, gridMat, 2, 1, 1);
+                         stackBtn_3 = btn_Stack(scene, gridMat, 3, 1, 2);
+                         stackBtn_4 = btn_Stack(scene, gridMat, 4, 1, 3);
+                         stackBtn_5 = btn_Stack(scene, gridMat, 5, 1, 4);
                          break; 
                     default:
-                         break; // case 6 has zero horizontal pluses 
+                         // case 6 has zero horizontal pluses 
+                         // associated vertical 
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 1, 0);
+                         stackBtn_2 = btn_Stack(scene, gridMat, 2, 1, 1);
+                         stackBtn_3 = btn_Stack(scene, gridMat, 3, 1, 2);
+                         stackBtn_4 = btn_Stack(scene, gridMat, 4, 1, 3);
+                         stackBtn_5 = btn_Stack(scene, gridMat, 5, 1, 4);
+                         stackBtn_6 = btn_Stack(scene, gridMat, 6, 1, 5);
+                         break; 
                }
 
                // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
                basecubeArray.push(bcubesPrefix);
                basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
                basecubeCtr = basecubeCtr +  1; 
+
+               // define mesh rotation
+               newMesh.rotation.y = Math.PI/2;
+          
+               // define mesh material
+               var boxMaterial = createboxMaterial(scene); 
+               newMesh.material = boxMaterial; 
+
+               // define cube actionManager
+               meshSelectControl (scene, newMesh);
                
           } else if (type == 'nextLOGIC') {
 
@@ -685,20 +759,23 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
                     basecubeCtr = basecubeCtr +  1; 
 
+                    // define mesh rotation
+                    newMesh.rotation.y = Math.PI/2;
+                    
+                    // define mesh material
+                    var boxMaterial = createboxMaterial(scene); 
+                    newMesh.material = boxMaterial; 
+
+                    // configure mesh actionManager
+                    meshSelectControl (scene, newMesh);
+
                } else {
-                    console.log("problem with right or left detection.")
+                    console.log("problem with right or left detection."); 
                }
 
           } else {
                console.log('[ERROR] Unrecognized type for function importBaseCubes passed via args type');
           }
-          
-          // define mesh rotation
-          newMesh.rotation.y = Math.PI/2;
-          
-          // define mesh material
-          var boxMaterial = createboxMaterial(scene); 
-          newMesh.material = boxMaterial;
      }); 
 }
 
@@ -752,8 +829,8 @@ function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
      //  button stuff
      var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
      var button = BABYLON.GUI.Button.CreateImageOnlyButton(btnInt, "https://cdn.shopify.com/s/files/1/0185/5092/products/symbols-0173_800x.png?v=1369543613");
-     button.width = "40px";
-     button.height = "40px";
+     button.width = "20px";
+     button.height = "20px";
      button.color = "white";
      button.background = hostUrl + 'static/bryantest/white-wall.jpg';
 
@@ -761,11 +838,10 @@ function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
      
      // on click event for the button
      button.onPointerUpObservable.add(function() {
-         
-          // importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy) -- > recall this is the callback to import base cubes and use 'next' as type! 
           // remove the button and in its place, put the base cube B1
           button.dispose(); 
           importBaseCubes(scene,gridMat,'B1',rx_target,cy_target,'nextLOGIC'); 
+          btn_Stack(scene, gridMat, btnInt, rx_target+1, cy_target);
      });
 
      advancedTexture.addControl(button);
@@ -774,43 +850,86 @@ function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
      return button;
 }
 
-
-/*
-     Mesh cube removal, highlight and manipulation stuffs
-*/
-// https://doc.babylonjs.com/babylon101/picking_collisions for picking meshes
-
-
-// this is a function to highlight cube mesh based on pointer event
-// inspired by https://playground.babylonjs.com/#TC2K69#1
-function evtCubeHighlighter() {
-     return 0; 
-}
-
-
+// ----------------------------------------------------------------------------------------------------------------------------------------
 /*
      Now it is time to define Imports of stacking cubes !! 
 */
+
+// create an event with keyword arg 'type'. to be picked up by other js 
+function makeEvent(type){
+     var event = document.createEvent("event");
+     event.initEvent(type, true, true);
+     window.dispatchEvent(event);
+ }
 
 // callback function to import stacking cubes
 // import stacking cubes 
 function importStackCubes(scene, x, y, z, stackprefix) {
      console.log("[INFO] Imported stack asset mesh"); 
 
-     // count number of stack cubes
-     var cubeName = stackprefix + postfix; // name of cube to be imported
+     // name of cube to be imported
+     var cubeName = stackprefix + postfix; 
 
-     // 
-     var cubeID = parseInt(prefix[1]);		
-     stackCubeCounter[cubeID-1] = stackCubeCounter[cubeID-1] + 1;
-     
+     // make an event to fire
+     makeEvent("stack");
      BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", cubeName, scene, 
      function (stackcube) {
-          stackcube[0].position.x = x;
-          stackcube[0].position.y = y;
-          stackcube[0].position.z = z;
-          stackcube[0].rotation.y = Math.PI/2;
+
+         var newstackCube = stackcube[0];
+
+         newstackCube.id = 'E' + String(stackcubeCtr); 
+         newstackCube.name = 'E' + String(stackcubeCtr); 
+
+         //define stackcube properties
+         newstackCube.isPickable = true;
+         newstackCube.position.x = x;
+         newstackCube.position.y = y;
+         newstackCube.position.z = z;
+         newstackCube.rotation.y = Math.PI/2;
+          
+         // update stackcube trackers
+         stackcubeArray.push(stackprefix);
+         stackcubePos.push([newstackCube.position.x, newstackCube.position.y, newstackCube.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z
+         stackcubeCtr += 1;
+
+         // configure stackcube select-control
+         meshSelectControl (scene, newstackCube); 
      });
 }
+
+// this deserves its own callback since at the start, the pluses are added for the remaining base cube spaces
+// i.e. if initially the 6cube base is imported, then no plus! 
+function btn_Stack(scene, gridMat, btnInt, rx_target,cy_target) {
+ 
+     // horizontal btns for the base cubes manipulation
+     // this will add a base cube at the plus position that is being clicked. 
+     // will be initialized alongside the first base cube import
+ 
+     // btnInt can only be an integer and it is to serve as a unique number for each button
+     // no need to track the button index for the horizontal cubes since its permutations are very small 
+     
+     //  button stuff
+     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+     var button = BABYLON.GUI.Button.CreateImageOnlyButton(btnInt, "https://cdn.shopify.com/s/files/1/0185/5092/products/symbols-0173_800x.png?v=1369543613");
+     button.width = "20px";
+     button.height = "20px";
+     button.color = "white";
+     button.background = hostUrl + 'static/bryantest/white-wall.jpg';
+ 
+     // position the button at rx_target and cy_target, using gridMat, unmodified
+ 
+     // on click event for the button
+     button.onPointerUpObservable.add(function() {
+          // let intprefix = parseInt(bcubesPrefix_init[1]); 
+          button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target+1][cy_target][1], 0), scene)
+          importStackCubes(scene, gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], gridMat[rx_target][cy_target][2], "E1");
+          rx_target += 1;          
+     });
+ 
+     advancedTexture.addControl(button);
+     button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], 0), scene);
+ 
+     return button;
+ }
 
 
