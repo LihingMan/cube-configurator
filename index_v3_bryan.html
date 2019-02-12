@@ -86,9 +86,16 @@
                     opacity:0.5;
                 }
 
-                /* .modal {
-                    -webkit-transform: translate3d(0, 0, 0);
-                } */
+                @media screen and (orientation:portrait) {
+                    /* Portrait styles */
+                    /*hide your main content and display message */
+
+                }
+                @media screen and (orientation:landscape) {
+                    /* Landscape styles */
+                    /* show your content*/
+
+                }
                 
         </style>
     </head> 
@@ -173,16 +180,64 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
 
         <script>
-            function ready() {
-                const { type } = screen.orientation;
-                console.log("Fullscreen and locked to ${type}. Ready!");
-            }
+            // window.addEventListener("orientationchange", function() {
+            //     // Announce the new orientation number
+            //     if (window.orientation == -90 || window.orientation == 90) {
+			//         alert("Device is in landscape mode")
+		    //     }
+		    //     if (window.orientation == 0) {
+			//         alert("Device is in portrait mode")
+		    //     }
+            //     location.reload(true)
+            // }, false);
 
-            async function start() {
-                // await document.body.requestFullscreen();
-                await screen.orientation.lock("landscape");
-                ready();
-            }
+
+            // $(window).on("deviceorientation", function( event ) {
+		    //     if (window.matchMedia("(orientation: portrait)").matches) {
+			//         alert("Device is in portrait mode")
+		    //     }
+		    //     if (window.matchMedia("(orientation: landscape)").matches) {
+			//         alert("Device is in landscape mode")
+		    //     }
+                
+	        // });
+            
+            var mql = window.matchMedia("(orientation: portrait)");
+            // Add a media query change listener
+            mql.addListener(function(m) {
+                if(m.matches) {
+                    alert("portrait")
+
+                }
+                else {
+                    alert("landscape")
+                    location.reload(true)
+                }
+                
+            });
+
+            // $(window).on( "orientationchange", function( event ) {
+            //     if(screen.orientation.type == 'landscape-primary'){
+            //         alert("This device is in landscape mode!")
+            //     }
+            //     if(screen.orientation.type == 'portrait-primary'){
+            //         alert("This device is in portrait mode!")
+            //     }
+            //     location.reload(true)
+            // });
+
+            // window.addEventListener("orientationchange", orientation());
+            // function orientation(){
+            //     $(window).on("deviceorientation", function( event ) {
+            //         if (window.matchMedia("(orientation: portrait)").matches) {
+            //             alert("Device is in portrait mode")
+            //         }   
+            //         if (window.matchMedia("(orientation: landscape)").matches) {
+            //             alert("Device is in landscape mode")
+            //         }
+            //     });
+            // }
+            
 
             // variables for storing quantity of cubes in scene
             var stackcube;
@@ -261,7 +316,7 @@
                 event.initEvent(type, true, true);
                 window.dispatchEvent(event);
             }
-            start();
+        
         </script>        
     </body>
 </html>    
