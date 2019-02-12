@@ -19,7 +19,6 @@
     
         <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
         
-        
         <style>
                 html {
                     position: fixed;
@@ -86,6 +85,10 @@
                 .modal-backdrop {
                     opacity:0.5;
                 }
+
+                /* .modal {
+                    -webkit-transform: translate3d(0, 0, 0);
+                } */
                 
         </style>
     </head> 
@@ -93,6 +96,7 @@
     <body>
 
         <canvas id="main_app"></canvas>
+
         <!--<table class="data">
             <tr>
               <th>Type</th>
@@ -156,7 +160,7 @@
                         </h1>
                     </div>
                     <div class="modal-body">
-                        <p>Body</p>
+                        <button class="btn btn-primary" id="accessory">Add stuff</button>
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-primary" data-dismiss="modal">Close</button>
@@ -169,6 +173,17 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
 
         <script>
+            function ready() {
+                const { type } = screen.orientation;
+                console.log("Fullscreen and locked to ${type}. Ready!");
+            }
+
+            async function start() {
+                // await document.body.requestFullscreen();
+                await screen.orientation.lock("landscape");
+                ready();
+            }
+
             // variables for storing quantity of cubes in scene
             var stackcube;
             var basecube;
@@ -217,8 +232,16 @@
             });
 
             $(document).ready(function () {
-                window.addEventListener("popup", function(){
+                window.addEventListener("popup", function(){                    
+                    
                     $('#pop-up-modal').modal();
+                });
+            });
+
+            // when button is clicked, make an event that will be registered and the mesh will be imported
+            $(document).ready(function(){
+                $('#accessory').click(function(){
+                    makeEvent("importXshelf");
                 });
             });
 
@@ -232,6 +255,13 @@
                 
                 return total
             }
+
+            function makeEvent(type){
+                var event = document.createEvent("event");
+                event.initEvent(type, true, true);
+                window.dispatchEvent(event);
+            }
+            start();
         </script>        
     </body>
 </html>    

@@ -83,6 +83,7 @@ function mainApp() {
      // Render
      engine.runRenderLoop(function () {
           scene.render(); 
+    
      }); 
  
      // Ensure engine resize to keep things in perspective 
@@ -117,15 +118,20 @@ function createRoomScene() {
 	createRoof(scene); 
 
 	// create the outdoor env --> skybox!
-     createOutdEnv(scene); 
-     
-     // define the mathematical grid to arrange cubes. call once only!
-     var gridMat = gridEngine(); 
+    createOutdEnv(scene); 
+    
+    // define the mathematical grid to arrange cubes. call once only!
+    var gridMat = gridEngine(); 
 
-     // Load base cubes and enable modifications to the base cubes 
-     importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0, 'init');
+    // Load base cubes and enable modifications to the base cubes 
+    importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0, 'init');
 
-    //  evtCubeHighlighter(scene, canvas, camera);
+    // when the importXshelf event is fired, import the mesh into the position of the stack cube
+    window.addEventListener("importXshelf", function() {
+        var index = sessionStorage.getItem("cubeCoords"); // get the index from sessionStorage
+        index = JSON.parse(index);
+        importXshelf(scene, index[0], index[1], index[2]);
+    });
 
     // finally ... 
     return scene; 
@@ -815,8 +821,8 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
         newMesh.actionManager.registerAction(
             new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(m){
                 makeEvent("popup");
-                var mesh = m.meshUnderPointer;
-                hl.addMesh(mesh, BABYLON.Color3.Red())
+                // var mesh = m.meshUnderPointer;
+                // hl.addMesh(mesh, BABYLON.Color3.Red())
             })
         );
 
@@ -982,6 +988,10 @@ function importStackCubes(scene, x, y, z, stackprefix) {
         stackCube.position.z = z;
         stackCube.rotation.y = Math.PI/2;
 
+        stackcubeArray.push(stackprefix);
+        stackcubePos.push([stackCube.position.x, stackCube.position.y, stackCube.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z
+        stackcubeCtr += 1;
+
         var hl = new BABYLON.HighlightLayer("h2", scene); // highlight definition
 
         // one mouse over the mesh, it'll be highlighted
@@ -1002,13 +1012,17 @@ function importStackCubes(scene, x, y, z, stackprefix) {
 
         stackCube.actionManager.registerAction(
             new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(m){
+                // var name = stackCube.name;
+                var index = [x, y ,z]
+
+                sessionStorage.setItem("cubeCoords", JSON.stringify(index));
+
                 makeEvent("popup");
+                
             })
         );
 
-        stackcubeArray.push(stackprefix);
-        stackcubePos.push([stackCube.position.x, stackCube.position.y, stackCube.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z
-        stackcubeCtr += 1;
+       
     });
 }
 
@@ -1072,4 +1086,20 @@ function makeEvent(type){
     var event = document.createEvent("event");
     event.initEvent(type, true, true);
     window.dispatchEvent(event);
+}
+
+function importXshelf(scene, x, y, z) {
+    console.log("[INFO] Imported X shelf mesh"); 
+    BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", "Xshelve.babylon", scene, 
+    function (xshelf) {
+        xShelf = xshelf[0]; 
+
+        xShelf.actionManager = new BABYLON.ActionManager(scene); // register the mesh for actions
+
+        xShelf.position.x = x;
+        xShelf.position.y = y;
+        xShelf.position.z = z;
+        xShelf.rotation.y = Math.PI/2;
+
+    });
 }
