@@ -88,13 +88,16 @@
 
                 @media screen and (orientation:portrait) {
                     /* Portrait styles */
-                    /*hide your main content and display message */
+                    /*hide main content and display message */
+                    #main_app {display: none;}
+                    .price {display: none;}
 
                 }
                 @media screen and (orientation:landscape) {
                     /* Landscape styles */
                     /* show your content*/
-
+                    #main_app {display: block;}
+                    .price {display: block;}
                 }
                 
         </style>
@@ -179,65 +182,19 @@
         <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
 
-        <script>
-            // window.addEventListener("orientationchange", function() {
-            //     // Announce the new orientation number
-            //     if (window.orientation == -90 || window.orientation == 90) {
-			//         alert("Device is in landscape mode")
-		    //     }
-		    //     if (window.orientation == 0) {
-			//         alert("Device is in portrait mode")
-		    //     }
-            //     location.reload(true)
-            // }, false);
-
-
-            // $(window).on("deviceorientation", function( event ) {
-		    //     if (window.matchMedia("(orientation: portrait)").matches) {
-			//         alert("Device is in portrait mode")
-		    //     }
-		    //     if (window.matchMedia("(orientation: landscape)").matches) {
-			//         alert("Device is in landscape mode")
-		    //     }
-                
-	        // });
-            
+        <script>            
             var mql = window.matchMedia("(orientation: portrait)");
             // Add a media query change listener
             mql.addListener(function(m) {
                 if(m.matches) {
-                    alert("portrait")
+                    alert("use landscape instead")
 
                 }
                 else {
-                    alert("landscape")
                     location.reload(true)
                 }
-                
+
             });
-
-            // $(window).on( "orientationchange", function( event ) {
-            //     if(screen.orientation.type == 'landscape-primary'){
-            //         alert("This device is in landscape mode!")
-            //     }
-            //     if(screen.orientation.type == 'portrait-primary'){
-            //         alert("This device is in portrait mode!")
-            //     }
-            //     location.reload(true)
-            // });
-
-            // window.addEventListener("orientationchange", orientation());
-            // function orientation(){
-            //     $(window).on("deviceorientation", function( event ) {
-            //         if (window.matchMedia("(orientation: portrait)").matches) {
-            //             alert("Device is in portrait mode")
-            //         }   
-            //         if (window.matchMedia("(orientation: landscape)").matches) {
-            //             alert("Device is in landscape mode")
-            //         }
-            //     });
-            // }
-            
 
             // variables for storing quantity of cubes in scene
             var stackcube;
