@@ -469,8 +469,10 @@ function importBaseCubes_SUPP(scene,gridMat,bcubesPrefix,rx,cy) {
     newMesh.actionManager.registerAction(
         new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(m){
             makeEvent("popup");
-            var mesh = m.meshUnderPointer;
-            hl.addMesh(mesh, BABYLON.Color3.Red())
+            
+            var meshInt = bcubesPrefix[1];
+
+            sessionStorage.setItem("meshInt", meshInt);
         })
     );
 
@@ -821,10 +823,13 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
         newMesh.actionManager.registerAction(
             new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(m){
                 makeEvent("popup");
-                // var mesh = m.meshUnderPointer;
-                // hl.addMesh(mesh, BABYLON.Color3.Red())
+                
+                var meshInt = bcubesPrefix[1];
+
+                sessionStorage.setItem("meshInt", meshInt);
             })
         );
+
 
     }); 
 }
@@ -1013,10 +1018,13 @@ function importStackCubes(scene, x, y, z, stackprefix) {
         stackCube.actionManager.registerAction(
             new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(m){
                 // var name = stackCube.name;
-                var index = [x, y ,z]
+                var index = [x, y ,z];
 
+                var meshInt = stackprefix[1];
+
+                sessionStorage.setItem("meshInt", JSON.stringify(meshInt));
                 sessionStorage.setItem("cubeCoords", JSON.stringify(index));
-
+                
                 makeEvent("popup");
                 
             })
