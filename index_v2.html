@@ -3,7 +3,13 @@
     <head>
         <meta charset="UTF-8">
         <title>ezbo</title>
-        
+
+        <!-- bootstrap css here (in production include in base.html) -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+        <!-- game page custom css -->
+        <link rel="stylesheet" href="configurator_v2.css"> 
+
         <!-- event handler for touch events -->
         <!-- <script> src="https://cdnjs.cloudflare.com/ajax/libs/jquery.pep/0.4.0/jquery.pep.min.js"</script> --> 
         <!-- earcut: polygon triangulation for webgl apps, required by babylon's polygon funcs -->
@@ -14,29 +20,98 @@
         <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
         <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
         
-        <style>
-            html, body {
-                width:100%;
-                height:100%;
-                padding:0;
-                margin:0;
-                overflow:hidden;
-            }
-
-            #main_app {
-                width:100%;
-                height:100%;
-            }
-        </style>
     </head> 
 
     <body>
+
         <canvas id="main_app"></canvas>
 
-        <script>
-            // enforce that the user tilts horizontally if on mobile. future
-        </script>
-        
+        <!-- load ezbo game script first -->
         <script src="configurator_v2.js"></script>
+
+        <!-- modal for cube manipulation i.e. accesories et al-->
+        <div class="modal" id="pop-up-modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title">
+                            Accessories
+                        </h1>
+                    </div>
+                    <div class="modal-body">
+                        
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- price display -->
+        <p class="price">
+            <span id="price"></span>
+        </p>
+
+        <!-- load dependencies for bootstrap -->
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+        
+        <!-- then other scripts for DOM manipulation -->
+        <script>
+            $(document).ready(function () {
+                window.addEventListener("popup", function(){  
+                    var meshInt = JSON.parse(sessionStorage.getItem("meshInt"));
+                    
+                    if (meshInt == 1) {
+                        $(".modal-body").append("<button class='btn btn-primary' id='accessory1'>Add stuff</button>");  // append button into modal
+                    }
+                    else if(meshInt == 2) {
+                        $(".modal-body").append("<button class='btn btn-primary' id='accessory1'>Add stuff</button>");  // append button into modal
+                        $(".modal-body").append("<button class='btn btn-primary' id='accessory2'>Add stuff</button>");  
+                    }
+                    else if(meshInt == 3) {
+                        $(".modal-body").append("<button class='btn btn-primary' id='accessory1'>Add stuff</button>");  // append button into modal
+                        $(".modal-body").append("<button class='btn btn-primary' id='accessory2'>Add stuff</button>"); 
+                        $(".modal-body").append("<button class='btn btn-primary' id='accessory3'>Add stuff</button>");  
+                    }
+                    else if(meshInt == 4) {
+                        $(".modal-body").append("<button class='btn btn-primary' id='accessory1'>Add stuff</button>");  // append button into modal
+                        $(".modal-body").append("<button class='btn btn-primary' id='accessory2'>Add stuff</button>"); 
+                        $(".modal-body").append("<button class='btn btn-primary' id='accessory3'>Add stuff</button>");  
+                        $(".modal-body").append("<button class='btn btn-primary' id='accessory4'>Add stuff</button>");  
+                    }
+                    else if(meshInt == 5) {
+                        $(".modal-body").append("<button class='btn btn-primary' id='accessory1'>Add stuff</button>");  // append button into modal
+                        $(".modal-body").append("<button class='btn btn-primary' id='accessory2'>Add stuff</button>"); 
+                        $(".modal-body").append("<button class='btn btn-primary' id='accessory3'>Add stuff</button>");  
+                        $(".modal-body").append("<button class='btn btn-primary' id='accessory4'>Add stuff</button>");  
+                        $(".modal-body").append("<button class='btn btn-primary' id='accessory5'>Add stuff</button>");  
+                    }
+                    else if(meshInt == 6) {
+                        $(".modal-body").append("<button class='btn btn-primary' id='accessory1'>Add stuff</button>");  // append button into modal
+                        $(".modal-body").append("<button class='btn btn-primary' id='accessory2'>Add stuff</button>"); 
+                        $(".modal-body").append("<button class='btn btn-primary' id='accessory3'>Add stuff</button>");  
+                        $(".modal-body").append("<button class='btn btn-primary' id='accessory4'>Add stuff</button>");  
+                        $(".modal-body").append("<button class='btn btn-primary' id='accessory5'>Add stuff</button>");
+                        $(".modal-body").append("<button class='btn btn-primary' id='accessory6'>Add stuff</button>");  
+                    }
+
+                    // event to import X shelf
+                    $('#accessory1').click(function(){ 
+                        makeEvent("importXshelf");
+                    });                  
+
+                    // reset modal when hidden from view so buttons can change dynamically based on which cube is selected
+                    $(".modal").on("hidden.bs.modal", function(){
+                        $(".modal-body").html(""); // this seems kinda shifty might need change of method
+                    });
+
+                    $('#pop-up-modal').modal(); // show modal
+            });
+        });
+        
+        </script>
+
     </body>
 </html>    

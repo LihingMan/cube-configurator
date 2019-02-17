@@ -4,19 +4,22 @@ EZBO Stacking Cube Product Configurator Web App v2
 // Use my CDN for static files i.e. https://stagingfiles.sgp1.digitaloceanspaces.com/ezbo/<filename>
 
 // trackers for base cube
-var basecubeArray = []; // to track the base cubes in the scene
+var basecubeArray = []; // to track the base cubes in the scene by name i.e. B1 etc
 var basecubePos = []; // to keep track of 1:1 position in euler coords (i.e. 0.1,0.25 etc etc) 
-// start from index tracking of 0 . only +1 whenever a base cube has been added. this is to primarily give 
+// basecubeCtr start from index tracking of 0 . only +1 whenever a base cube has been added. this is to primarily give 
 // the cubes their id and name when imported to scene
 var basecubeCtr = 0; 
 
 // trackers for stackcube
-var stackcubeArray = []; // to track the stack cubes in the scene 
-var stackcubeCtr = 0; // for naming
-var stackcubePos = []; 
+var stackcubeArray = []; // to track the stack cubes in the scene by name i.e. E1 etc
+var stackcubeCtr = 0; // for mesh naming (unique id and name)
+var stackcubePos = []; // track 1:1 position in euler coords in tandem with the above two 
 
 // trackers for accesories 
-var accesoryArray = []; // to track the accesories 
+// this includes the X shelving, .. table ...
+var accesoryArray = []; // to track the accesories in the scene
+var accesoryCtr = 0; 
+var accesoryPos = []; 
 
 // some global constants 
 var postfix = "-final.babylon"; // define postfix for end of mesh file names
@@ -25,6 +28,7 @@ var boxgridWidth = 0.3835; // in mtrs, the defined grid system box element width
 
 // INITALIZATION 
 // assign basecubes file prefix for auto import of mesh into the scene.
+// but when integrated with the ezbo django app, this will be loaded from session storage 
 var bcubesPrefix_init = 'B1'; // can be B1-B6, as passed by django view
 
 // Check if  browser supports webGL
@@ -46,10 +50,10 @@ if (BABYLON.Engine.isSupported()) {
  
  } else {
      // display error message
-     console.log('ERROR: WebGL support is required!')
+     console.log('ERROR: WebGL support is required!'); 
      // alert user
      window.alert("webGL is not enabled on this browser. \
-                    Please edit your browser settings to enable webGL")
+                    Please edit your browser settings to enable webGL"); 
      // redirect after 5 seconds to home page....
      // redirect here! ?
  } 
@@ -116,6 +120,13 @@ function createRoomScene() {
 
 // ----------------------------------------------------------------------------------------------------------------
 // FUNCTION CALLBACKS
+
+// create an event with keyword arg 'type'. to be picked up by other js , even those outside this script
+function makeEvent(type){
+     var event = document.createEvent("event");
+     event.initEvent(type, true, true);
+     window.dispatchEvent(event);
+ }
 
 // create the camera
 function createCamera(scene) {
@@ -415,15 +426,7 @@ function meshSelectControl (scene, meshObj, color) {
               var mesh = m.meshUnderPointer;
               hl.removeMesh(mesh);
           })
-     );
-     // this is for jquery to pick up ?
-     stackCube.actionManager.registerAction(
-          new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(m){
-                    makeEvent("popup");
-               }
-          )
-     );
-     
+     );     
 }
 
 /*
@@ -623,7 +626,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                               1.2.1 Then check these neighbour's basecubeprefix, and feed them both into the combinatory logic callback
                */
               
-               // define the imported B1 cube's coordinates as newXXXX
+               // define the imported B1 cube's coordinates
                var newX = gridMat[rx][cy][0]; 
                var newY = gridMat[rx][cy][1]; // this is a constant for base cubes , can just reuse this number
                var newZ = gridMat[rx][cy][2]; // actually Z is constant...see how gridMat is defined! 
@@ -848,7 +851,6 @@ function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
      button.width = "20px";
      button.height = "20px";
      button.color = "white";
-     button.background = hostUrl + 'static/bryantest/white-wall.jpg';
 
      // position the button at rx_target and cy_target, using gridMat, unmodified
      
@@ -870,13 +872,6 @@ function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
 /*
      Now it is time to define Imports of stacking cubes !! 
 */
-
-// create an event with keyword arg 'type'. to be picked up by other js 
-function makeEvent(type){
-     var event = document.createEvent("event");
-     event.initEvent(type, true, true);
-     window.dispatchEvent(event);
- }
 
 // callback function to import stacking cubes
 // import stacking cubes 
@@ -914,9 +909,9 @@ function importStackCubes(scene, x, y, z, stackprefix) {
          meshSelectControl (scene, newstackCube, '2'); 
 
          // attach modal pop up for adding/removing stuff 
-         stackCube.actionManager.registerAction(
+         // This is an event action manager that will register the function to run whenever the associated mesh is clicked
+         newstackCube.actionManager.registerAction(
                new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(m){
-                    // var name = stackCube.name;
                     var index = [x, y ,z];
 
                     var meshInt = stackprefix[1];
@@ -947,7 +942,6 @@ function btn_Stack(scene, gridMat, btnInt, rx_target,cy_target) {
      button.width = "20px";
      button.height = "20px";
      button.color = "white";
-     button.background = hostUrl + 'static/bryantest/white-wall.jpg';
  
      // position the button at rx_target and cy_target, using gridMat data, unmodified
  
