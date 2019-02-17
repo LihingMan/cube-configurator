@@ -1,6 +1,7 @@
 /*
 EZBO Stacking Cube Product Configurator Web App v2
 */
+// Use my CDN for static files i.e. https://stagingfiles.sgp1.digitaloceanspaces.com/ezbo/<filename>
 
 // trackers for base cube
 var basecubeArray = []; // to track the base cubes in the scene
@@ -35,7 +36,7 @@ if (BABYLON.Engine.isSupported()) {
      var engine = new BABYLON.Engine(canvas, true, { stencil: true });  // this is the Babylon class engine 
      
      // declare globally accesible variable of host url (for later concat)
-     var hostUrl = 'http://123sense.com/'; 
+     var hostUrl = 'https://stagingfiles.sgp1.digitaloceanspaces.com/ezbo/'; 
      
      // make sure DOM is loaded first 
      window.addEventListener('DOMContentLoaded', function() {
@@ -199,7 +200,7 @@ function createOutdEnv(scene) {
  
      // create floor material
      var floorMaterial = new BABYLON.StandardMaterial("floorMaterial", scene);
-     var floorTextureUrl = hostUrl + 'static/bryantest/woodtexture.jpg'; 
+     var floorTextureUrl = hostUrl + 'woodtexture.jpg'; 
      floorMaterial.ambientTexture = new BABYLON.Texture(floorTextureUrl,scene);
      // apply the material to mesh
      floorMesh.material = floorMaterial;
@@ -226,7 +227,7 @@ function createOutdEnv(scene) {
  
      // create roof material
      var roofMaterial = new BABYLON.StandardMaterial("roofMaterial", scene);
-     var roofTextureUrl = hostUrl + 'static/bryantest/white-wall.jpg'; 
+     var roofTextureUrl = hostUrl + 'white-wall.jpg'; 
      //roofMaterial.diffuseTexture = new BABYLON.Texture(roofTextureUrl,scene);
      roofMaterial.ambientTexture = new BABYLON.Texture(roofTextureUrl,scene);
      // apply the material to mesh
@@ -299,7 +300,7 @@ function createOutdEnv(scene) {
     
      // create roof material
      var wallMaterial = new BABYLON.StandardMaterial("wallMaterial", scene);
-     var wallTextureUrl = hostUrl + 'static/bryantest/white-wall.jpg'; 
+     var wallTextureUrl = hostUrl + 'white-wall.jpg'; 
      wallMaterial.diffuseTexture = new BABYLON.Texture(wallTextureUrl,scene);
      wallMaterial.ambientTexture = new BABYLON.Texture(wallTextureUrl,scene);
      // apply the material to meshes
@@ -376,7 +377,7 @@ function Create2DArray(rows) {
 function createboxMaterial (scene) {
      // create box material
       var boxMaterial = new BABYLON.StandardMaterial("boxMaterial", scene);
-      var boxMaterialUrl = hostUrl + 'static/bryantest/walnut-fine-wood.jpg'; 
+      var boxMaterialUrl = hostUrl + 'walnut-fine-wood.jpg'; 
       boxMaterial.diffuseTexture = new BABYLON.Texture(boxMaterialUrl,scene);
      //boxMaterial.ambientTexture = new BABYLON.Texture(boxMaterialUrl,scene);
      
@@ -434,7 +435,7 @@ function importBaseCubes_SUPP(scene,gridMat,bcubesPrefix,rx,cy) {
      // concat with the constant global postfix to give import name 
      var bcubename = bcubesPrefix + postfix; 
 
-     BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubename, scene, 
+     BABYLON.SceneLoader.ImportMesh("", hostUrl, bcubename, scene, 
      function (newMeshes) {
 
           // dirty hack to get around not being able to assign name and id to mesh
@@ -493,7 +494,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
 
     // SceneLoader.ImportMesh
     // Loads the meshes from the file and appends them to the scene
-    BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", bcubename, scene, 
+    BABYLON.SceneLoader.ImportMesh("", hostUrl , bcubename, scene, 
      function (newMeshes) {
 
           // dirty hack to get around not being able to assign name and id to mesh
@@ -759,7 +760,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
 
                } else if (RightExistCubePrefix == '' && LeftExistCubePrefix == '') {
                     console.log("no match neighbours");
-                    
+
                     // else if both are still '', meaning no match so we can do business as usual and place the new B1 at the grid box r-c center 
                     newMesh.position.x = newX; // recall, row index, col index
                     newMesh.position.y = newY;
@@ -889,7 +890,7 @@ function importStackCubes(scene, x, y, z, stackprefix) {
      // codename 'stack' for firing javascript to update pricing incorporating stack cubes 
      makeEvent("stack");
 
-     BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", cubeName, scene, 
+     BABYLON.SceneLoader.ImportMesh("", hostUrl, cubeName, scene, 
      function (stackcube) {
      
          var newstackCube = stackcube[0];

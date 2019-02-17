@@ -2,6 +2,8 @@
 EZBO Stacking Cube Product Configurator Web App v2
 */
 
+// Use my CDN for static files i.e. https://stagingfiles.sgp1.digitaloceanspaces.com/ezbo/<filename>
+
 // trackers for base cube
 var basecubeArray = []; // to track the base cubes in the scene
 var basecubePos = []; // to keep track of 1:1 position in euler coords (i.e. 0.1,0.25 etc etc) 
