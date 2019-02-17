@@ -1,25 +1,35 @@
 /*
 EZBO Stacking Cube Product Configurator Web App v2
 */
-// Use my CDN for static files i.e. https://stagingfiles.sgp1.digitaloceanspaces.com/ezbo/<filename>
+// Use CDN for static files i.e. https://stagingfiles.sgp1.digitaloceanspaces.com/ezbo/<filename>
 
-// trackers for base cube
+// trackers for base cube - the B series
 var basecubeArray = []; // to track the base cubes in the scene by name i.e. B1 etc
 var basecubePos = []; // to keep track of 1:1 position in euler coords (i.e. 0.1,0.25 etc etc) 
 // basecubeCtr start from index tracking of 0 . only +1 whenever a base cube has been added. this is to primarily give 
 // the cubes their id and name when imported to scene
 var basecubeCtr = 0; 
+// trackers for accesories for the base cubes 
+// this includes the X shelving, .. table ... etc 
+// this will follow the basecube trackers 1:1. on initial cube import, there will be NO accesory so in such case default to 0
+// these can be nested arrays too! i.e. if a composite base cube i.e. B5 has 5 different accesories .. so single index store a nested array containing all 5 accesories
+var baseAccesoryArray = []; // to track the accesories in the scene
+var baseAccesoryPos = []; 
 
-// trackers for stackcube
+/*
+SPECIAL remark for stackcubes.
+ - user will only be able to import E1 into the canvas
+ - we do not graphically include the advanced logic i.e. detection of ES6.5 etc
+ - but nonetheless, must track these configuration by giving user the option to add 'planks' to join compatible stack cubes
+ - and also track in the background, the actual stack cube inventory..i.e. E3 E4 E6 ES6.5 etc for costing and checkout
+*/
+// trackers for stackcube - the E series
 var stackcubeArray = []; // to track the stack cubes in the scene by name i.e. E1 etc
 var stackcubeCtr = 0; // for mesh naming (unique id and name)
 var stackcubePos = []; // track 1:1 position in euler coords in tandem with the above two 
-
-// trackers for accesories 
-// this includes the X shelving, .. table ...
-var accesoryArray = []; // to track the accesories in the scene
-var accesoryCtr = 0; 
-var accesoryPos = []; 
+// trackers for accesories for the stack cubes. this will follow the stackcube trackers 1:1
+var stackAccesoryArray = []; 
+var stackAccesoryPos = []; 
 
 // some global constants 
 var postfix = "-final.babylon"; // define postfix for end of mesh file names
@@ -424,7 +434,7 @@ function meshSelectControl (scene, meshObj, color) {
      meshObj.actionManager.registerAction(
           new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOutTrigger, function(m){
               var mesh = m.meshUnderPointer;
-              hl.removeMesh(mesh);
+              hl.removeMesh(mesh); // remove highlight when out of pointer trigger
           })
      );     
 }
@@ -470,6 +480,8 @@ function importBaseCubes_SUPP(scene,gridMat,bcubesPrefix,rx,cy) {
           basecubeArray.push(bcubesPrefix);
           basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
           basecubeCtr = basecubeCtr +  1; 
+          baseAccesoryArray.push(0); // on initial import of a cube mesh, there is no accesory
+          baseAccesoryPos
 
           // configure actionManager
           meshSelectControl (scene, newMesh,'1');
@@ -511,7 +523,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                newMesh.name = String('B' + basecubeCtr); 
 
                // get base cube integer from prefix
-               var intprefix = parseInt(bcubesPrefix[1]); 
+               var intprefix = parseInt(bcubesPrefix.slice(1)); // slice the first letter which is B 
 
                // get modulus to see if it is odd or even
                // if it is 1, then just import as is without offset to grid
@@ -651,7 +663,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                for (var i=0; i < basecubePos.length; i++) { // note that we can also use i as the index tracker
                     
                     if (basecubeArray[i] != 0) { // if it is zero then it has been flagged as removed from scene so we IGNORE
-                         var basecubeInt = parseInt(basecubeArray[i][1]); // get the looped existing base cube number
+                         var basecubeInt = parseInt(basecubeArray[i].slice(1)); // get the looped existing base cube number, by slicing out the 'B' letter
                          var BLeftX , BRightX; 
                          
                          if (basecubeInt == 1) {
@@ -681,7 +693,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
 
                               // populate Left var with the basecubeprefix of the existing cube 
                               LeftExistCubePrefix = basecubeArray[i]; 
-                              var cubemultiplierL = parseInt(LeftExistCubePrefix[1]); 
+                              var cubemultiplierL = parseInt(LeftExistCubePrefix.slice(1));  
                               // populate associated X position (original)
                               LeftExistCubePos = basecubePos[i][0]; 
                               // populate the index with i. we need this to remove the mesh later
@@ -697,7 +709,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
 
                               // populate Left var with the basecubeprefix of the existing cube 
                               RightExistCubePrefix = basecubeArray[i];
-                              var cubemultiplierR = parseInt(RightExistCubePrefix[1]); 
+                              var cubemultiplierR = parseInt(RightExistCubePrefix.slice(1)); 
                               // populate associated X position
                               RightExistCubePos = basecubePos[i][0]; 
                               // populate the index with i. we need this to remove the mesh later
@@ -819,7 +831,7 @@ function prefixBaseCubeComb (BNew, BLeft, BRight) {
      }
      
      // add them up together 
-     var compositeIntStr = String(parseInt(BNew[1]) + parseInt(BLeft[1]) + parseInt(BRight[1])); 
+     var compositeIntStr = String(parseInt(BNew.slice(1)) + parseInt(BLeft.slice(1)) + parseInt(BRight.slice(1))); 
 
      // compose the B-prefix
      var compositePrefix = 'B' + compositeIntStr;
@@ -911,15 +923,15 @@ function importStackCubes(scene, x, y, z, stackprefix) {
          // attach modal pop up for adding/removing stuff 
          // This is an event action manager that will register the function to run whenever the associated mesh is clicked
          newstackCube.actionManager.registerAction(
-               new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(m){
-                    var index = [x, y ,z];
+               new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(selectedMesh){
 
-                    var meshInt = stackprefix[1];
-
-                    sessionStorage.setItem("meshInt", JSON.stringify(meshInt));
-                    sessionStorage.setItem("cubeCoords", JSON.stringify(index));
+                    // get id of the selected mesh (which is the same as its name, so we can use them interchangably)
+                    var meshID = selectedMesh.source.id; // note we expect E1-EXX (as unique id for each imported stack cube)
+                    var stackcubeIndex =  parseInt(meshID.slice(1));  // then get the stack cube integer index 
                     
-                    makeEvent("popup");
+                    // fire up an event to be picked up from the jquery for dom manipulation
+                    // in this case, its popping up a modal upon click of a particular mesh
+                    makeEvent("popupStack");
                })
           );
      });

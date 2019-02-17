@@ -24,9 +24,11 @@
 
     <body>
 
+        <!-- reminder: order of script insertion is IMPORTANT! and NON TRIVIAL! -->
+
         <canvas id="main_app"></canvas>
 
-        <!-- load ezbo game script first -->
+        <!-- load ezbo game script first before any other body - javascript -->
         <script src="configurator_v2.js"></script>
 
         <!-- modal for cube manipulation i.e. accesories et al-->
@@ -39,7 +41,6 @@
                         </h1>
                     </div>
                     <div class="modal-body">
-                        
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-primary" data-dismiss="modal">Close</button>
@@ -59,46 +60,26 @@
         
         <!-- then other scripts for DOM manipulation -->
         <script>
+
+            // this is for the base cube manipulation popup
             $(document).ready(function () {
-                window.addEventListener("popup", function(){  
-                    var meshInt = JSON.parse(sessionStorage.getItem("meshInt"));
+                window.addEventListener("popupBase", function(){  
+
+                }); 
+            });
+
+            // this is for the stack cube manipulation popup
+            $(document).ready(function () {
+                window.addEventListener("popupStack", function(){  
+
+                    // for now this is only a temporary thing. 
                     
-                    if (meshInt == 1) {
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory1'>Add stuff</button>");  // append button into modal
-                    }
-                    else if(meshInt == 2) {
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory1'>Add stuff</button>");  // append button into modal
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory2'>Add stuff</button>");  
-                    }
-                    else if(meshInt == 3) {
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory1'>Add stuff</button>");  // append button into modal
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory2'>Add stuff</button>"); 
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory3'>Add stuff</button>");  
-                    }
-                    else if(meshInt == 4) {
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory1'>Add stuff</button>");  // append button into modal
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory2'>Add stuff</button>"); 
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory3'>Add stuff</button>");  
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory4'>Add stuff</button>");  
-                    }
-                    else if(meshInt == 5) {
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory1'>Add stuff</button>");  // append button into modal
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory2'>Add stuff</button>"); 
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory3'>Add stuff</button>");  
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory4'>Add stuff</button>");  
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory5'>Add stuff</button>");  
-                    }
-                    else if(meshInt == 6) {
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory1'>Add stuff</button>");  // append button into modal
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory2'>Add stuff</button>"); 
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory3'>Add stuff</button>");  
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory4'>Add stuff</button>");  
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory5'>Add stuff</button>");
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory6'>Add stuff</button>");  
-                    }
+                    $(".modal-body").append("<button class='btn btn-primary' id='Xshelf'>Add X-Shelf</button>");  // append button into modal
 
                     // event to import X shelf
-                    $('#accessory1').click(function(){ 
+                    $('#Xshelf').click(function(){ 
+                        // update the stack cube accesory arrays here
+
                         makeEvent("importXshelf");
                     });                  
 
