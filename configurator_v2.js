@@ -12,6 +12,7 @@ var basecubeCtr = 0;
 // trackers for stackcube
 var stackcubeArray = []; // to track the stack cubes in the scene 
 var stackcubeCtr = 0; // for naming
+var stackcubePos = []; 
 
 // trackers for accesories 
 var accesoryArray = []; // to track the accesories 
@@ -383,7 +384,11 @@ function createboxMaterial (scene) {
 }
 
 // callback func for mesh under selection and control using actionManager
-function meshSelectControl (scene, meshObj) {
+function meshSelectControl (scene, meshObj, color) {
+
+     // color is a numeric string to specify color of highlight , must be supported by Babylon
+     // 1 is to blue
+     // 2 is to green 
 
      // attach actionmanager to the scene 
      meshObj.actionManager = new BABYLON.ActionManager(scene);
@@ -395,7 +400,13 @@ function meshSelectControl (scene, meshObj) {
      meshObj.actionManager.registerAction(
           new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOverTrigger, function(m){
                var mesh = m.meshUnderPointer;
-               hl.addMesh(mesh, BABYLON.Color3.Blue());
+               if (color=='1') {
+                    hl.addMesh(mesh, BABYLON.Color3.Blue());
+               } else if (color=='2') {
+                    hl.addMesh(mesh, BABYLON.Color3.Green());
+               } else {
+                    console.log("ERROR - Color not supported!"); 
+               }
           })
      ); 
      meshObj.actionManager.registerAction(
@@ -457,7 +468,7 @@ function importBaseCubes_SUPP(scene,gridMat,bcubesPrefix,rx,cy) {
           basecubeCtr = basecubeCtr +  1; 
 
           // configure actionManager
-          meshSelectControl (scene, newMesh);
+          meshSelectControl (scene, newMesh,'1');
      }); 
 }
 
@@ -594,7 +605,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                newMesh.material = boxMaterial; 
 
                // define cube actionManager
-               meshSelectControl (scene, newMesh);
+               meshSelectControl (scene, newMesh , '1');
                
           } else if (type == 'nextLOGIC') {
 
@@ -673,7 +684,8 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                               LeftExistCubeInd = i; 
 
                               // RULE is, for every existing cube to the left, we subtract boxgridWidth/2 to the NEW cube's mesh centroid
-                              var rx_coordAdjust = rx_coordAdjust - (cubemultiplierL*(boxgridWidth/2));
+                              // BUG FIX - here we use 1.95 to prevent leftward drift of the base cube, small but noticeable! so use 1.95!
+                              var rx_coordAdjust = rx_coordAdjust - (cubemultiplierL*(boxgridWidth/1.95));
                          
                          } // or check if this existing active looped cube is right to the new B1 import 
                          else if (RightExistCubePrefix == '' && BLeftX > newX && (BLeftX - newX) >= MEASURE_LOWER && (BLeftX - newX) <= MEASURE_UPPER) { 
@@ -689,13 +701,15 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                               // reminder to append 'B' to the i integer to identify name and mesh 
 
                               // RULE is, for every cube added to the right , we add boxgridWidth/2 to the NEW cube's mesh centroid
-                              var rx_coordAdjust = rx_coordAdjust + (cubemultiplierR*(boxgridWidth/2));
+                              // BUG FIX - here we use 1.95 to prevent rightwards drift of the base cube, small but noticeable! so use 1.95!
+                              var rx_coordAdjust = rx_coordAdjust + (cubemultiplierR*(boxgridWidth/1.95));
                          } 
                     // else just keep looping untill the end of the base cube array storage 
                     }
                }
 
                // now sort the rx_coord out by simply summing the adjustment with the NEW cube's horizontal coord
+               // recall: this arise since the logic of using the new B1 cube as baseline position
                var rx_coord = newX + rx_coordAdjust;
                 
                //console.log(RightExistCubePrefix);
@@ -745,6 +759,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
 
                } else if (RightExistCubePrefix == '' && LeftExistCubePrefix == '') {
                     console.log("no match neighbours");
+                    
                     // else if both are still '', meaning no match so we can do business as usual and place the new B1 at the grid box r-c center 
                     newMesh.position.x = newX; // recall, row index, col index
                     newMesh.position.y = newY;
@@ -767,7 +782,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     newMesh.material = boxMaterial; 
 
                     // configure mesh actionManager
-                    meshSelectControl (scene, newMesh);
+                    meshSelectControl (scene, newMesh ,'1');
 
                } else {
                     console.log("problem with right or left detection."); 
@@ -870,11 +885,13 @@ function importStackCubes(scene, x, y, z, stackprefix) {
      // name of cube to be imported
      var cubeName = stackprefix + postfix; 
 
-     // make an event to fire
+     // make an event to fire off other javascript funcs to update html etc
+     // codename 'stack' for firing javascript to update pricing incorporating stack cubes 
      makeEvent("stack");
+
      BABYLON.SceneLoader.ImportMesh("", "http://123sense.com/static/bryantest/", cubeName, scene, 
      function (stackcube) {
-
+     
          var newstackCube = stackcube[0];
 
          newstackCube.id = 'E' + String(stackcubeCtr); 
@@ -893,14 +910,29 @@ function importStackCubes(scene, x, y, z, stackprefix) {
          stackcubeCtr += 1;
 
          // configure stackcube select-control
-         meshSelectControl (scene, newstackCube); 
+         meshSelectControl (scene, newstackCube, '2'); 
+
+         // attach modal pop up for adding/removing stuff 
+         stackCube.actionManager.registerAction(
+               new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(m){
+                    // var name = stackCube.name;
+                    var index = [x, y ,z];
+
+                    var meshInt = stackprefix[1];
+
+                    sessionStorage.setItem("meshInt", JSON.stringify(meshInt));
+                    sessionStorage.setItem("cubeCoords", JSON.stringify(index));
+                    
+                    makeEvent("popup");
+               })
+          );
      });
 }
 
 // this deserves its own callback since at the start, the pluses are added for the remaining base cube spaces
 // i.e. if initially the 6cube base is imported, then no plus! 
 function btn_Stack(scene, gridMat, btnInt, rx_target,cy_target) {
- 
+
      // horizontal btns for the base cubes manipulation
      // this will add a base cube at the plus position that is being clicked. 
      // will be initialized alongside the first base cube import
@@ -916,14 +948,14 @@ function btn_Stack(scene, gridMat, btnInt, rx_target,cy_target) {
      button.color = "white";
      button.background = hostUrl + 'static/bryantest/white-wall.jpg';
  
-     // position the button at rx_target and cy_target, using gridMat, unmodified
+     // position the button at rx_target and cy_target, using gridMat data, unmodified
  
      // on click event for the button
      button.onPointerUpObservable.add(function() {
           // let intprefix = parseInt(bcubesPrefix_init[1]); 
-          button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target+1][cy_target][1], 0), scene)
+          button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target+1][cy_target][1], 0), scene); 
           importStackCubes(scene, gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], gridMat[rx_target][cy_target][2], "E1");
-          rx_target += 1;          
+          rx_target += 1; // increment the row number   
      });
  
      advancedTexture.addControl(button);
