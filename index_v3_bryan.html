@@ -1,6 +1,7 @@
 <!Doctype html>
 <html>
     <head>
+
         <meta charset="UTF-8">
         <title>ezbo</title>
         
@@ -12,95 +13,15 @@
 
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
+        <link rel="stylesheet" href="configurator_v2.css"> 
+
         <!-- babylon javascripts -->
         <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
 
         <script src="babylonv4a.custom.js"></script>
     
         <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
-        
-        <style>
-                html {
-                    position: fixed;
-                    height: 100%;
-                    overflow: hidden;
-                }
-                body {
-                    width: 100vw;
-                    height: 100vh;
-                    overflow-y: scroll;
-                    overflow-x: hidden;
-                    -webkit-overflow-scrolling: touch;
-                    font: 12pt Titillium;
-                    color: black;
-                    -webkit-user-select: none;
-                    -moz-user-select: none;
-                    -ms-user-select: none;
-                    user-select: none;
-                    background-color: rgb(20,20,20);
-                }
-                html, body {
-                    margin: 0;
-                    padding: 0;
-                }
 
-                #main_app {
-                    width: 100%;
-                    height: 100%;
-                    position: absolute;
-                    background-color: rgba(0,0,0,0);
-                    background-size: cover;
-                    background-position: center;
-                    background-repeat: no-repeat;
-                    margin: 0 auto;
-                    left: 0;
-                    top: 0;
-                    touch-action: none;
-                }
-
-                .data {
-                    position: absolute;
-                    top: 30%;
-                    right: 21.2%;
-                    /* transform: translateY(-50%); */
-                    z-index: 2;
-                    font-size: 20px;
-                }
-
-                .price {
-                    position: absolute;
-                    top: 15%;
-                    right: 22%;
-                    /* transform: translateY(-50%); */
-                    z-index: 2;
-                    font-size: 35px;
-                }
-                
-                table, th, td, tr s{
-                    border: 1px solid black;
-                    border-collapse: collapse;
-                    text-align: center;
-                }
-                
-                .modal-backdrop {
-                    opacity:0.5;
-                }
-
-                @media screen and (orientation:portrait) {
-                    /* Portrait styles */
-                    /*hide main content and display message */
-                    #main_app {display: none;}
-                    .price {display: none;}
-
-                }
-                @media screen and (orientation:landscape) {
-                    /* Landscape styles */
-                    /* show your content*/
-                    #main_app {display: block;}
-                    .price {display: block;}
-                }
-                
-        </style>
     </head> 
 
     <body>
@@ -210,19 +131,18 @@
                     // for now this is only a temporary thing. 
                     
                     $(".modal-body").append("<button class='btn btn-primary' id='Xshelf'>Add X-Shelf</button>");  // append button into modal
-
+                    
                     // event to import X shelf
                     $('#Xshelf').click(function(){ 
                         // update the stack cube accesory arrays here
-
                         makeEvent("importXshelf");
                     });                  
-
+                    
                     // reset modal when hidden from view so buttons can change dynamically based on which cube is selected
                     $(".modal").on("hidden.bs.modal", function(){
                         $(".modal-body").html(""); // this seems kinda shifty might need change of method
                     });
-
+                    
                     $('#pop-up-modal').modal(); // show modal
                 });
             });

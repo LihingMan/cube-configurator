@@ -927,7 +927,7 @@ function importStackCubes(scene, x, y, z, stackprefix) {
          stackcubePos.push([newstackCube.position.x, newstackCube.position.y, newstackCube.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z
          stackcubeCtr += 1;
 
-         console.log("width "+window.innerWidth);
+     //     console.log("width "+window.innerWidth);
          // configure stackcube select-control
          
          meshSelectControl (scene, newstackCube, '2'); 
@@ -947,7 +947,7 @@ function importStackCubes(scene, x, y, z, stackprefix) {
 
                     sessionStorage.setItem("meshIndex", JSON.stringify(stackcubeIndex));
                     sessionStorage.setItem("cubeCoords", JSON.stringify(coords));
-                    
+                    console.log(meshID)
                     makeEvent("popupStack");
                })
           );
