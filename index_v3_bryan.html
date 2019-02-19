@@ -86,8 +86,6 @@
                     opacity:0.5;
                 }
 
-                
-
                 @media screen and (orientation:portrait) {
                     /* Portrait styles */
                     /*hide main content and display message */
@@ -108,54 +106,6 @@
     <body>
 
         <canvas id="main_app"></canvas>
-
-        <!--<table class="data">
-            <tr>
-              <th>Type</th>
-              <th>Quantity</th> 
-            </tr>
-            <tr>
-              <td>E1</td>
-              <td><span id="E1"></span></td>
-            </tr>
-            <tr>
-              <td>E2</td>
-              <td><span id="E2"></span></td>
-            </tr>
-            <tr>
-                <td>E3</td>
-                <td><span id="E3"></span></td>
-            </tr>
-            <tr>
-                <td>E4</td>
-                <td><span id="E4"></span></td>
-            </tr>
-            <tr>
-                <td>B1</td>
-                <td><span id="B1"></span></td>
-            </tr>
-            <tr>
-                <td>B2</td>
-                <td><span id="B2"></span></td>
-            </tr>
-            <tr>
-                <td>B3</td>
-                <td><span id="B3"></span></td>
-            </tr>
-            <tr>
-                <td>B4</td>
-                <td><span id="B4"></span></td>
-            </tr>
-            <tr>
-                <td>B5</td>
-                <td><span id="B5"></span></td>
-            </tr>
-            <tr>
-                <td>B6</td>
-                <td><span id="B6"></span></td>
-            </tr>
-
-        </table>-->
 
         <script src="configurator_v3_bryan.js"></script>
 
@@ -200,7 +150,7 @@
             });
 
             // variables for storing quantity of cubes in scene
-            var stackcube;
+            /*var stackcube;
             var basecube;
 
             // variables for storing the cube price arrays
@@ -244,48 +194,27 @@
 
                 var curPrice = stack + base;
                 document.getElementById("price").textContent = "RM" + curPrice;
+            });*/
+
+           // this is for the base cube manipulation popup
+           $(document).ready(function () {
+                window.addEventListener("popupBase", function(){  
+
+                }); 
             });
 
+            // this is for the stack cube manipulation popup
             $(document).ready(function () {
-                window.addEventListener("popup", function(){  
-                    var meshInt = JSON.parse(sessionStorage.getItem("meshInt"));
+                window.addEventListener("popupStack", function(){  
+
+                    // for now this is only a temporary thing. 
                     
-                    if (meshInt == 1) {
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory1'>Add stuff</button>");  // append button into modal
-                    }
-                    else if(meshInt == 2) {
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory1'>Add stuff</button>");  // append button into modal
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory2'>Add stuff</button>");  
-                    }
-                    else if(meshInt == 3) {
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory1'>Add stuff</button>");  // append button into modal
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory2'>Add stuff</button>"); 
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory3'>Add stuff</button>");  
-                    }
-                    else if(meshInt == 4) {
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory1'>Add stuff</button>");  // append button into modal
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory2'>Add stuff</button>"); 
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory3'>Add stuff</button>");  
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory4'>Add stuff</button>");  
-                    }
-                    else if(meshInt == 5) {
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory1'>Add stuff</button>");  // append button into modal
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory2'>Add stuff</button>"); 
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory3'>Add stuff</button>");  
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory4'>Add stuff</button>");  
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory5'>Add stuff</button>");  
-                    }
-                    else if(meshInt == 6) {
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory1'>Add stuff</button>");  // append button into modal
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory2'>Add stuff</button>"); 
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory3'>Add stuff</button>");  
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory4'>Add stuff</button>");  
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory5'>Add stuff</button>");
-                        $(".modal-body").append("<button class='btn btn-primary' id='accessory6'>Add stuff</button>");  
-                    }
+                    $(".modal-body").append("<button class='btn btn-primary' id='Xshelf'>Add X-Shelf</button>");  // append button into modal
 
                     // event to import X shelf
-                    $('#accessory1').click(function(){ 
+                    $('#Xshelf').click(function(){ 
+                        // update the stack cube accesory arrays here
+
                         makeEvent("importXshelf");
                     });                  
 
@@ -296,9 +225,6 @@
 
                     $('#pop-up-modal').modal(); // show modal
                 });
-
-                // when button is clicked, make an event that will be registered and the mesh will be imported
-                
             });
 
             function calcPrice(prices, cubeArr){
@@ -310,12 +236,6 @@
                 }
                 
                 return total
-            }
-
-            function makeEvent(type){
-                var event = document.createEvent("event");
-                event.initEvent(type, true, true);
-                window.dispatchEvent(event);
             }
         
         </script>        
