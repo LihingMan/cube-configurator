@@ -34,6 +34,9 @@
             <span id="price"></span>
         </p>
 
+        <!-- <button class="price" data-toggle="modal" data-target="#pop-up-modal">Close</button> -->
+                    
+
         <div class="modal" id="pop-up-modal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -46,12 +49,15 @@
                         
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-primary" data-dismiss="modal">Close</button>
+                        <button class="btn btn-default" data-dismiss="modal">Just close me DADDY</button>
                     </div>
                 </div>
             </div>
         </div>
 
+        <div id="overlay">
+            <div id="text">Use landscape mode</div>
+        </div>
 
         <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
@@ -60,14 +66,10 @@
             var mql = window.matchMedia("(orientation: portrait)");
             // Add a media query change listener
             mql.addListener(function(m) {
-                if(m.matches) {
-                    alert("use landscape instead")
+                if(!m.matches) {
+                    location.reload(true);
 
                 }
-                else {
-                    location.reload(true)
-                }
-
             });
 
             // variables for storing quantity of cubes in scene
@@ -120,7 +122,74 @@
            // this is for the base cube manipulation popup
            $(document).ready(function () {
                 window.addEventListener("popupBase", function(){  
+                    var basecubeInt = sessionStorage.getItem("basecubeInt");
+                    basecubeInt = JSON.parse(basecubeInt);
+                    
+                    if (basecubeInt == 1) {
+                        $(".modal-body").append("<button class='btn btn-primary' id='Xshelf1'>Add X-Shelf to cube 1</button>");  // append button into modal
+                    }
+                    else if (basecubeInt == 2) {
+                        $(".modal-body").append("<button class='btn btn-primary' id='Xshelf1'>Add X-Shelf to cube 1</button>");  // append button into modal
 
+                        // $(".modal-body").append("<div class='divider'></div>"); // space between button
+                        
+                        $(".modal-body").append("<button class='btn btn-primary' id='Xshelf2'>Add X-Shelf to cube 2</button>");
+                    }
+                    else if (basecubeInt == 3) {
+                        $(".modal-body").append("<button class='btn btn-primary' id='Xshelf1'>Add X-Shelf to cube 1</button>");  // append button into modal
+
+                        $(".modal-body").append("<button class='btn btn-primary' id='Xshelf2'>Add X-Shelf to cube 2</button>");
+
+                        $(".modal-body").append("<button class='btn btn-primary' id='Xshelf3'>Add X-Shelf to cube 3</button>");
+
+                    }
+                    else if (basecubeInt == 4) {
+                        $(".modal-body").append("<button class='btn btn-primary' id='Xshelf1'>Add X-Shelfto cube 1</button>");  // append button into modal
+
+                        $(".modal-body").append("<button class='btn btn-primary' id='Xshelf2'>Add X-Shelf to cube 2</button>");
+
+                        $(".modal-body").append("<button class='btn btn-primary' id='Xshelf3'>Add X-Shelf to cube 3</button>");
+
+                        $(".modal-body").append("<button class='btn btn-primary' id='Xshelf4'>Add X-Shelf to cube 4</button>");
+                    }
+                    else if (basecubeInt == 5) {
+                        $(".modal-body").append("<button class='btn btn-primary' id='Xshelf1'>Add X-Shelf to cube 1</button>");  // append button into modal
+                        
+                        $(".modal-body").append("<button class='btn btn-primary' id='Xshelf2'>Add X-Shelf to cube 2</button>");
+
+                        $(".modal-body").append("<button class='btn btn-primary' id='Xshelf3'>Add X-Shelf to cube 3</button>");
+
+                        $(".modal-body").append("<button class='btn btn-primary' id='Xshelf4'>Add X-Shelf to cube 4</button>");
+
+                        $(".modal-body").append("<button class='btn btn-primary' id='Xshelf5'>Add X-Shelf to cube 5</button>");
+                    }
+                    else if (basecubeInt == 6) {
+                        $(".modal-body").append("<button class='btn btn-primary' id='Xshelf1'>Add X-Shelf to cube 1</button>");  // append button into modal
+
+                        $(".modal-body").append("<button class='btn btn-primary' id='Xshelf2'>Add X-Shelf to cube 2</button>");
+
+                        $(".modal-body").append("<button class='btn btn-primary' id='Xshelf3'>Add X-Shelf to cube 3</button>");
+
+                        $(".modal-body").append("<button class='btn btn-primary' id='Xshelf4'>Add X-Shelf to cube 4</button>");
+
+                        $(".modal-body").append("<button class='btn btn-primary' id='Xshelf5'>Add X-Shelf to cube 5</button>");
+
+                        $(".modal-body").append("<button class='btn btn-primary' id='Xshelf6'>Add X-Shelf to cube 6</button>");
+                    }
+                    
+                    $('.btn-primary').click(function(){ 
+                        // update the basae cube accesory arrays here
+                        var button = this.id;
+                        button = parseInt(button[6]);
+                        sessionStorage.setItem("whichCube", JSON.stringify(button));
+                        makeEvent("importXshelfBase");
+                    });  
+
+                    $(".modal").on("hidden.bs.modal", function(){
+                        $(".modal-body").html(""); // this seems kinda shifty might need change of method
+                    });
+                    
+                    $('#pop-up-modal').modal(); // show modal
                 }); 
             });
 
@@ -130,12 +199,12 @@
 
                     // for now this is only a temporary thing. 
                     
-                    $(".modal-body").append("<button class='btn btn-primary' id='Xshelf'>Add X-Shelf</button>");  // append button into modal
+                    $(".modal-body").append("<button class='btn btn-primary' id='Xshelf'>Add X-Shelf to stack</button>");  // append button into modal
                     
                     // event to import X shelf
-                    $('#Xshelf').click(function(){ 
+                    $('.btn-primary').click(function(){ 
                         // update the stack cube accesory arrays here
-                        makeEvent("importXshelf");
+                        makeEvent("importXshelfStack");
                     });                  
                     
                     // reset modal when hidden from view so buttons can change dynamically based on which cube is selected

@@ -77,8 +77,6 @@ function mainApp() {
      // important: must run this first, as this will set the scene for the cubes
      var scene = createRoomScene(); 
 
-     console.log(scene.meshes); 
-
      // Render
      engine.runRenderLoop(function () {
           scene.render(); 
@@ -125,10 +123,61 @@ function createRoomScene() {
      importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0, 'init');
 
     // when the importXshelf event is fired, import the mesh into the position of the stack cube
-    window.addEventListener("importXshelf", function() {
-        var index = sessionStorage.getItem("cubeCoords"); // get the index from sessionStorage
-        index = JSON.parse(index);
-        importXshelf(scene, index[0], index[1], index[2]);
+    window.addEventListener("importXshelfBase", function() {
+        var coords = sessionStorage.getItem("cubeCoords"); // get the coordinates of the centroid from sessionStorage
+        coords = JSON.parse(coords);
+
+        var whichCube = sessionStorage.getItem("whichCube");
+        whichCube = parseInt(JSON.parse(whichCube)); // whichCube is the cube that the user wants to place the X shelf at 
+
+        var basecubeInt = sessionStorage.getItem("basecubeInt");
+        basecubeInt = JSON.parse(basecubeInt); // basecubeInt is the number of base cubes in the scene e.g is it a B1 or B2 or B3 etc
+        
+        // if the base cubes are even in number
+        if (basecubeInt % 2 == 0){
+            var mid = basecubeInt/2;
+
+            if (whichCube <= mid) { // for cubes on the left of the centroid
+                var multiplier = mid - whichCube;
+                var offset = multiplier*boxgridWidth + boxgridWidth/2;
+                importXshelf(scene, coords[0]-offset, coords[1], coords[2]);
+            }
+            else if (whichCube > mid) { // for cubes on the right of the centroid
+                var multiplier = whichCube - (mid + 1);
+                var offset = multiplier*boxgridWidth + boxgridWidth/2;
+                importXshelf(scene, coords[0]+offset, coords[1], coords[2]);
+            }
+        }
+
+        // if they are not even in number
+        else {
+            if (basecubeInt == 1){
+                importXshelf(scene, coords[0], coords[1], coords[2]);
+            }
+            else if (basecubeInt > 1) { // for cubes on the left of the centroid
+                var mid = Math.ceil(basecubeInt/2);
+
+                if (whichCube <= mid) {
+                    var multiplier = mid - whichCube;
+                    var offset = multiplier*boxgridWidth;
+                    importXshelf(scene, coords[0]-offset, coords[1], coords[2]);
+                }
+                else if (whichCube > mid) { // for cubes on the right of the centroid
+                    var multiplier = whichCube - mid;
+                    var offset = multiplier*boxgridWidth;
+                    importXshelf(scene, coords[0]+offset, coords[1], coords[2]);
+                }
+                
+            }
+        }
+        
+        
+    });
+
+    window.addEventListener("importXshelfStack", function() {
+        var coord = sessionStorage.getItem("cubeCoords"); // get the coordinates of the centroid from sessionStorage
+        coord = JSON.parse(coord);
+        importXshelf(scene, coord[0], coord[1], coord[2]);
     });
 
     // finally ... 
@@ -426,26 +475,50 @@ function meshSelectControl (scene, meshObj, color) {
      var hl = new BABYLON.HighlightLayer("hl", scene);
 
      // register actions
-     if (window.innerWidth > 980) {
-        meshObj.actionManager.registerAction(
-            new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOverTrigger, function(m){
-                 var mesh = m.meshUnderPointer;
-                 if (color=='1') {
-                      hl.addMesh(mesh, BABYLON.Color3.Blue());
-                 } else if (color=='2') {
-                      hl.addMesh(mesh, BABYLON.Color3.Green());
-                 } else {
-                      console.log("ERROR - Color not supported!"); 
-                 }
-            })
-       ); 
-       meshObj.actionManager.registerAction(
-            new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOutTrigger, function(m){
-                var mesh = m.meshUnderPointer;
-                hl.removeMesh(mesh); // remove highlight when out of pointer trigger
-            })
-       );    
+
+     // this is to make the modal popup when the base cube is clicked and to store the type of base cube and its centroid
+     if (color == "1") {
+          meshObj.actionManager.registerAction(
+               new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(meshObj){
+
+                    // get id of the selected mesh (which is the same as its name, so we can use them interchangably)
+                    var meshID = meshObj.source.id; // note we expect B1-BXX (as unique id for each imported stack cube)
+                    var index =  parseInt(meshID.slice(1));  // then get the stack cube integer index 
+                    var basecubeName = basecubeArray[index];
+
+                    var basecubeInt = parseInt(basecubeName.slice(1));
+
+                    var basecubeCoord = basecubePos[index];
+
+                    sessionStorage.setItem("basecubeInt", JSON.stringify(basecubeInt));
+                    sessionStorage.setItem("cubeCoords", JSON.stringify(basecubeCoord));
+
+                    makeEvent("popupBase");
+               })
+          );
      }
+     
+     meshObj.actionManager.registerAction(
+          new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOverTrigger, function(m){
+               var mesh = m.meshUnderPointer;
+               if (color=='1') {
+                    hl.addMesh(mesh, BABYLON.Color3.Blue());
+
+               } else if (color=='2') {
+                    hl.addMesh(mesh, BABYLON.Color3.Green());
+               } else {
+                    console.log("ERROR - Color not supported!"); 
+               }
+          })
+     ); 
+
+     meshObj.actionManager.registerAction(
+          new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOutTrigger, function(m){
+               var mesh = m.meshUnderPointer;
+               hl.removeMesh(mesh); // remove highlight when out of pointer trigger
+          })
+     );    
+
       
 }
 
@@ -491,7 +564,7 @@ function importBaseCubes_SUPP(scene,gridMat,bcubesPrefix,rx,cy) {
           basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
           basecubeCtr = basecubeCtr +  1; 
           baseAccesoryArray.push(0); // on initial import of a cube mesh, there is no accesory
-          baseAccesoryPos
+          // baseAccesoryPos
 
           // configure actionManager
           meshSelectControl (scene, newMesh,'1');
@@ -813,7 +886,9 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                } else {
                     console.log("problem with right or left detection."); 
                }
-
+               
+               
+          
           } else {
                console.log('[ERROR] Unrecognized type for function importBaseCubes passed via args type');
           }
@@ -927,14 +1002,13 @@ function importStackCubes(scene, x, y, z, stackprefix) {
          stackcubePos.push([newstackCube.position.x, newstackCube.position.y, newstackCube.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z
          stackcubeCtr += 1;
 
-     //     console.log("width "+window.innerWidth);
          // configure stackcube select-control
          
          meshSelectControl (scene, newstackCube, '2'); 
 
          // attach modal pop up for adding/removing stuff 
          // This is an event action manager that will register the function to run whenever the associated mesh is clicked
-         newstackCube.actionManager.registerAction(
+          newstackCube.actionManager.registerAction(
                new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(selectedMesh){
 
                     // get id of the selected mesh (which is the same as its name, so we can use them interchangably)
@@ -947,7 +1021,7 @@ function importStackCubes(scene, x, y, z, stackprefix) {
 
                     sessionStorage.setItem("meshIndex", JSON.stringify(stackcubeIndex));
                     sessionStorage.setItem("cubeCoords", JSON.stringify(coords));
-                    console.log(meshID)
+                    
                     makeEvent("popupStack");
                })
           );
