@@ -34,7 +34,7 @@
             <span id="price"></span>
         </p>
 
-        <!-- <button class="price" data-toggle="modal" data-target="#pop-up-modal">Close</button> -->
+        <button class="price" id="saveAsImg">Save your work</button>
                     
 
         <div class="modal" id="pop-up-modal" tabindex="-1">
@@ -191,30 +191,34 @@
                     
                     $('#pop-up-modal').modal(); // show modal
                 }); 
-            });
 
-            // this is for the stack cube manipulation popup
-            $(document).ready(function () {
+                // this is for the stack cube manipulation popup
                 window.addEventListener("popupStack", function(){  
 
                     // for now this is only a temporary thing. 
-                    
+
                     $(".modal-body").append("<button class='btn btn-primary' id='Xshelf'>Add X-Shelf to stack</button>");  // append button into modal
-                    
+
                     // event to import X shelf
                     $('.btn-primary').click(function(){ 
                         // update the stack cube accesory arrays here
                         makeEvent("importXshelfStack");
                     });                  
-                    
+
                     // reset modal when hidden from view so buttons can change dynamically based on which cube is selected
                     $(".modal").on("hidden.bs.modal", function(){
                         $(".modal-body").html(""); // this seems kinda shifty might need change of method
                     });
-                    
+
                     $('#pop-up-modal').modal(); // show modal
                 });
+
+                $("#saveAsImg").click(function(){
+                    makeEvent("saveScene");
+                })
             });
+
+        
 
             function calcPrice(prices, cubeArr){
                 var total = 0;

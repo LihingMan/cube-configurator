@@ -47,7 +47,7 @@ if (BABYLON.Engine.isSupported()) {
      // if it does, declare all the global variables outside mainApp func 
      var canvas = document.getElementById("main_app");
      // note to create with engine with stencil set to true so we can highlight a mesh
-     var engine = new BABYLON.Engine(canvas, true, { stencil: true });  // this is the Babylon class engine 
+     var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });  // this is the Babylon class engine 
      
      // declare globally accesible variable of host url (for later concat)
      var hostUrl = 'https://stagingfiles.sgp1.digitaloceanspaces.com/ezbo/'; 
@@ -98,8 +98,8 @@ function createRoomScene() {
 	// create the scene 
 	var scene = new BABYLON.Scene(engine);
      
-     // camera
-     var camera = createCamera(scene); 
+    // camera
+    var camera = createCamera(scene); 
 
 	// light (sun directional)
 	createLights(scene); 
@@ -114,13 +114,13 @@ function createRoomScene() {
 	createRoof(scene); 
 
 	// create the outdoor env --> skybox!
-     createOutdEnv(scene); 
-     
-     // define the mathematical grid to arrange cubes. call once only!
-     var gridMat = gridEngine(); 
+    createOutdEnv(scene); 
+    
+    // define the mathematical grid to arrange cubes. call once only!
+    var gridMat = gridEngine(); 
 
-     // Load base cubes and enable modifications to the base cubes 
-     importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0, 'init');
+    // Load base cubes and enable modifications to the base cubes 
+    importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0, 'init');
 
     // when the importXshelf event is fired, import the mesh into the position of the stack cube
     window.addEventListener("importXshelfBase", function() {
@@ -166,18 +166,19 @@ function createRoomScene() {
                     var multiplier = whichCube - mid;
                     var offset = multiplier*boxgridWidth;
                     importXshelf(scene, coords[0]+offset, coords[1], coords[2]);
-                }
-                
+                }       
             }
-        }
-        
-        
+        }   
     });
 
     window.addEventListener("importXshelfStack", function() {
         var coord = sessionStorage.getItem("cubeCoords"); // get the coordinates of the centroid from sessionStorage
         coord = JSON.parse(coord);
         importXshelf(scene, coord[0], coord[1], coord[2]);
+    });
+
+    window.addEventListener("saveScene", function() {
+        BABYLON.Tools.CreateScreenshotUsingRenderTarget(engine, camera, 1920); // download the room scene as png
     });
 
     // finally ... 
