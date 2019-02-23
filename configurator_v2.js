@@ -652,10 +652,10 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                // loop through basecubePos's x-y coordinates to check if the difference between them is within the MEASURE range bound which means they are neighbours
                // RUle is , a single B1 new import mesh can atmost have two neighbours i.e. Right and left 
                // so we first define the vars to hold temporary data/flag with regards to Right and Left 
-               var RightExistCubePrefix = '';
+               var RightExistCubePrefix = ''; // if found neighbour then this will be flagged 
                var RightExistCubePos = 0; 
                var RightExistCubeInd = 0; // this is the index of the basecube which we will use to manipulate the mesh later
-               var LeftExistCubePrefix = '';
+               var LeftExistCubePrefix = ''; // 
                var LeftExistCubePos = 0; 
                var LeftExistCubeInd = 0; // this is the index of the basecube which we will use to manipulate the mesh later
 
@@ -671,6 +671,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                               // extract the x coord
                               BLeftX = basecubePos[i][0];
                               BRightX = basecubePos[i][0];
+
                          } else if (basecubeInt > 1) { // if it is more than 1, then need to assign left and right x coordinate
                               // then use this formulae to figure out right most and left most cubes
                               var tempLimit = ((basecubeInt/2) - 0.5)*boxgridWidth; 
@@ -683,6 +684,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                               BLeftX = basecubePos[i][0] - tempLimit; 
                          }    
 
+                         
                          // check if this existing looped cube is left to the new B1 import (meaning the existing active cube has lower x value)
                          if (LeftExistCubePrefix == '' && newX > BRightX && (newX - BRightX) >= MEASURE_LOWER && (newX - BRightX) <= MEASURE_UPPER) {
                               // if the existing cube is left neighbour to the new B1 import, then...
@@ -720,6 +722,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                               // BUG FIX - here we use 1.95 to prevent rightwards drift of the base cube, small but noticeable! so use 1.95!
                               var rx_coordAdjust = rx_coordAdjust + (cubemultiplierR*(boxgridWidth/1.95));
                          } 
+
                     // else just keep looping untill the end of the base cube array storage 
                     }
                }
@@ -727,16 +730,54 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                // now sort the rx_coord out by simply summing the adjustment with the NEW cube's horizontal coord
                // recall: this arise since the logic of using the new B1 cube as baseline position
                var rx_coord = newX + rx_coordAdjust;
-                
-               //console.log(RightExistCubePrefix);
-               // console.log(LeftExistCubePrefix); 
+
+               // pass it through the combinatory callback func --> prefixbaseCubeComb -- to get the new cube prefix
+               // simply override the bcubesPrefix
+               bcubesPrefix = prefixBaseCubeComb('B1', LeftExistCubePrefix, RightExistCubePrefix); 
 
                // if the prefixes are not '' , then there is a match so we ...
-               if (RightExistCubePrefix != '' || LeftExistCubePrefix != '') {
 
-                    // pass it through the combinatory callback func --> prefixbaseCubeComb -- to get the new cube prefix
-                    // simply override the bcubesPrefix
-                    bcubesPrefix = prefixBaseCubeComb('B1', LeftExistCubePrefix, RightExistCubePrefix); 
+               // Bug FIX: catch statement to resolve the case where both right and left exist cube prefix have been populated
+               // i.e. what if the B1 is imported next to left and right existing cubes ? 
+               if (LeftExistCubePrefix != '' && RightExistCubePrefix != '') {
+
+                    // simply check if both flags have been activated. if they have,, then ...
+                    // destroy the NEw B1 (since this is new import of basecube it MUST be B1! if not check the callback bug!) newMesh obj
+                    newMesh.dispose(); 
+                    newMesh = null; // nullify to tell GC to collect ! this will result in some error msg by babylon which we can ignore!
+
+                    // Destroy all 'old' EXISTING meshes to the left AND right , if any, 
+                    // this implies the right and left (potential, if any) neighbouring cubes 
+                    // apply this to left and right cubes individually
+
+                    // RightExistCubePrefix ...
+                    var meshid_R = 'B' + String(RightExistCubeInd); 
+                    var getMeshObj_R = scene.getMeshByID(meshid_R);
+                    getMeshObj_R.dispose(); 
+                    getMeshObj_R = null; // can just ignore error msg from babylon due to this i.e. import error or some shit
+                    // remove from basecube tracker arrays by setting null
+                    basecubeArray[RightExistCubeInd] = 0; 
+                    basecubePos[RightExistCubeInd] = 0; 
+                    //console.log("INFO - Obtained right neighbour cube mesh via id");
+
+                    //LeftExistCubePrefix ... 
+                    var meshid_L = 'B' + String(LeftExistCubeInd);
+                    var getMeshObj_L = scene.getMeshByID(meshid_L);
+                    getMeshObj_L.dispose(); 
+                    getMeshObj_L = null;
+                    // remove from basecube tracker arrays by setting null
+                    basecubeArray[LeftExistCubeInd] = 0; 
+                    basecubePos[LeftExistCubeInd] = 0; 
+                    //console.log("INFO - Obtained left neighbour cube mesh via id");
+                    
+                    // and then import the new base cube in its new adjusted position by calling back importBaseCubes with type=='quickADD'
+                    // this implements just a simple mesh import directly to rx_coord, cy_coord which are specific coordinates 
+                    // NOTE : no need to update global counter here since the importBaseCubes quickLOGIC
+                    // use newY as the y coord since its the same for all base cubes 
+                    importBaseCubes_SUPP(scene,gridMat,bcubesPrefix,rx_coord,newY); 
+               }
+               // else if either one is activated...
+               else if (RightExistCubePrefix != '' || LeftExistCubePrefix != '') {
 
                     //console.log(bcubesPrefix); 
 
@@ -744,8 +785,8 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     newMesh.dispose(); 
                     newMesh = null; // nullify to tell GC to collect ! this will result in some error msg by babylon which we can ignore!
 
-                    // Destroy all 'old' EXISTING meshes to the left and right , if any, 
-                    // this implies the right and left (potential, if any) neighbouring cubes 
+                    // Destroy all 'old' EXISTING meshes to the left OR right , if any, 
+                    // this implies the right OR left (potential, if any) neighbouring cubes 
                     // apply this to left and right cubes individually
                     if (RightExistCubePrefix != '') {
                          var meshid_R = 'B' + String(RightExistCubeInd); 
