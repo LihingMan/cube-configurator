@@ -49,7 +49,7 @@
                         
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-default" data-dismiss="modal">Just close me DADDY</button>
+                        <button class="btn btn-default" id="close" data-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
@@ -68,7 +68,6 @@
             mql.addListener(function(m) {
                 if(!m.matches) {
                     location.reload(true);
-
                 }
             });
 
@@ -176,7 +175,10 @@
 
                         $(".modal-body").append("<button class='btn btn-primary' id='Xshelf6'>Add X-Shelf to cube 6</button>");
                     }
-                    
+
+                    var modal = document.getElementById('pop-up-modal');
+                    modal.style.display = "block";
+
                     $('.btn-primary').click(function(){ 
                         // update the basae cube accesory arrays here
                         var button = this.id;
@@ -185,11 +187,21 @@
                         makeEvent("importXshelfBase");
                     });  
 
-                    $(".modal").on("hidden.bs.modal", function(){
-                        $(".modal-body").html(""); // this seems kinda shifty might need change of method
+                    $('#close').click(function(){ 
+                        modal.style.display = "none";
+                        $(".modal-body").html("");
                     });
+
+                    // IF BLOCK OF CODE BELOW IS UNCOMMENTED THEN IT DOESNT WORK ON MOBILE
+
+                    // window.addEventListener("click", function(event) {
+                    //     // When the user clicks anywhere outside of the modal, close it
+                    //     if (event.target == modal) {
+                    //         modal.style.display = "none";
+                    //         $(".modal-body").html("");
+                    //     }
+                    // });                      
                     
-                    $('#pop-up-modal').modal(); // show modal
                 }); 
 
                 // this is for the stack cube manipulation popup
@@ -199,18 +211,19 @@
 
                     $(".modal-body").append("<button class='btn btn-primary' id='Xshelf'>Add X-Shelf to stack</button>");  // append button into modal
 
+                    var modal = document.getElementById('pop-up-modal');
+                    modal.style.display = "block";
+
                     // event to import X shelf
                     $('.btn-primary').click(function(){ 
                         // update the stack cube accesory arrays here
                         makeEvent("importXshelfStack");
                     });                  
 
-                    // reset modal when hidden from view so buttons can change dynamically based on which cube is selected
-                    $(".modal").on("hidden.bs.modal", function(){
-                        $(".modal-body").html(""); // this seems kinda shifty might need change of method
+                    $('#close').click(function(){ 
+                        modal.style.display = "none";
+                        $(".modal-body").html("");
                     });
-
-                    $('#pop-up-modal').modal(); // show modal
                 });
 
                 $("#saveAsImg").click(function(){
