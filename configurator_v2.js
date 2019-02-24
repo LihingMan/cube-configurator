@@ -42,11 +42,20 @@ var postfix = "-final.babylon"; // define postfix for end of mesh file names
 var constZ = -0.3; // in meters, the constant global z position of all cubes 
 var boxgridWidth = 0.3835; // in mtrs, the defined grid system box element width 
 
-// INITALIZATION (only required for base cubes)
+// DJANGO INITALIZATION ... 
+
 // assign basecubes file prefix for auto import of mesh into the scene.
 // but when integrated with the ezbo django app, this will be loaded from session storage 
 var bcubesPrefix_init = 'B1'; // can be B1-B6, as passed by django view
 
+// assign accesories that can be imported into the scene
+// this is a nested array containing the accesories' programming code names and another array containing their respective actual names
+var accesoryList = [
+     ['XS','DS','SS','NBS','DD','T','SBS','D'], 
+     ['X-Shelve', 'Double-Shelve' , 'Single-Shelve', '9-box-Shelve', 'Double-drawer', 'Table', '6-box-shelving', 'Door'],
+];
+
+// ---------------------------------------------- GAME START ------------------------------------------------// 
 // Check if  browser supports webGL
 if (BABYLON.Engine.isSupported()) {
 
@@ -1045,32 +1054,34 @@ function btn_Stack(scene, gridMat, btnInt, rx_target,cy_target) {
  }
 
  // -------------------------------------- ACCESORIES ----------------------------------------------- //
- function importBaseAccesories(scene, asstype, cubePrefix, specificcubePos) {
+
+ // Accesories import for base cubes 
+ function importBaseAccesories(scene, asstype, cubeNameId, specificcubePos) {
 
      // accesories management for base cubes only
 
      // here, args type is a string to identify which accesory is being imported. 
-     //            cubePrefix is a string identifying id of associated cube , which contains its array tracker index! 
+     //            cubeNameId is a string identifying id of associated cube , which contains its array tracker index! 
      //            cubeType is a string whether or not it is 'stack' or 'base' 
      //            specificcubePos is an integer specifying which cube of a composite cube is being referred to
-     //            (this can be taken any integer between 1-6 i.e. cube 1 - cube 6 for B6, so on so forth)
+     //             ..... (this can be taken any integer between 1-6 i.e. cube 1 - cube 6 for B6, so on so forth)
 
-     if (asstype == 'X') { // X shelve
+     if (asstype == 'XS') { // X shelve
           var assmeshImp = 'Xshelve.babylon'; // this name has to be same as the mesh file from cdn
-     } else if (asstype == 'S') { // Single shelve
+     } else if (asstype == 'SS') { // Single shelve
           var assmeshImp = '';
-     } else if  (asstype == 'D') { // Double shelve
+     } else if  (asstype == 'DS') { // Double shelve
           var assmeshImp = ''; 
      } // continue till all eight accesories are captured
 
      // get the cube integer unique number
-     cubemeshInd = parseInt(cubePrefix.slice(1)); 
+     cubemeshInd = parseInt(cubeNameId.slice(1)); 
 
      // get the target cube mesh coords pos (remmember, cubePos is an array of 3 elements x y z)
      var cubePos = basecubePos[cubemeshInd]; // this will be the base position for any assceory imports
 
-     // get the target cube mesh prefix (only interested in the number 1-6)
-     var cubePrefixInt = parseInt(basecubeArray[cubemeshInd]); 
+     // get the target cube mesh prefix (only interested in the number 1-6 for B1-B6)
+     var cubePrefixInt = parseInt(basecubeArray[cubemeshInd].slice(1)); 
 
      // simple sanity check 
      if (specificcubePos > cubePrefixInt) {
@@ -1090,27 +1101,31 @@ function btn_Stack(scene, gridMat, btnInt, rx_target,cy_target) {
           assMesh.id = 'B' + asstype + String(cubeInd); 
 
           // here, compute the x position of the imported accesory 
+          // NOTE SEE TO-DO below.
           if (cubePrefixInt%2 == 0) {
                // if this cube is either B2,B4,B6 , use this formulae to determine x pos rel to cube CoG
-               
+               var xposMesh = cubePos[0] + ((specificcubePos - ((cubePrefixInt/2) + 0.5))*boxgridWidth); 
 
           } else if (cubePrefixInt%2 > 0) {
                // else if the cube is either B1,B3,B5, use this formulae to determine x pos rel to cube CoG
-               
+               // TO-DO: if both are exactly same formulae, just use one no need conditional...check properly first 
+               var xposMesh = cubePos[0] + ((specificcubePos - ((cubePrefixInt/2) + 0.5))*boxgridWidth);
           }
 
           // position the accesory mesh at base cube 
-         assMesh.position.x = x;
+         assMesh.position.x = xposMesh;
          assMesh.position.y = cubePos[1];
          assMesh.position.z = cubePos[2];
          assMesh.rotation.y = Math.PI/2;
+
+         // register the mesh for actions
+         assMesh.actionManager = new BABYLON.ActionManager(scene); 
           
-          // update arrays
-          baseAccesoryArray.push();
-          baseAccesoryPos.push(); 
- 
-          assMesh.actionManager = new BABYLON.ActionManager(scene); // register the mesh for actions
-          
+          // update base accesory arrays
+          // recall that specificcubePos is the cube prefix int from 1-6 for B1-B6. so in terms of index, it is 0-5
+          baseAccesoryArray[cubemeshInd][specificcubePos - 1].push(asstype);
+          baseAccesoryPos[cubemeshInd][specificcubePos - 1].push([[xposMesh],[cubePos[1]],[cubePos[2]]]); 
+           
      });
  }
 

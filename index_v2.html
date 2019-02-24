@@ -77,7 +77,7 @@
                 }
             });
 
-            // this is for the stack and base cube manipulation popup
+            // all other code come inside this document ready 
             $(document).ready(function () {
                 // stack cube
                 window.addEventListener("popupStack", function(){  
@@ -89,7 +89,7 @@
                     
                     $(".modal-body").append(
                         "<button class='btn btn-primary' id='Xshelf'>Add X-Shelf</button>"
-                        );  // append button into modal
+                    );  // append button into modal
 
                     // event to import X shelf
                     $('#Xshelf').click(function(){ 
@@ -111,7 +111,10 @@
 
                 // base cube DONE
                 window.addEventListener("popupBase", function(){  
-                    
+
+                    $(".modal-body").append(
+                        "<button class='btn btn-primary' id='Xshelf'>Add X-Shelf</button>"
+                    );
                 });
         });
         
