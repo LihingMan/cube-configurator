@@ -15,7 +15,7 @@
         <!-- earcut: polygon triangulation for webgl apps, required by babylon's polygon funcs -->
         <script src="https://unpkg.com/earcut@2.1.4/dist/earcut.min.js"></script>
 
-        <!-- babylon javascripts -->
+        <!-- babylon javascripts, order matters!! -->
         <script src="babylonv4a.custom.js"></script>
         <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
         <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
@@ -73,7 +73,7 @@
             mql.addListener(function(m) {
                 if (! m.matches) { // if it is landscape i.e. no longer true for portrait
                     location.reload(true);
-                    // css media query will pick this up and display content 
+                    // css media query will pick this up upon reload and display the content
                 }
             });
 
@@ -81,27 +81,35 @@
             $(document).ready(function () {
                 // stack cube
                 window.addEventListener("popupStack", function(){  
+                    // NOT YET DONE
 
                     // for now this is only a temporary thing. 
+
+                    // a pre-for loop to tell the modal what has been populated and what hasnt in a particular stackcube
                     
-                    $(".modal-body").append("<button class='btn btn-primary' id='Xshelf'>Add X-Shelf</button>");  // append button into modal
+                    $(".modal-body").append(
+                        "<button class='btn btn-primary' id='Xshelf'>Add X-Shelf</button>"
+                        );  // append button into modal
 
                     // event to import X shelf
                     $('#Xshelf').click(function(){ 
-                        // update the stack cube accesory arrays here
-
-                        makeEvent("importXshelf");
-                    });                  
+                        // recall: stackIndex is the currently selected stackcube mesh
+                        // console.log(stackIndex); 
+                        // do a callback to import Xshelf and update its corresponding nested array trackers
+                        importAccesories(scene, x,y,z); 
+                    });            
+                    
+                    // repeat for other accesories 
 
                     // reset modal when hidden from view so buttons can change dynamically based on which cube is selected
                     $(".modal").on("hidden.bs.modal", function(){
-                        $(".modal-body").html(""); // this seems kinda shifty might need change of method
+                        $(".modal-body").html(""); // this works, lets use this concept , no issue. 
                     });
 
                     $('#pop-up-modal').modal(); // show modal
                 });
 
-                // base cube
+                // base cube DONE
                 window.addEventListener("popupBase", function(){  
                     
                 });
