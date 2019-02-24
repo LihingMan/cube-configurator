@@ -51,7 +51,7 @@ var bcubesPrefix_init = 'B1'; // can be B1-B6, as passed by django view
 // assign accesories that can be imported into the scene
 // this is a nested array containing the accesories' programming code names and another array containing their respective actual names
 var accesoryList = [
-     ['XS','DS','SS','NBS','DD','T','SBS','D'], 
+     ['XS','DS','SS','NS','DD','TA','SB','DO'], // all are made two lettered to be convinient 
      ['X-Shelve', 'Double-Shelve' , 'Single-Shelve', '9-box-Shelve', 'Double-drawer', 'Table', '6-box-shelving', 'Door'],
 ];
 
@@ -424,8 +424,8 @@ function createboxMaterial (scene) {
 function meshSelectControl (scene, meshObj, color) {
 
      // color is a numeric string to specify color of highlight , must be supported by Babylon
-     // 1 is to blue
-     // 2 is to green 
+     // 1 is to blue IMPORTANT -> (we take this as base cube flag)
+     // 2 is to green IMPORTANT ->(we take this as stack cube flag)
 
      // attach actionmanager to the scene 
      meshObj.actionManager = new BABYLON.ActionManager(scene);
@@ -433,7 +433,7 @@ function meshSelectControl (scene, meshObj, color) {
      // define highlight 
      var hl = new BABYLON.HighlightLayer("hl", scene);
 
-     // register actions
+     // register actions for highlight color
      meshObj.actionManager.registerAction(
           new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOverTrigger, function(m){
                var mesh = m.meshUnderPointer;
@@ -452,6 +452,27 @@ function meshSelectControl (scene, meshObj, color) {
               hl.removeMesh(mesh); // remove highlight when out of pointer trigger
           })
      );     
+
+     // register actions for modal popup upon click 
+     meshObj.actionManager.registerAction(
+          new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(m){
+
+               // get id of the selected mesh (which is the same as its name, so we can use them interchangably)
+               var meshID = m.source.id; // note we expect E1-EXX (as unique id for each imported stack cube)
+               if (color == '1') {
+                    // then update global base cube id tracking (integer)
+                    baseIndex =  parseInt(meshID.slice(1));
+                    // and make the base cube event
+                    makeEvent("popupBase");
+
+               } else if (color =='2'){
+                    // then update global stack cube id tracking (integer)
+                    stackIndex =  parseInt(meshID.slice(1));
+                    // and make the stack cube event
+                    makeEvent("popupStack");
+               }
+         })
+     );
 }
 
 /*
@@ -1056,14 +1077,14 @@ function btn_Stack(scene, gridMat, btnInt, rx_target,cy_target) {
  // -------------------------------------- ACCESORIES ----------------------------------------------- //
 
  // Accesories import for base cubes 
- function importBaseAccesories(scene, asstype, cubeNameId, specificcubePos) {
+ function importBaseAccesories(scene, asstype, cubeNameId, specificcubeNum) {
 
      // accesories management for base cubes only
 
      // here, args type is a string to identify which accesory is being imported. 
      //            cubeNameId is a string identifying id of associated cube , which contains its array tracker index! 
      //            cubeType is a string whether or not it is 'stack' or 'base' 
-     //            specificcubePos is an integer specifying which cube of a composite cube is being referred to
+     //            specificcubeNum is an integer specifying which cube of a composite cube is being referred to
      //             ..... (this can be taken any integer between 1-6 i.e. cube 1 - cube 6 for B6, so on so forth)
 
      if (asstype == 'XS') { // X shelve
@@ -1084,7 +1105,7 @@ function btn_Stack(scene, gridMat, btnInt, rx_target,cy_target) {
      var cubePrefixInt = parseInt(basecubeArray[cubemeshInd].slice(1)); 
 
      // simple sanity check 
-     if (specificcubePos > cubePrefixInt) {
+     if (specificcubeNum > cubePrefixInt) {
           console.log('[ERROR] Specific cube position cannot be larger than base cube prefix int');
           return 0; 
      }
@@ -1095,7 +1116,7 @@ function btn_Stack(scene, gridMat, btnInt, rx_target,cy_target) {
      function (assMesh) {
           var assMesh = assMesh[0]; // get the mesh object 
           
-          // naming convention for accesories base cube mesh BX<int> i.e. BX1, BX2, BX3, BX4 ... for X shelve
+          // naming convention for accesories base cube mesh BX<int> i.e. BXS1, BXS2, BXS3, BXS4 ... for X shelve
           // where <int> refers to the associated cube mesh unique index 
           assMesh.name = 'B' + asstype + String(cubeInd); 
           assMesh.id = 'B' + asstype + String(cubeInd); 
@@ -1104,12 +1125,12 @@ function btn_Stack(scene, gridMat, btnInt, rx_target,cy_target) {
           // NOTE SEE TO-DO below.
           if (cubePrefixInt%2 == 0) {
                // if this cube is either B2,B4,B6 , use this formulae to determine x pos rel to cube CoG
-               var xposMesh = cubePos[0] + ((specificcubePos - ((cubePrefixInt/2) + 0.5))*boxgridWidth); 
+               var xposMesh = cubePos[0] + ((specificcubeNum - ((cubePrefixInt/2) + 0.5))*boxgridWidth); 
 
           } else if (cubePrefixInt%2 > 0) {
                // else if the cube is either B1,B3,B5, use this formulae to determine x pos rel to cube CoG
                // TO-DO: if both are exactly same formulae, just use one no need conditional...check properly first 
-               var xposMesh = cubePos[0] + ((specificcubePos - ((cubePrefixInt/2) + 0.5))*boxgridWidth);
+               var xposMesh = cubePos[0] + ((specificcubeNum - ((cubePrefixInt/2) + 0.5))*boxgridWidth);
           }
 
           // position the accesory mesh at base cube 
@@ -1121,10 +1142,10 @@ function btn_Stack(scene, gridMat, btnInt, rx_target,cy_target) {
          // register the mesh for actions
          assMesh.actionManager = new BABYLON.ActionManager(scene); 
           
-          // update base accesory arrays
-          // recall that specificcubePos is the cube prefix int from 1-6 for B1-B6. so in terms of index, it is 0-5
-          baseAccesoryArray[cubemeshInd][specificcubePos - 1].push(asstype);
-          baseAccesoryPos[cubemeshInd][specificcubePos - 1].push([[xposMesh],[cubePos[1]],[cubePos[2]]]); 
+          // update base accesory arrays at their respective specific cubes position
+          // recall that specificcubeNum is the cube prefix int from 1-6 for B1-B6. so in terms of index, it is 0-5
+          baseAccesoryArray[cubemeshInd][specificcubeNum - 1].push(asstype);
+          baseAccesoryPos[cubemeshInd][specificcubeNum - 1].push([[xposMesh],[cubePos[1]],[cubePos[2]]]); 
            
      });
  }
