@@ -1144,8 +1144,8 @@ function btn_Stack(scene, gridMat, btnInt, rx_target,cy_target) {
           
           // update base accesory arrays at their respective specific cubes position
           // recall that specificcubeNum is the cube prefix int from 1-6 for B1-B6. so in terms of index, it is 0-5
-          baseAccesoryArray[cubemeshInd][specificcubeNum - 1].push(asstype);
-          baseAccesoryPos[cubemeshInd][specificcubeNum - 1].push([[xposMesh],[cubePos[1]],[cubePos[2]]]); 
+          baseAccesoryArray[cubemeshInd][specificcubeNum - 1] = asstype;
+          baseAccesoryPos[cubemeshInd][specificcubeNum - 1] = [[xposMesh],[cubePos[1]],[cubePos[2]]]; 
            
      });
  }
