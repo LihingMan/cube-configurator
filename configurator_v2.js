@@ -1090,10 +1090,14 @@ function btn_Stack(scene, gridMat, btnInt, rx_target,cy_target) {
      if (asstype == 'XS') { // X shelve
           var assmeshImp = 'Xshelve.babylon'; // this name has to be same as the mesh file from cdn
      } else if (asstype == 'SS') { // Single shelve
-          var assmeshImp = '';
+          var assmeshImp = 'singleshelve.babylon';
      } else if  (asstype == 'DS') { // Double shelve
-          var assmeshImp = ''; 
-     } // continue till all eight accesories are captured
+          var assmeshImp = 'doubleshelve.babylon'; 
+     } else if (asstype == 'NS') { // nine box shelve
+          var assmeshImp = 'nineboxshelve.babylon'; 
+     } else if (asstype == 'SB') { // six box shelve
+          var assmeshImp = 'sixboxshelve.babylon'; 
+     } // continue on...until all accesory is covered
 
      // get the cube integer unique number
      cubemeshInd = parseInt(cubeNameId.slice(1)); 
