@@ -19,7 +19,12 @@ var baseAccesoryPos = [];
 // purpose is to serve as a holding variable of selected basec cube mesh index/id/name *same thing! 
 var baseIndex = 0; 
 
-var basecubeName;
+var basecubeName; // used to identify which cube to import accessory to
+
+var basePrices = [["B1", 7.6], ["B2", 10.9], ["B3", 14.5], ["B4", 18.5], ["B5", 22.4], ["B6", 26.3]];
+
+var totalBasecubes;
+
 /*
 SPECIAL remark for stackcubes.
  - user will only be able to import E1 into the canvas
@@ -38,7 +43,11 @@ var stackAccesoryPos = [];
 // purpose is same as above baseIndex variable
 var stackIndex = 0; 
 
-var stackcubeName;
+var stackcubeName; // used to identify which cube to import accessory to
+
+var stackPrices = [["E1", 6.3], ["E2", 8.8], ["E3", 10.6], ["E4", 13.5], ["35", 16.2], ["E6", 19]];
+
+var totalStackcubes;
 
 // some global constants 
 var postfix = "-final.babylon"; // define postfix for end of mesh file names
@@ -54,8 +63,15 @@ var bcubesPrefix_init = 'B1'; // can be B1-B6, as passed by django view
 // this is a nested array containing the accesories' programming code names and another array containing their respective actual names
 var accesoryList = [
      ['XS','DS','SS','NS','DD','TA','SB','DO'], // all are made two lettered to be convinient 
-     ['X-Shelve', 'Double-Shelve' , 'Single-Shelve', '9-box-Shelve', 'Double-drawer', 'Table', '6-box-shelving', 'Door'],
+     ['X-Shelve', 'Double-Shelve' , 'Single-Shelve', '9-box-Shelve', 'Double-drawer', 'Table', '6-box-shelving', 'Door']
 ];
+
+var accessoryPrices = [["XS", 3.6], ["DS", 6.8], ["SS", 5.2], ["NS", 4.8], ["DD", 8.4], ["TA", 20], ["SB", 4], ["DO", 6]];
+
+var totalBaseAccessories;
+var totalStackAccessories;
+
+var price = 0;
 
 // Check if  browser supports webGL
 if (BABYLON.Engine.isSupported()) {
@@ -138,12 +154,19 @@ function createRoomScene() {
     // Load base cubes and enable modifications to the base cubes 
     importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0, 'init');
 
-    window.addEventListener("importAccessory", function(){
+    window.addEventListener("importAccessoryBase", function(){
         var specificcubeNum = id;
         
         importBaseAccesories(scene, asstype, basecubeName, specificcubeNum);
         
-    })
+    });
+
+    window.addEventListener("importAccessoryStack", function(){
+     var specificcubeNum = id;
+     
+     importStackAccesories(scene, asstype, stackcubeName, specificcubeNum);
+     
+ });
 
     window.addEventListener("saveScene", function() {
         BABYLON.Tools.CreateScreenshotUsingRenderTarget(engine, camera, 1920); // download the room scene as png
@@ -163,6 +186,21 @@ function makeEvent(type){
      window.dispatchEvent(event);
  }
 
+function calcPrice(prices, items){
+    var total = 0;
+    for (var i=0; i<items.length; i++){
+        if (items[i] != 0){
+            for (var j=0; j<prices.length; j++){
+                if (prices[j][0] == items[i]){
+                    total += prices[j][1];
+                }
+            }
+        }
+    }
+    
+    return total;
+}   
+ 
 // create the camera
 function createCamera(scene) {
     
@@ -475,7 +513,9 @@ function meshSelectControl (scene, meshObj, color) {
             if (color == '1') {
                 // then update global base cube id tracking (integer)
                 baseIndex =  parseInt(meshID.slice(1));
-
+                // baseIndex =  basecubeArray[parseInt(meshID.slice(1))];
+                // baseIndex = parseInt(baseIndex.slice(1));
+                // console.log(baseIndex)
                 basecubeName = meshID;
 
                 // and make the base cube event
@@ -502,12 +542,12 @@ function meshSelectControl (scene, meshObj, color) {
      NOTE THAT THIS IS THE ONLY FUNCTION THAT CAN IMPORT BASE CUBES 
 */
 function importBaseCubes_SUPP(scene,gridMat,bcubesPrefix,rx,cy) {
-     // concat with the constant global postfix to give import name 
-     var bcubename = bcubesPrefix + postfix; 
-     var intprefix = parseInt(bcubesPrefix.slice(1)); // get the integer 6 out of B6 for instance.
+    // concat with the constant global postfix to give import name 
+    var bcubename = bcubesPrefix + postfix; 
+    var intprefix = parseInt(bcubesPrefix.slice(1)); // get the integer 6 out of B6 for instance.
 
-     BABYLON.SceneLoader.ImportMesh("", hostUrl, bcubename, scene, 
-     function (newMeshes) {
+    BABYLON.SceneLoader.ImportMesh("", hostUrl, bcubename, scene, 
+    function (newMeshes) {
 
           // dirty hack to get around not being able to assign name and id to mesh
           var newMesh = newMeshes[0]; 
@@ -529,14 +569,14 @@ function importBaseCubes_SUPP(scene,gridMat,bcubesPrefix,rx,cy) {
 
           // define mesh rotation
           newMesh.rotation.y = Math.PI/2;
-          
+
           // define mesh material
           var boxMaterial = createboxMaterial(scene); 
           newMesh.material = boxMaterial;
 
           // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
           basecubeArray.push(bcubesPrefix);
-          
+
           basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
           basecubeCtr = basecubeCtr +  1; 
           // update global base cube accesory in tandem, populate with empty array and empty matrix 
@@ -546,7 +586,15 @@ function importBaseCubes_SUPP(scene,gridMat,bcubesPrefix,rx,cy) {
 
           // configure actionManager
           meshSelectControl (scene, newMesh,'1');
-     }); 
+
+          // update price after importing an extra cube
+          var curprice = calcPrice(basePrices, basecubeArray)
+          totalBasecubes = curprice;
+
+          // fire event to update html
+          makeEvent("priceUpdate");
+
+    }); 
 }
 
 
@@ -566,7 +614,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
      // is to flag it either null (should be default), 
 
      // concat with the constant global postfix to give import name 
-     var bcubename = bcubesPrefix + postfix; 
+     var bcubename = bcubesPrefix + postfix;     
 
     // SceneLoader.ImportMesh
     // Loads the meshes from the file and appends them to the scene
@@ -686,6 +734,13 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
 
                // define cube actionManager
                meshSelectControl (scene, newMesh , '1');
+
+               // update price after importing an extra cube
+               var curprice = calcPrice(basePrices, basecubeArray);
+               totalBasecubes = curprice;
+
+               // fire an event to update html 
+               makeEvent("priceUpdate");
                
           } else if (type == 'nextLOGIC') {
 
@@ -814,6 +869,20 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     var getMeshObj_R = scene.getMeshByID(meshid_R);
                     getMeshObj_R.dispose(); 
                     getMeshObj_R = null; // can just ignore error msg from babylon due to this i.e. import error or some shit
+                    
+                    // get rid of the accessories in the base cube
+                    if (baseAccesoryArray[RightExistCubeInd] != 0) {
+                        for (var i=0; i<baseAccesoryArray.length; i++) {
+                            if (baseAccesoryArray[RightExistCubeInd][i] != 0 && baseAccesoryArray[RightExistCubeInd][i] != null) {
+                                var accessoryID = baseAccesoryArray[RightExistCubeInd][i];
+                                accessoryID = "B" + accessoryID + String(RightExistCubeInd);
+                                var getaccessoryObj = scene.getMeshByID(accessoryID);
+                                getaccessoryObj.dispose(); 
+                                getaccessoryObj = null;
+                            }
+                        }
+                    }
+
                     // remove from basecube tracker arrays by setting null
                     basecubeArray[RightExistCubeInd] = 0; 
                     basecubePos[RightExistCubeInd] = 0; 
@@ -827,6 +896,19 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     var getMeshObj_L = scene.getMeshByID(meshid_L);
                     getMeshObj_L.dispose(); 
                     getMeshObj_L = null;
+                    
+                    // get rid of the accessories in the base cube
+                    if (baseAccesoryArray[LeftExistCubeInd] != 0) {
+                        for (var i=0; i<baseAccesoryArray.length; i++) {
+                            if (baseAccesoryArray[LeftExistCubeInd][i] != 0 && baseAccesoryArray[LeftExistCubeInd][i] != null) {
+                                var accessoryID = baseAccesoryArray[LeftExistCubeInd][i];
+                                accessoryID = "B" + accessoryID + String(LeftExistCubeInd);
+                                var getaccessoryObj = scene.getMeshByID(accessoryID);
+                                getaccessoryObj.dispose(); 
+                                getaccessoryObj = null;
+                            }
+                        }
+                    }
                     // remove from basecube tracker arrays by setting null
                     basecubeArray[LeftExistCubeInd] = 0; 
                     basecubePos[LeftExistCubeInd] = 0; 
@@ -834,6 +916,15 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     baseAccesoryPos[LeftExistCubeInd] = 0; 
                     //console.log("INFO - Obtained left neighbour cube mesh via id");
                     
+                    // update price after deleting an accessory
+                    var curprice = 0;
+                    for (var i=0; i<baseAccesoryArray.length; i++) {
+                        curprice += calcPrice(accessoryPrices, baseAccesoryArray[i]);
+                    }
+                    totalBaseAccessories = curprice;
+
+                    makeEvent("priceUpdate");
+
                     // and then import the new base cube in its new adjusted position by calling back importBaseCubes with type=='quickADD'
                     // this implements just a simple mesh import directly to rx_coord, cy_coord which are specific coordinates 
                     // NOTE : no need to update global counter here since the importBaseCubes quickLOGIC
@@ -857,25 +948,60 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                          var getMeshObj_R = scene.getMeshByID(meshid_R);
                          getMeshObj_R.dispose(); 
                          getMeshObj_R = null; // can just ignore error msg from babylon due to this i.e. import error or some shit
+                         
+                         // get rid of the accessories in the base cube
+                         if (baseAccesoryArray[RightExistCubeInd] != 0) {
+                             for (var i=0; i<baseAccesoryArray.length; i++) {
+                                 if (baseAccesoryArray[RightExistCubeInd][i] != 0 && baseAccesoryArray[RightExistCubeInd][i] != null) {
+                                     var accessoryID = baseAccesoryArray[RightExistCubeInd][i];
+                                     accessoryID = "B" + accessoryID + String(RightExistCubeInd);
+                                     var getaccessoryObj = scene.getMeshByID(accessoryID);
+                                     getaccessoryObj.dispose(); 
+                                     getaccessoryObj = null;
+                                 }
+                             }
+                         }
                          // remove from basecube tracker arrays by setting null
                          basecubeArray[RightExistCubeInd] = 0; 
                          basecubePos[RightExistCubeInd] = 0; 
                          baseAccesoryArray[RightExistCubeInd] = 0;  
                          baseAccesoryPos[RightExistCubeInd] = 0;
+
                          //console.log("INFO - Obtained right neighbour cube mesh via id");
                     } else if (LeftExistCubePrefix != '') {
                          var meshid_L = 'B' + String(LeftExistCubeInd);
                          var getMeshObj_L = scene.getMeshByID(meshid_L);
                          getMeshObj_L.dispose(); 
                          getMeshObj_L = null;
+                        
+                         if (baseAccesoryArray[LeftExistCubeInd] != 0) {
+                            for (var i=0; i<baseAccesoryArray.length; i++) {
+                                if (baseAccesoryArray[LeftExistCubeInd][i] != 0 && baseAccesoryArray[LeftExistCubeInd][i] != null) {
+                                    var accessoryID = baseAccesoryArray[LeftExistCubeInd][i];
+                                    accessoryID = "B" + accessoryID + String(LeftExistCubeInd);
+                                    var getaccessoryObj = scene.getMeshByID(accessoryID);
+                                    getaccessoryObj.dispose(); 
+                                    getaccessoryObj = null;
+                                }
+                            }
+                        }
                          // remove from basecube tracker arrays by setting null
                          basecubeArray[LeftExistCubeInd] = 0; 
                          basecubePos[LeftExistCubeInd] = 0; 
                          baseAccesoryArray[LeftExistCubeInd] = 0;  
                          baseAccesoryPos[LeftExistCubeInd] = 0; 
                          //console.log("INFO - Obtained left neighbour cube mesh via id");
+                        
                     }
+                    
+                    // update price after deleting an accessory
+                    var curprice = 0;
+                    for (var i=0; i<baseAccesoryArray.length; i++) {
+                        curprice += calcPrice(accessoryPrices, baseAccesoryArray[i]);
+                    }
+                    totalBaseAccessories = curprice;
 
+                    makeEvent("priceUpdate")
                     // and then import the new base cube in its new adjusted position by calling back importBaseCubes with type=='quickADD'
                     // this implements just a simple mesh import directly to rx_coord, cy_coord which are specific coordinates 
                     // NOTE : no need to update global counter here since the importBaseCubes quickLOGIC
@@ -915,6 +1041,13 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
 
                     // configure mesh actionManager
                     meshSelectControl (scene, newMesh ,'1');
+
+                    // update price after importing an extra cube
+                    var curprice = calcPrice(basePrices, basecubeArray)
+                    totalBasecubes = curprice;
+
+                    // fire event to update html
+                    makeEvent("priceUpdate");
 
                } else {
                     console.log("[ERROR] problem with right or left detection."); 
@@ -1036,7 +1169,7 @@ function importStackCubes_SUPP(scene, gridMat, rx, cy, stackprefix) {
          
           // update global counter for stack cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
           stackcubeArray.push(stackprefix);
-          console.log(stackcubeArray)
+          
           stackcubePos.push([stackMesh.position.x,stackMesh.position.y,stackMesh.position.z]); // push grid position in stackcubePos array as an array of 3 elements x,y,z 
           stackcubeCtr = stackcubeCtr +  1; 
           // update global stack cube accesory in tandem, populate with empty array and empty matrix 
@@ -1046,6 +1179,13 @@ function importStackCubes_SUPP(scene, gridMat, rx, cy, stackprefix) {
 
           // configure actionManager
           meshSelectControl (scene, stackMesh,'2');
+
+          // update price after importing an extra cube
+          var curprice = calcPrice(stackPrices, stackcubeArray);
+          totalStackcubes = curprice;
+
+          // update price after importing an extra cube
+          makeEvent("priceUpdate");
      }); 
 }
 
@@ -1055,11 +1195,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
      console.log("[INFO] Imported stack asset mesh"); 
 
      // name of cube to be imported
-     var cubeName = stackprefix + postfix; 
-
-     // make an event to fire off other javascript funcs to update html etc
-     // codename 'stack' for firing javascript to update pricing incorporating stack cubes 
-     makeEvent("stack");
+     var cubeName = stackprefix + postfix;      
 
      BABYLON.SceneLoader.ImportMesh("", hostUrl, cubeName, scene, 
      function (newMeshes) {
@@ -1176,6 +1312,19 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                     var getMeshObj_R = scene.getMeshByID(meshid_R);
                     getMeshObj_R.dispose(); 
                     getMeshObj_R = null; // can just ignore error msg from babylon due to this i.e. import error or some shit
+
+                    if (stackAccesoryArray[RightExistCubeInd] != 0) {
+                        for (var i=0; i<baseAccesoryArray.length; i++) {
+                            if (stackAccesoryArray[RightExistCubeInd][i] != 0 && stackAccesoryArray[RightExistCubeInd][i] != null) {
+                                var accessoryID = stackAccesoryArray[RightExistCubeInd][i];
+                                accessoryID = "B" + accessoryID + String(RightExistCubeInd);
+                                var getaccessoryObj = scene.getMeshByID(accessoryID);
+                                getaccessoryObj.dispose(); 
+                                getaccessoryObj = null;
+                            }
+                        }
+                    }
+
                     // remove from stack cube tracker arrays by setting null
                     stackcubeArray[RightExistCubeInd] = 0; 
                     stackcubePos[RightExistCubeInd] = 0; 
@@ -1188,6 +1337,18 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                     var getMeshObj_L = scene.getMeshByID(meshid_L);
                     getMeshObj_L.dispose(); 
                     getMeshObj_L = null;
+
+                    if (stackAccesoryArray[LeftExistCubeInd] != 0) {
+                        for (var i=0; i<baseAccesoryArray.length; i++) {
+                            if (stackAccesoryArray[LeftExistCubeInd][i] != 0 && stackAccesoryArray[LeftExistCubeInd][i] != null) {
+                                var accessoryID = stackAccesoryArray[LeftExistCubeInd][i];
+                                accessoryID = "B" + accessoryID + String(LeftExistCubeInd);
+                                var getaccessoryObj = scene.getMeshByID(accessoryID);
+                                getaccessoryObj.dispose(); 
+                                getaccessoryObj = null;
+                            }
+                        }
+                    }
                     // remove from satckcube tracker arrays by setting null
                     stackcubeArray[LeftExistCubeInd] = 0; 
                     stackcubePos[LeftExistCubeInd] = 0; 
@@ -1195,7 +1356,15 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                     stackAccesoryPos[LeftExistCubeInd] = 0; 
                     
                     //console.log("INFO - Obtained left neighbour cube mesh via id");
-                    
+
+                    // update price after importing an extra cube
+                    var curprice = 0;
+                    for (var i=0; i<stackAccesoryArray.length; i++) {
+                        curprice += calcPrice(accessoryPrices, stackAccesoryArray[i]);
+                    }
+                    totalStackAccessories = curprice;
+            
+                    makeEvent("priceUpdate");
                     // this implements just a simple mesh import directly to rx_coord, cy_coord which are specific coordinates 
                      
                     importStackCubes_SUPP(scene,gridMat,rx_coord,newY,stackprefix); 
@@ -1215,6 +1384,20 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                          var getMeshObj_R = scene.getMeshByID(meshid_R);
                          getMeshObj_R.dispose(); 
                          getMeshObj_R = null; // can just ignore error msg from babylon due to this i.e. import error or some shit
+
+                         if (stackAccesoryArray[RightExistCubeInd] != 0) {
+                            for (var i=0; i<stackAccesoryArray.length; i++) {
+                                if (stackAccesoryArray[RightExistCubeInd][i] != 0 && stackAccesoryArray[RightExistCubeInd][i] != null) {
+                                    var accessoryID = stackAccesoryArray[RightExistCubeInd][i];
+                                    accessoryID = "B" + accessoryID + String(RightExistCubeInd);
+                                    var getaccessoryObj = scene.getMeshByID(accessoryID);
+                                    getaccessoryObj.dispose(); 
+                                    getaccessoryObj = null;
+                                }
+                            }
+                        }
+                        
+    
                          // remove from stackcube tracker arrays by setting null
                          stackcubeArray[RightExistCubeInd] = 0; 
                          stackcubePos[RightExistCubeInd] = 0; 
@@ -1226,14 +1409,34 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                          var getMeshObj_L = scene.getMeshByID(meshid_L);
                          getMeshObj_L.dispose(); 
                          getMeshObj_L = null;
-                         // remove from stackcube tracker arrays by setting null
-                         stackcubeArray[LeftExistCubeInd] = 0; 
-                         stackcubePos[LeftExistCubeInd] = 0; 
-                         stackAccesoryArray[LeftExistCubeInd] = 0;  
-                         stackAccesoryPos[LeftExistCubeInd] = 0; 
-                         //console.log("INFO - Obtained left neighbour cube mesh via id");
+
+                        if (stackAccesoryArray[LeftExistCubeInd] != 0) {
+                            for (var i=0; i<baseAccesoryArray.length; i++) {
+                                if (stackAccesoryArray[LeftExistCubeInd][i] != 0 && stackAccesoryArray[LeftExistCubeInd][i] != null) {
+                                    var accessoryID = stackAccesoryArray[LeftExistCubeInd][i];
+                                    accessoryID = "B" + accessoryID + String(LeftExistCubeInd);
+                                    var getaccessoryObj = scene.getMeshByID(accessoryID);
+                                    getaccessoryObj.dispose(); 
+                                    getaccessoryObj = null;
+                                }
+                            }
+                        }
+                        // remove from stackcube tracker arrays by setting null
+                        stackcubeArray[LeftExistCubeInd] = 0; 
+                        stackcubePos[LeftExistCubeInd] = 0; 
+                        stackAccesoryArray[LeftExistCubeInd] = 0;  
+                        stackAccesoryPos[LeftExistCubeInd] = 0; 
+                        //console.log("INFO - Obtained left neighbour cube mesh via id");
                     }
 
+                    // update price after importing an extra cube
+                    var curprice = 0;
+                    for (var i=0; i<stackAccesoryArray.length; i++) {
+                        curprice += calcPrice(accessoryPrices, stackAccesoryArray[i]);
+                    }
+                    totalStackAccessories = curprice;
+            
+                    makeEvent("priceUpdate");
                     
                     // this implements just a simple mesh import directly to rx_coord, cy_coord which are specific coordinates 
                     
@@ -1269,6 +1472,13 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
      
                     // configure mesh actionManager
                     meshSelectControl (scene, stackMesh ,'2');
+
+                    // update price after importing an extra cube
+                    var curprice = calcPrice(stackPrices, stackcubeArray);
+                    totalStackcubes = curprice;
+
+                    // update price after importing an extra cube
+                    makeEvent("priceUpdate");
 
                } else {
                     console.log("[ERROR] problem with right or left detection."); 
@@ -1417,22 +1627,109 @@ function importBaseAccesories(scene, asstype, cubeNameId, specificcubeNum) {
         
         baseAccesoryArray[cubemeshInd][specificcubeNum - 1] = asstype;
         baseAccesoryPos[cubemeshInd][specificcubeNum - 1] = [[xposMesh],[cubePos[1]],[cubePos[2]]]; 
-        
+        console.log(baseAccesoryArray)
+
+        var curprice = 0; 
+
+        for (var i=0; i<baseAccesoryArray.length; i++) {
+            curprice += calcPrice(accessoryPrices, baseAccesoryArray[i]);
+        }
+        totalBaseAccessories = curprice;
+
+        makeEvent("priceUpdate");
     });
 }
 
-function importXshelf(scene, x, y, z) {
-    console.log("[INFO] Imported X shelf mesh"); 
-    BABYLON.SceneLoader.ImportMesh("", hostUrl, "Xshelve.babylon", scene, 
-    function (xshelf) {
-        xShelf = xshelf[0]; 
+function importStackAccesories(scene, asstype, cubeNameId, specificcubeNum) {
 
-        xShelf.actionManager = new BABYLON.ActionManager(scene); // register the mesh for actions
+    // accesories management for base cubes only
 
-        xShelf.position.x = x;
-        xShelf.position.y = y;
-        xShelf.position.z = z;
-        xShelf.rotation.y = Math.PI/2;
+    // here, args type is a string to identify which accesory is being imported. 
+    //            cubeNameId is a string identifying id of associated cube , which contains its array tracker index! 
+    //            cubeType is a string whether or not it is 'stack' or 'base' 
+    //            specificcubeNum is an integer specifying which cube of a composite cube is being referred to
+    //             ..... (this can be taken any integer between 1-6 i.e. cube 1 - cube 6 for B6, so on so forth)
 
+    if (asstype == 'XS') { // X shelve
+		var assmeshImp = 'Xshelve.babylon'; // this name has to be same as the mesh file from cdn
+	} else if (asstype == 'SS') { // Single shelve
+		var assmeshImp = 'singleshelve.babylon';
+	} else if  (asstype == 'DS') { // Double shelve
+		var assmeshImp = 'doubleshelve.babylon'; 
+	} else if (asstype == 'NS') { // nine box shelve
+		var assmeshImp = 'nineboxshelve.babylon'; 
+	} else if (asstype == 'SB') { // six box shelve
+		var assmeshImp = 'sixboxshelve.babylon'; 
+    } 
+    // else if (asstype == 'DD') { // six box shelve
+	// 	var assmeshImp = 'doubledrawer.babylon'; // continue on...until all accesory is covered
+    // } else if (asstype == 'TA') { // six box shelve
+	// 	var assmeshImp = 'table.babylon'; // continue on...until all accesory is covered
+    // } else if (asstype == 'DO') { // six box shelve
+	// 	var assmeshImp = 'door.babylon'; // continue on...until all accesory is covered
+    // } 
+    // get the cube integer unique number
+    cubemeshInd = parseInt(cubeNameId.slice(1)); 
+
+    // get the target cube mesh coords pos (remmember, cubePos is an array of 3 elements x y z)
+    var cubePos = stackcubePos[cubemeshInd]; // this will be the base position for any assceory imports
+
+    // get the target cube mesh prefix (only interested in the number 1-6 for B1-B6)
+
+    var cubePrefixInt = parseInt(stackcubeArray[cubemeshInd].slice(1)); 
+    
+    // simple sanity check 
+    if (specificcubeNum > cubePrefixInt) {
+        console.log('[ERROR] Specific cube position cannot be larger than stack cube prefix int');
+        return 0; 
+    }
+
+    console.log("[INFO] Imported accesory mesh"); 
+
+    BABYLON.SceneLoader.ImportMesh("", hostUrl, assmeshImp, scene, 
+    function (assMesh) {
+        var assMesh = assMesh[0]; // get the mesh object 
+        
+        // naming convention for accesories stack cube mesh BX<int> i.e. BXS1, BXS2, BXS3, BXS4 ... for X shelve
+        // where <int> refers to the associated cube mesh unique index 
+        assMesh.name = 'B' + asstype + String(cubemeshInd); 
+        assMesh.id = 'B' + asstype + String(cubemeshInd); 
+        
+        // here, compute the x position of the imported accesory 
+        // NOTE SEE TO-DO below.
+        if (cubePrefixInt%2 == 0) {
+            // if this cube is either B2,B4,B6 , use this formulae to determine x pos rel to cube CoG
+            var xposMesh = cubePos[0] + ((specificcubeNum - ((cubePrefixInt/2) + 0.5))*boxgridWidth); 
+
+        } 
+        else if (cubePrefixInt%2 > 0) {
+            // else if the cube is either B1,B3,B5, use this formulae to determine x pos rel to cube CoG
+            // TO-DO: if both are exactly same formulae, just use one no need conditional...check properly first 
+            var xposMesh = cubePos[0] + ((specificcubeNum - ((cubePrefixInt/2) + 0.5))*boxgridWidth);
+        }
+        
+        // position the accesory mesh at base cube 
+        assMesh.position.x = xposMesh;
+        assMesh.position.y = cubePos[1];
+        assMesh.position.z = cubePos[2];
+        assMesh.rotation.y = Math.PI/2;
+
+        // register the mesh for actions
+        assMesh.actionManager = new BABYLON.ActionManager(scene); 
+        
+        // update base accesory arrays at their respective specific cubes position
+        // recall that specificcubeNum is the cube prefix int from 1-6 for B1-B6. so in terms of index, it is 0-5
+        
+        stackAccesoryArray[cubemeshInd][specificcubeNum - 1] = asstype;
+        stackAccesoryPos[cubemeshInd][specificcubeNum - 1] = [[xposMesh],[cubePos[1]],[cubePos[2]]]; 
+
+         // update price after importing an extra cube
+         var curprice = 0;
+         for (var i=0; i<stackAccesoryArray.length; i++) {
+            curprice += calcPrice(accessoryPrices, stackAccesoryArray[i]);
+        }
+        totalStackAccessories = curprice;
+
+        makeEvent("priceUpdate");
     });
 }

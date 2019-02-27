@@ -71,11 +71,20 @@ html {
 
  .price {
      position: absolute;
-     top: 15%;
+     top: 30%;
      right: 22%;
      /* transform: translateY(-50%); */
      z-index: 2;
      font-size: 35px;
+ }
+
+ .save {
+    position: absolute;
+    top: 15%;
+    left: 15%;
+    /* transform: translateY(-50%); */
+    z-index: 2;
+    font-size: 35px;
  }
 
  table, th, td, tr s{

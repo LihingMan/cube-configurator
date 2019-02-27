@@ -40,7 +40,7 @@
 
         <script src="configurator_v3_bryan.js"></script>
 
-        <button class="price" id="saveAsImg">Save your work</button>
+        <button class="save" id="saveAsImg">Save your work</button>
 
         <div class="modal fade" id="pop-up-modal" tabindex="-1">
             <div class="modal-dialog">
@@ -131,14 +131,12 @@
                     // import the identified accessory to the selected cube
                     $(".dropdown-item").click(function(){
                         id = parseInt(this.id); // id of selected cube
-                        makeEvent("importAccessory");
+                        makeEvent("importAccessoryBase");
                         $('#pop-up-modal').modal("hide"); // close modal after choosing accessory
                     });
 
                     $('#pop-up-modal').modal(); // show modal
-
-                                      
-                    
+          
                 }); 
 
                 // this is for the stack cube manipulation popup
@@ -180,20 +178,51 @@
                             </div>    
                             `
                         );
-                    }
+                    }   
+
+                    // this is to identify which accessory to import
+                    $(".dropdown-toggle").click(function(){
+                        asstype = this.id;
+                    });
+
+                    // import the identified accessory to the selected cube
+                    $(".dropdown-item").click(function(){
+                        id = parseInt(this.id); // id of selected cube
+                        makeEvent("importAccessoryStack");
+                        $('#pop-up-modal').modal("hide"); // close modal after choosing accessory
+                    });
+
 
                     $('#pop-up-modal').modal(); // show modal
                                        
 
                 });
+
                 // reset modal when hidden from view so buttons can change dynamically based on which cube is selected
                 $(".modal").on("hidden.bs.modal", function(){
                         $("#contentAss").html(""); // this works, lets use this concept , not an issue. 
-                    });  
+                });  
+
                 $("#saveAsImg").click(function(){
                     makeEvent("saveScene");
-                })
+                });
 
+                window.addEventListener("priceUpdate", function(){
+
+                    if (isNaN(totalStackAccessories)) {
+                        totalStackAccessories = 0;
+                    }
+                    if (isNaN(totalBaseAccessories)) {
+                        totalBaseAccessories = 0;
+                    }
+                    if (isNaN(totalStackcubes)) {
+                        totalStackcubes = 0;
+                    }
+
+                    price = totalBasecubes + totalStackcubes + totalBaseAccessories + totalStackAccessories;
+                    
+                    document.getElementById("price").textContent = "RM" + price.toFixed(2);;
+                });
                
             });
         
