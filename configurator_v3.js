@@ -187,13 +187,12 @@ function calcPrice(prices, items){
     for (var i=0; i<items.length; i++){
         if (items[i] != 0){
             for (var j=0; j<prices.length; j++){
-                if (prices[j][0] == items[i]){
+                if (prices[j][0] == items[i]) {
                     total += prices[j][1];
                 }
             }
         }
     }
-    
     return total;
 }   
  
