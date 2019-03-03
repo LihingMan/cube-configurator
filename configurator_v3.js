@@ -1162,6 +1162,10 @@ function importStackCubes_SUPP(scene, gridMat, rx, cy, stackprefix) {
 
           // define mesh rotation
           stackMesh.rotation.y = Math.PI/2;
+
+          // define mesh material
+          var boxMaterial = createboxMaterial(scene); 
+          stackMesh.material = boxMaterial;
          
           // update global counter for stack cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
           stackcubeArray.push(stackprefix);
@@ -1195,7 +1199,9 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
 
      BABYLON.SceneLoader.ImportMesh("", hostUrl, cubeName, scene, 
      function (newMeshes) {
+
           var stackMesh = newMeshes[0]; 
+
           // // define the imported B1 cube's coordinates
           var newX = gridMat[rx][cy][0]; 
           var newY = gridMat[rx][cy][1]; // this is a constant for stack cubes , can just reuse this number
@@ -1393,8 +1399,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                             }
                         }
                         
-    
-                         // remove from stackcube tracker arrays by setting null
+                        // remove from stackcube tracker arrays by setting null
                          stackcubeArray[RightExistCubeInd] = 0; 
                          stackcubePos[RightExistCubeInd] = 0; 
                          stackAccesoryArray[RightExistCubeInd] = 0;  
@@ -1465,6 +1470,10 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
 
                     // define mesh rotation
                     stackMesh.rotation.y = Math.PI/2;
+
+                    // define mesh material
+                    var boxMaterial = createboxMaterial(scene); 
+                    stackMesh.material = boxMaterial;
      
                     // configure mesh actionManager
                     meshSelectControl (scene, stackMesh ,'2');
@@ -1590,6 +1599,10 @@ function importBaseAccesories(scene, asstype, cubeNameId, specificcubeNum) {
     BABYLON.SceneLoader.ImportMesh("", hostUrl, assmeshImp, scene, 
     function (assMesh) {
         var assMesh = assMesh[0]; // get the mesh object 
+
+        // define mesh material
+        var boxMaterial = createboxMaterial(scene); 
+        assMesh.material = boxMaterial;
         
         // naming convention for accesories base cube mesh BX<int> i.e. BXS1, BXS2, BXS3, BXS4 ... for X shelve
         // where <int> refers to the associated cube mesh unique index 
@@ -1685,6 +1698,10 @@ function importStackAccesories(scene, asstype, cubeNameId, specificcubeNum) {
     BABYLON.SceneLoader.ImportMesh("", hostUrl, assmeshImp, scene, 
     function (assMesh) {
         var assMesh = assMesh[0]; // get the mesh object 
+
+        // define mesh material
+        var boxMaterial = createboxMaterial(scene); 
+        assMesh.material = boxMaterial;
         
         // naming convention for accesories stack cube mesh BX<int> i.e. BXS1, BXS2, BXS3, BXS4 ... for X shelve
         // where <int> refers to the associated cube mesh unique index 
