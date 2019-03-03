@@ -20,7 +20,7 @@ var baseAccesoryPos = [];
 var baseIndex = 0; 
 
 var basecubeName; // used to identify which cube to import accessory to
-var basePrices = [["B1", 7.6], ["B2", 10.9], ["B3", 14.5], ["B4", 18.5], ["B5", 22.4], ["B6", 26.3]];
+var basePrices = [["B1", 7.6], ["B2", 10.9], ["B3", 14.5], ["B4", 18.5], ["B5", 22.4], ["B6", 26.3]]; // in USD
 var totalBasecubes;
 
 /*
@@ -42,7 +42,7 @@ var stackAccesoryPos = [];
 var stackIndex = 0; 
 
 var stackcubeName; // used to identify which cube to import accessory to
-var stackPrices = [["E1", 6.3], ["E2", 8.8], ["E3", 10.6], ["E4", 13.5], ["E5", 16.2], ["E6", 19]];
+var stackPrices = [["E1", 6.3], ["E2", 8.8], ["E3", 10.6], ["E4", 13.5], ["E5", 16.2], ["E6", 19]]; // in USD
 var totalStackcubes;
 
 // some global constants 
@@ -62,7 +62,7 @@ var accesoryList = [
      ['X-Shelve', 'Double-Shelve' , 'Single-Shelve', '9-box-Shelve', 'Double-drawer', 'Table', '6-box-shelving', 'Door']
 ];
 
-var accessoryPrices = [["XS", 3.6], ["DS", 6.8], ["SS", 5.2], ["NS", 4.8], ["DD", 8.4], ["TA", 20], ["SB", 4], ["DO", 6]];
+var accessoryPrices = [["XS", 3.6], ["DS", 6.8], ["SS", 5.2], ["NS", 4.8], ["DD", 8.4], ["TA", 20], ["SB", 4], ["DO", 6]]; //USD
 
 var totalBaseAccessories;
 var totalStackAccessories;
