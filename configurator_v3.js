@@ -53,7 +53,7 @@ var boxgridWidth = 0.3835; // in mtrs, the defined grid system box element width
 // INITALIZATION 
 // assign basecubes file prefix for auto import of mesh into the scene.
 // but when integrated with the ezbo django app, this will be loaded from session storage 
-var bcubesPrefix_init = 'B1'; // can be B1-B6, as passed by django view
+var bcubesPrefix_init = 'B1'; // can be B1-B6, as passed by html before it
 
 // assign accesories that can be imported into the scene
 // this is a nested array containing the accesories' programming code names and another array containing their respective actual names
