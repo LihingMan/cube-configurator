@@ -1,0 +1,230 @@
+<!Doctype html>
+<html>
+    <head>
+
+        <meta charset="UTF-8">
+        <title>ezbo</title>
+        
+        <!-- bootstrap css here (in production include in base.html). WE use v4.0 stable  -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" 
+                integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+        <!-- game page custom css -->
+        <link rel="stylesheet" href="configurator_v2.css"> 
+
+        <!-- event handler for touch events -->
+        <!-- <script> src="https://cdnjs.cloudflare.com/ajax/libs/jquery.pep/0.4.0/jquery.pep.min.js"</script> --> 
+        <!-- earcut: polygon triangulation for webgl apps, required by babylon's polygon funcs -->
+        <script src="https://unpkg.com/earcut@2.1.4/dist/earcut.min.js"></script>
+
+        <!-- babylon javascripts, order matters!! -->
+        <script src="babylonv4a.custom.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+    </head> 
+
+    <body>
+        <div id="overlay">
+            <div id="text">Use landscape mode</div>
+        </div>
+        
+        <canvas id="main_app"></canvas>
+
+        <script>
+            // global variables so that the js file can read them
+
+            var id; // cube number from left to right
+            var asstype; // type of accessory to be imported
+
+        </script>
+
+        <script src="configurator_v3.js"></script>
+
+        <button class="save" id="saveAsImg">Save your work</button>
+
+        <div class="modal fade" id="pop-up-modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title">
+                            Accessories
+                        </h1>
+                    </div>
+                    <div class="modal-body">
+                        <!-- first, choose the cube number -->
+                        <div class="container-fluid" id="contentAss"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" id="close" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p class="price">
+            <span id="price"></span>
+        </p>
+
+        <!-- load JS lib and dependencies for bootstrap -->
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+        <script>            
+            var mql = window.matchMedia("(orientation: portrait)");
+            // Add a media query change listener
+            mql.addListener(function(m) {
+                if(!m.matches) {
+                    location.reload(true);
+                }
+            });
+
+           // this is for the base cube manipulation popup
+           $(document).ready(function () {
+               
+                window.addEventListener("popupBase", function(){  
+                    // get the active base cube accesory array
+                    var activeAssArr = baseAccesoryArray[baseIndex]; // note this should equal to the integer of each cube i.e. 6 for B6 etc
+                    
+                    // init the render to html dropdown selection
+                    // idea is to use the global accesory tracker which is always updated in the main logic upon import of accesory
+                    var cubelistHTML = ''; 
+                    // basically, we only want those which have not been rendered to be available for selection
+                    for (var i=0; i < activeAssArr.length; i++) {
+                        if (activeAssArr[i] != 0) {
+                            // meaning a particular cube is not empty,
+                            continue // continue to next iter
+                        } else {
+                            // if it is zero, meaning it is empty so we populate the cubelist array with the cube number specific location
+                            cubelistHTML = cubelistHTML + `<a class="dropdown-item" id="${i+1}">Base cube ${i+1}</a>`
+                            // later, jquery, on click dropdown-item, we get its id, then use this as input into the import accesory arg - specificcubeNum
+                        }
+                    }                    
+
+                    for (var i=0; i < accesoryList[0].length; i++) {
+                        // we then simply pass the logic filtered values into the string
+                        $("#contentAss").append (
+                            ` 
+                            <div class="card text-center">
+                                <img class="card-img-top" src="">
+                                <div class="card-body">
+                                    <h5 class="card-title"></h5>
+                                    <p class="card-text">${accesoryList[1][i]}</p>
+                                    <div class="dropdown">
+                                        <button type="button" href="#" class="btn btn-sm btn-outline-dark dropdown-toggle" data-toggle="dropdown" id='${accesoryList[0][i]}'>Add to..</button>
+                                        <div class="dropdown-menu">
+                                            ${cubelistHTML}
+                                        </div>
+                                    </div>  
+                                </div>
+                            </div>    
+                            `
+                        );
+                    }
+
+                    // this is to identify which accessory to import
+                    $(".dropdown-toggle").click(function() {
+                        asstype = this.id;
+                    })
+
+                    // import the identified accessory to the selected cube
+                    $(".dropdown-item").click(function(){
+                        id = parseInt(this.id); // id of selected cube
+                        makeEvent("importAccessoryBase");
+                        $('#pop-up-modal').modal("hide"); // close modal after choosing accessory
+                    });
+
+                    $('#pop-up-modal').modal(); // show modal
+          
+                }); 
+
+                // this is for the stack cube manipulation popup
+                window.addEventListener("popupStack", function(){  
+                    // get the active base cube accesory array
+                    var activeAssArr = stackAccesoryArray[stackIndex]; // note this should equal to the integer of each cube i.e. 6 for B6 etc
+                    
+                    // init the render to html dropdown selection
+                    // idea is to use the global accesory tracker which is always updated in the main logic upon import of accesory
+                    var cubelistHTML = ''; 
+                    // basically, we only want those which have not been rendered to be available for selection
+                    for (var i=0; i < activeAssArr.length; i++) {
+                        if (activeAssArr[i] != 0) {
+                            // meaning a particular cube is not empty,
+                            continue // continue to next iter
+                        } else {
+                            // if it is zero, meaning it is empty so we populate the cubelist array with the cube number specific location
+                            cubelistHTML = cubelistHTML + `<a class="dropdown-item" id="${i+1}">Stack cube ${i+1}</a>`
+                            // later, jquery, on click dropdown-item, we get its id, then use this as input into the import accesory arg - specificcubeNum
+                        }
+                    }    
+
+                    for (var i=0; i < accesoryList[0].length; i++) {
+                        // we then simply pass the logic filtered values into the string
+                        $("#contentAss").append (
+                            ` 
+                            <div class="card text-center">
+                                <img class="card-img-top" src="">
+                                <div class="card-body">
+                                    <h5 class="card-title"></h5>
+                                    <p class="card-text">${accesoryList[1][i]}</p>
+                                    <div class="dropdown">
+                                        <button type="button" href="#" class="btn btn-sm btn-outline-dark dropdown-toggle" data-toggle="dropdown" id='${accesoryList[0][i]}'>Add to..</button>
+                                        <div class="dropdown-menu">
+                                            ${cubelistHTML}
+                                        </div>
+                                    </div>  
+                                </div>
+                            </div>    
+                            `
+                        );
+                    }   
+
+                    // this is to identify which accessory to import
+                    $(".dropdown-toggle").click(function(){
+                        asstype = this.id;
+                    });
+
+                    // import the identified accessory to the selected cube
+                    $(".dropdown-item").click(function(){
+                        id = parseInt(this.id); // id of selected cube
+                        makeEvent("importAccessoryStack");
+                        $('#pop-up-modal').modal("hide"); // close modal after choosing accessory
+                    });
+
+
+                    $('#pop-up-modal').modal(); // show modal
+                                       
+
+                });
+
+                // reset modal when hidden from view so buttons can change dynamically based on which cube is selected
+                $(".modal").on("hidden.bs.modal", function(){
+                        $("#contentAss").html(""); // this works, lets use this concept , not an issue. 
+                });  
+
+                $("#saveAsImg").click(function(){
+                    makeEvent("saveScene");
+                });
+
+                window.addEventListener("priceUpdate", function(){
+
+                    if (isNaN(totalStackAccessories)) {
+                        totalStackAccessories = 0;
+                    }
+                    if (isNaN(totalBaseAccessories)) {
+                        totalBaseAccessories = 0;
+                    }
+                    if (isNaN(totalStackcubes)) {
+                        totalStackcubes = 0;
+                    }
+
+                    price = totalBasecubes + totalStackcubes + totalBaseAccessories + totalStackAccessories;
+                    
+                    document.getElementById("price").textContent = "RM" + price.toFixed(2);;
+                });
+               
+            });
+        
+        </script>        
+    </body>
+</html>    

@@ -1,10 +1,9 @@
 <!Doctype html>
 <html>
     <head>
-
         <meta charset="UTF-8">
         <title>ezbo</title>
-        
+
         <!-- bootstrap css here (in production include in base.html). WE use v4.0 stable  -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" 
                 integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
@@ -21,24 +20,26 @@
         <script src="babylonv4a.custom.js"></script>
         <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
         <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+        
     </head> 
 
     <body>
+
+        <script>
+            // global variables so that the js file can read them
+            var id; // cube number from left to right
+            var asstype; // type of accessory to be imported
+        </script>
+
+        <!-- reminder: order of script insertion is IMPORTANT! and NON TRIVIAL! -->
+
         <div id="overlay">
             <div id="text">Use landscape mode</div>
         </div>
         
         <canvas id="main_app"></canvas>
 
-        <script>
-            // global variables so that the js file can read them
-
-            var id; // cube number from left to right
-            var asstype; // type of accessory to be imported
-
-        </script>
-
-        <script src="configurator_v3_bryan.js"></script>
+        <script src="configurator_v2.js"></script>
 
         <button class="save" id="saveAsImg">Save your work</button>
 
@@ -70,7 +71,8 @@
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
+        
+        <!-- then other scripts for DOM manipulation -->
         <script>            
             var mql = window.matchMedia("(orientation: portrait)");
             // Add a media query change listener
@@ -124,7 +126,7 @@
                     }
 
                     // this is to identify which accessory to import
-                    $(".dropdown-toggle").click(function(){
+                    $(".dropdown-toggle").click(function() {
                         asstype = this.id;
                     })
 
@@ -226,6 +228,7 @@
                
             });
         
-        </script>        
+        </script>
+
     </body>
 </html>    
