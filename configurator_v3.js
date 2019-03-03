@@ -20,9 +20,7 @@ var baseAccesoryPos = [];
 var baseIndex = 0; 
 
 var basecubeName; // used to identify which cube to import accessory to
-
 var basePrices = [["B1", 7.6], ["B2", 10.9], ["B3", 14.5], ["B4", 18.5], ["B5", 22.4], ["B6", 26.3]];
-
 var totalBasecubes;
 
 /*
@@ -44,9 +42,7 @@ var stackAccesoryPos = [];
 var stackIndex = 0; 
 
 var stackcubeName; // used to identify which cube to import accessory to
-
-var stackPrices = [["E1", 6.3], ["E2", 8.8], ["E3", 10.6], ["E4", 13.5], ["35", 16.2], ["E6", 19]];
-
+var stackPrices = [["E1", 6.3], ["E2", 8.8], ["E3", 10.6], ["E4", 13.5], ["E5", 16.2], ["E6", 19]];
 var totalStackcubes;
 
 // some global constants 
