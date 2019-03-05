@@ -25,10 +25,7 @@ var totalBasecubes;
 
 /*
 SPECIAL remark for stackcubes.
- - user will only be able to import E1 into the canvas
- - we do not graphically include the advanced logic i.e. detection of ES6.5 etc
- - but nonetheless, must track these configuration by giving user the option to add 'planks' to join compatible stack cubes
- - and also track in the background, the actual stack cube inventory..i.e. E3 E4 E6 ES6.5 etc for costing and checkout
+ - user will only be able to import E1 into the canvas, the rest will be taken care by special logics
 */
 // trackers for stackcube - the E series
 var stackcubeArray = []; // to track the stack cubes in the scene by name i.e. E1 etc
@@ -42,18 +39,28 @@ var stackAccesoryPos = [];
 var stackIndex = 0; 
 
 var stackcubeName; // used to identify which cube to import accessory to
-var stackPrices = [["E1", 6.3], ["E2", 8.8], ["E3", 10.6], ["E4", 13.5], ["E5", 16.2], ["E6", 19]]; // in USD
+var stackPrices = [["E1", 6.3], ["E2", 8.8], ["E3", 10.6], ["E4", 13.5], ["E5", 16.2], ["E6", 19],
+                    ["E43", 6.3], ["E53", 8.8], ["E54", 10.6], ["E63", 13.5], ["E64", 16.2], ["E65b", 19],["E65a", 19], // not yet updated prices for composite stack
+                    ]; // in USD
 var totalStackcubes;
+
+// define x coord of cubes per row from left to right 1,2,3,4,5,6 positions on the grid 
+var x_coord_definition = [1.20175, 1.59525, 1.9887500000000002, 2.38225, 2.77575, 3.16925];
+
+// define pattern of the composite stackcubes which we call planks here 
+var stackplankConfig = [["E43", [1, 0, 0, 1]], ["E53", [1, 0, 0, 0, 1]], ["E54", [1, 1, 0, 0, 1]], ["E63", [1, 0, 0, 0, 0, 1]], ["E64", [1, 1, 0, 0, 0, 1]], ["E65b", [1, 1, 0, 0, 1, 1]], ["E65a", [1, 1, 1, 0, 0, 1]]];
+
+// NEW logic for stack cube planks
+var activeVert = 0; // active stack cube vertical position on new E1 import
+var activeHor = 0; // active stackc cube horizontal position on new E1 import 
+
+// inititate price 
+var price = 0;
 
 // some global constants 
 var postfix = "-final.babylon"; // define postfix for end of mesh file names
 var constZ = -0.3; // in meters, the constant global z position of all cubes 
 var boxgridWidth = 0.3835; // in mtrs, the defined grid system box element width 
-
-// INITALIZATION 
-// assign basecubes file prefix for auto import of mesh into the scene.
-// but when integrated with the ezbo django app, this will be loaded from session storage 
-var bcubesPrefix_init = 'B1'; // can be B1-B6, as passed by html before it
 
 // assign accesories that can be imported into the scene
 // this is a nested array containing the accesories' programming code names and another array containing their respective actual names
@@ -61,21 +68,15 @@ var accesoryList = [
      ['XS','DS','SS','NS','DD','TA','SB','DO'], // all are made two lettered to be convinient 
      ['X-Shelve', 'Double-Shelve' , 'Single-Shelve', '9-box-Shelve', 'Double-drawer', 'Table', '6-box-shelving', 'Door']
 ];
-
 var accessoryPrices = [["XS", 3.6], ["DS", 6.8], ["SS", 5.2], ["NS", 4.8], ["DD", 8.4], ["TA", 20], ["SB", 4], ["DO", 6]]; //USD
+
+// INITALIZATION 
+// assign basecubes file prefix for auto import of mesh into the scene.
+// but when integrated with the ezbo django app, this will be loaded from session storage 
+var bcubesPrefix_init = 'B1'; // can be B1-B6, as passed by html before it
 
 var totalBaseAccessories;
 var totalStackAccessories;
-
-var price = 0;
-
-var x_coord_definition = [1.20175, 1.59525, 1.9887500000000002, 2.38225, 2.77575, 3.16925];
-
-var plankConfig = [["E43", [1, 0, 0, 1]], ["E53", [1, 0, 0, 0, 1]], ["E54", [1, 1, 0, 0, 1]], ["E63", [1, 0, 0, 0, 0, 1]], ["E64", [1, 1, 0, 0, 0, 1]], ["E65b", [1, 1, 0, 0, 1, 1]], ["E65a", [1, 1, 1, 0, 0, 1]]];
-
-var cubeConfig;
-var record_hor = [];
-var record_vert = [];
 
 // for (var i=0; i<5; i++) {
 //      cubeConfig.push(new Array(6).fill(0));
@@ -1140,6 +1141,7 @@ function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
 /*
      Now it is time to define Imports of stacking cubes !! 
 */
+/*
 function fillCubeConfig() {
 
      for (var i=0; i<stackcubePos.length; i++) {
@@ -1156,10 +1158,9 @@ function fillCubeConfig() {
                     }
                }
           }
-     }
-    
-      
+     }      
 }
+
 
 function importPlanks(scene, v_new, h_new) { 
      
@@ -1188,8 +1189,52 @@ function importPlanks(scene, v_new, h_new) {
                alert("you can import plank " + plankImport);
           }          
      }
-
 } 
+*/
+
+// this is to give user a choice to import composite stackcube 
+// callback whenever the stackcube scene has been updated i.e. WHENEVER directly after E1 / E2/ E3 / E4 / E5 / E6 etc etc is imported 
+// think of this as a 'modifier' to the E1-E6 imports. 
+function importPlankCube(scene, importedStackMesh) {
+
+     // where importedStackMesh is the newly imported stackcube mesh object
+
+     // define tolerance units in meters 
+     var TOL = 0.001; // 1mm , see if enough or not  
+     
+     // first, get the vertical coords of the newly imported mesh in terms of per cube 
+     
+
+     // second, get the horizontal coordinate of the newly imported mesh (use some logic to get individual cubes if composite i.e. >= E2)
+     // have provision of logic for the case of E1 E2 E3 etc. 
+     // i.e. if E2 is imported at the left side, then its [0,0,0,0,1,1]
+     
+
+     // third, loop through stackcube pos array to find same vertical coordinate (same row) as the newly imported stackcube
+     // if its same row, then find the particular stackcube name (glob stackcube array) and horizontal position  ..
+     // then use this info to populate the binary position array defined in 'second' step. i.e. [1,1,0,0,1,1]
+
+
+     // fourth, scan stackplankConfig array for any matching patterns 
+     // logic stipulated to be able to match any of the configuration, so store all matches in a local array
+     // alongside an accompanying array to specfiy the composite stackc cube Center pos coords. 
+
+
+     // fifth, 
+
+
+
+     // sixth, remove the plus signs underneath the imported stack plank 
+
+
+
+     // update the stackcube global array trackers
+
+
+     // update price 
+
+}
+
 
 function importStackCubes_SUPP(scene, gridMat, rx, cy, stackprefix, newX) {
      // name of cube to be imported
@@ -1232,7 +1277,7 @@ function importStackCubes_SUPP(scene, gridMat, rx, cy, stackprefix, newX) {
           
           stackcubePos.push([stackMesh.position.x,stackMesh.position.y,stackMesh.position.z]); // push grid position in stackcubePos array as an array of 3 elements x,y,z 
           stackcubeCtr = stackcubeCtr +  1; 
-          importPlanks(scene, stackMesh.position.y, newX);
+
           // update global stack cube accesory in tandem, populate with empty array and empty matrix 
           // note: cant use zero here, since a stack cube may have more than one accesory
           stackAccesoryArray.push(new Array(intprefix).fill(0)); // on initial import of a cube mesh, there is no accesory, so initialize zero array
@@ -1525,7 +1570,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                     stackcubeArray.push(stackprefix);
                     stackcubePos.push([stackMesh.position.x,stackMesh.position.y,stackMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
                     stackcubeCtr = stackcubeCtr +  1; 
-                    importPlanks(scene, stackMesh.position.y, stackMesh.position.x);
+
                     // dont forget to update accesories with associated empty array
                     stackAccesoryArray.push(new Array(intprefix).fill(0));  
                     stackAccesoryPos.push(new Array(intprefix).fill(0)); 
