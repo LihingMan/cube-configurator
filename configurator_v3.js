@@ -69,6 +69,18 @@ var totalStackAccessories;
 
 var price = 0;
 
+var x_coord_definition = [1.20175, 1.59525, 1.9887500000000002, 2.38225, 2.77575, 3.16925];
+
+var plankConfig = [["E43", [1, 0, 0, 1]], ["E53", [1, 0, 0, 0, 1]], ["E54", [1, 1, 0, 0, 1]], ["E63", [1, 0, 0, 0, 0, 1]], ["E64", [1, 1, 0, 0, 0, 1]], ["E65b", [1, 1, 0, 0, 1, 1]], ["E65a", [1, 1, 1, 0, 0, 1]]];
+
+var cubeConfig;
+var record_hor = [];
+var record_vert = [];
+
+// for (var i=0; i<5; i++) {
+//      cubeConfig.push(new Array(6).fill(0));
+// }
+
 // Check if  browser supports webGL
 if (BABYLON.Engine.isSupported()) {
 
@@ -432,7 +444,7 @@ function gridEngine () {
      }
 
      // return the matrix
-     //console.log(matCoords); 
+     // console.log(matCoords); 
      return matCoords; 
 }
 
@@ -1128,9 +1140,58 @@ function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
 /*
      Now it is time to define Imports of stacking cubes !! 
 */
+function fillCubeConfig() {
 
+     for (var i=0; i<stackcubePos.length; i++) {
+          for (var j=0; j<record_vert.length; j++) {
+               if (stackcubePos[i][1] == record_vert[j]) {
+                    for (var k=0; k<record_hor.length; k++) {
+                         for (var n=0; n<x_coord_definition.length; n++) {
+                              if (record_hor[k] == x_coord_definition[n]) {
+                                   if (cubeConfig[n] == 0) {
+                                        cubeConfig[n] = 1;
+                                   }
+                              }
+                         }
+                    }
+               }
+          }
+     }
+    
+      
+}
 
-function importStackCubes_SUPP(scene, gridMat, rx, cy, stackprefix) {
+function importPlanks(scene, v_new, h_new) { 
+     
+     // if a cube is imported onto a higher level than before, start over again by resetting the record of the coordinates
+     if (record_hor != [] && record_vert != []) {
+          if (v_new > record_vert[record_vert.length-1]) {
+               record_hor = [];
+               record_vert = [];
+          } 
+     }
+
+     // keep records of the coords
+     record_hor.push(h_new); 
+     record_vert.push(v_new); 
+     
+     cubeConfig = new Array(basecubeCtr).fill(0); 
+     
+     fillCubeConfig();
+     var plankImport;
+     for (var i=0; i<plankConfig.length; i++) {
+          
+          var cubeConfigComp = JSON.stringify(cubeConfig);
+          // console.log(plankConfig[i][1]);
+          if (cubeConfigComp === JSON.stringify(plankConfig[i][1])) {
+               plankImport = plankConfig[i][0]
+               alert("you can import plank " + plankImport);
+          }          
+     }
+
+} 
+
+function importStackCubes_SUPP(scene, gridMat, rx, cy, stackprefix, newX) {
      // name of cube to be imported
      var cubeName = stackprefix + postfix;  
      
@@ -1171,6 +1232,7 @@ function importStackCubes_SUPP(scene, gridMat, rx, cy, stackprefix) {
           
           stackcubePos.push([stackMesh.position.x,stackMesh.position.y,stackMesh.position.z]); // push grid position in stackcubePos array as an array of 3 elements x,y,z 
           stackcubeCtr = stackcubeCtr +  1; 
+          importPlanks(scene, stackMesh.position.y, newX);
           // update global stack cube accesory in tandem, populate with empty array and empty matrix 
           // note: cant use zero here, since a stack cube may have more than one accesory
           stackAccesoryArray.push(new Array(intprefix).fill(0)); // on initial import of a cube mesh, there is no accesory, so initialize zero array
@@ -1368,7 +1430,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                     makeEvent("priceUpdate");
                     // this implements just a simple mesh import directly to rx_coord, cy_coord which are specific coordinates 
                      
-                    importStackCubes_SUPP(scene,gridMat,rx_coord,newY,stackprefix); 
+                    importStackCubes_SUPP(scene,gridMat,rx_coord,newY,stackprefix, newX); 
                }
                // else if either one is activated...
                else if (RightExistCubePrefix != '' || LeftExistCubePrefix != '') { 
@@ -1441,7 +1503,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                     // this implements just a simple mesh import directly to rx_coord, cy_coord which are specific coordinates 
                     
                     // use newY as the y coord since its the same for all base cubes 
-                    importStackCubes_SUPP(scene,gridMat,rx_coord,newY,stackprefix);
+                    importStackCubes_SUPP(scene,gridMat,rx_coord,newY,stackprefix, newX);
 
                } else if (RightExistCubePrefix == '' && LeftExistCubePrefix == '') {
                     // just import the E1 new cube as is 
@@ -1463,6 +1525,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                     stackcubeArray.push(stackprefix);
                     stackcubePos.push([stackMesh.position.x,stackMesh.position.y,stackMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
                     stackcubeCtr = stackcubeCtr +  1; 
+                    importPlanks(scene, stackMesh.position.y, stackMesh.position.x);
                     // dont forget to update accesories with associated empty array
                     stackAccesoryArray.push(new Array(intprefix).fill(0));  
                     stackAccesoryPos.push(new Array(intprefix).fill(0)); 
@@ -1539,7 +1602,8 @@ function btn_Stack(scene, gridMat, btnInt, rx_target,cy_target) {
           importStackCubes(scene, gridMat, rx_target, cy_target, "E1");
           rx_target += 1; // increment the row number   
      });
- 
+     
+     
      advancedTexture.addControl(button);
      button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], 0), scene);
  
