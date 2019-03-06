@@ -1239,6 +1239,7 @@ function importPlankCube(scene, importedStackMesh) {
      }
 
      // if its E2-E6
+     // remmember we want to label all the individual cubes
      else if (cubeInt > 1) {
           var x_center = importedStackMesh.position.x; // this is the center of the composite cube 
           if (cubeInt % 2 == 0) { // if its even i.e. 2,4,6 
@@ -1248,6 +1249,10 @@ function importPlankCube(scene, importedStackMesh) {
                }
           }
           else { // if its odd , i.e. 1,3,5
+               for (var i=0; i < cubeInt; i++) {
+                    // use this formulae
+                    
+               }
           }
      }
      console.log(hor_coords_marker); 
