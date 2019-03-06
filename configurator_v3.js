@@ -1203,12 +1203,47 @@ function importPlankCube(scene, importedStackMesh) {
      var TOL = 0.001; // 1mm , see if enough or not  
      
      // first, get the vertical coords of the newly imported mesh in terms of per cube 
-     
+     var vert_coord = importedStackMesh.position.y;
 
      // second, get the horizontal coordinate of the newly imported mesh (use some logic to get individual cubes if composite i.e. >= E2)
      // have provision of logic for the case of E1 E2 E3 etc. 
      // i.e. if E2 is imported at the left side, then its [0,0,0,0,1,1]
+     var id = importedStackMesh.id;
      
+     var cubeName = stackcubeArray[parseInt(id[1])];
+     var cubeInt = parseInt(cubeName[1]);
+     var hor_coords = [];
+
+     if (cubeInt == 1) {
+          hor_coord.push(importedStackMesh.position.x);
+     }
+     else if (cubeInt > 1) {
+          var x = importedStackMesh.position.x;
+          if (cubeInt % 2 == 0) {
+               for (var i=0; i<cubeInt/2; i++) {
+                    if (i == 0) {
+                         hor_coords.push(x-boxgridWidth/2);
+                         hor_coords.push(x+boxgridWidth/2);
+                    }
+                    else {
+                         hor_coords.push(x+boxgridWidth*i);
+                         hor_coords.push(x-boxgridWidth*i);
+                    }
+               }
+          }
+          else {
+               for (var i=0; i<cubeInt/2; i++) {
+                    if (i == 0) {
+                         hor_coords.push(x);
+                    }
+                    else {
+                         hor_coords.push(x+boxgridWidth*i);
+                         hor_coords.push(x-boxgridWidth*i);
+                    }
+               }
+          }
+     }
+     console.log(hor_coords)
 
      // third, loop through stackcube pos array to find same vertical coordinate (same row) as the newly imported stackcube
      // if its same row, then find the particular stackcube name (glob stackcube array) and horizontal position  ..
@@ -1236,7 +1271,7 @@ function importPlankCube(scene, importedStackMesh) {
 }
 
 
-function importStackCubes_SUPP(scene, gridMat, rx, cy, stackprefix, newX) {
+function importStackCubes_SUPP(scene, gridMat, rx, cy, stackprefix) {
      // name of cube to be imported
      var cubeName = stackprefix + postfix;  
      
@@ -1264,7 +1299,7 @@ function importStackCubes_SUPP(scene, gridMat, rx, cy, stackprefix, newX) {
           stackMesh.position.x = rx; 
           stackMesh.position.y = cy;
           stackMesh.position.z = gridMat[0][0][2]; // this one is constant for all stack cubes 
-
+          
           // define mesh rotation
           stackMesh.rotation.y = Math.PI/2;
 
@@ -1282,7 +1317,7 @@ function importStackCubes_SUPP(scene, gridMat, rx, cy, stackprefix, newX) {
           // note: cant use zero here, since a stack cube may have more than one accesory
           stackAccesoryArray.push(new Array(intprefix).fill(0)); // on initial import of a cube mesh, there is no accesory, so initialize zero array
           stackAccesoryPos.push(new Array(intprefix).fill(0)); 
-
+          importPlankCube(scene, stackMesh)
           // configure actionManager
           meshSelectControl (scene, stackMesh,'2');
 
