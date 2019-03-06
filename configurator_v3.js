@@ -1222,7 +1222,7 @@ function importPlankCube(scene, importedStackMesh) {
      var id = importedStackMesh.id; // get the imported cube's index in global array
      var cubeName = stackcubeArray[parseInt(id.slice(1))]; // get the cube's name
      var cubeInt = parseInt(cubeName.slice(1)); // get the cube's name integer to identify i.e. 1,2,3,4,5,6  
-     var hor_coords_marker = [0,0,0,0,0,0]; // initialize horizontal position markers for the row i.e. the [0,0,0,0,1,1]
+     var hor_coords_marker = new Array(basecubeCtr).fill(0); // initialize horizontal position markers for the row i.e. the [0,0,0,0,1,1]
 
      // note that hor_coords_marker.length == x_coord_definition.length. this is a must. fatal error if not true
 
@@ -1231,11 +1231,12 @@ function importPlankCube(scene, importedStackMesh) {
           var x_center = importedStackMesh.position.x; // get its x coord, simple center
           // then find its position marker 
           for (var i=0; i < x_coord_definition.length; i++) {
-               console.log(x_center);
+               
                if (x_center + TOL >=  x_coord_definition[i] && x_center - TOL <= x_coord_definition[i]) {
                     // check if it is not marked yet
                     if (hor_coords_marker[i] == 0) {
                          // then we have found its position and hence should mark it at the array
+                         
                          hor_coords_marker[i] = 1; // marked! 
                     } else {
                          console.log("FATAL ERROR DUE TO OVERLAPPING CUBES"); 
@@ -1257,9 +1258,9 @@ function importPlankCube(scene, importedStackMesh) {
                // this means scanning the cube (looking towards it fpv) from left to right
                // left most being iter 0 and right most being iter cubeInt-1 
                if (i == 0) {
-                    var x = localhorZero + (boxgridWidth/1.95); console.log(x);
+                    var x = localhorZero + (boxgridWidth/1.95);
                } else { // for other rightwards cubes just superimpose boxgridwidth
-                    x = x + boxgridWidth;console.log(x);
+                    x = x + boxgridWidth;
                }
                // match this to x_coord_definition array, do not reuse i since its nested use j
                for (var j=0; j < x_coord_definition.length; j++) {
@@ -1275,18 +1276,69 @@ function importPlankCube(scene, importedStackMesh) {
                }
           }
      }
-     console.log(hor_coords_marker); 
 
      // third, loop through stackcube pos array to find same vertical coordinate (same row) as the newly imported stackcube
      // if its same row, then find the particular stackcube name (glob stackcube array) and horizontal position  ..
      // then use this info to populate the binary position array defined in 'second' step. i.e. [1,1,0,0,1,1]
-     
+     for (var i=0; i<stackcubePos.length-1; i++) {
+          
+          if (stackcubePos[i][1] == vert_coord_import) {  // check if same row 
+               
+               var sameRowCubeName = stackcubeArray[i]; // get the name of the stack cubes
+               
+               var hor_pos = stackcubePos[i][0];  // get horizontal position of the stack cubes
+               var sameRowCubeInt = parseInt(sameRowCubeName[1]); 
+               
+               if (sameRowCubeInt == 1) {
+                    for (var k=0; k<x_coord_definition.length; k++) {
+                         if (hor_pos + TOL >=  x_coord_definition[k] && hor_pos - TOL <= x_coord_definition[k]) {
+                              if (hor_coords_marker[k] == 0) {
+                                   hor_coords_marker[k] = 1;
+                              }
+                              else {
+                                   console.log("FATAL ERROR DUE TO OVERLAPPING CUBES"); 
+                                   return 0; // this is fatal error...meaning overlapping cubes! so get out of function with 0 code
+                              }
+                         }
+                    }
+               }
+               
+               else if (sameRowCubeInt > 1) {
+                    var x_center = hor_pos; // this is the center of the composite cube 
+                    var localhorZero = x_center-(sameRowCubeInt*(boxgridWidth/1.95)); // zero horizontal coord wrt local cube  
+                    for (var i=0; i < sameRowCubeInt; i++) { 
+                         // this means scanning the cube (looking towards it fpv) from left to right
+                         // left most being iter 0 and right most being iter cubeInt-1 
+                         if (i == 0) {
+                              var x = localhorZero + (boxgridWidth/1.95); 
+                         } else { // for other rightwards cubes just superimpose boxgridwidth
+                              x = x + boxgridWidth;
+                         }
+                         // match this to x_coord_definition array, do not reuse i since its nested use j
+                         for (var j=0; j < x_coord_definition.length; j++) {
+                              
+                              if (x + TOL >=  x_coord_definition[j] && x - TOL <= x_coord_definition[j]) {
+                                   // then we have found its position and hence should mark it at the array
+                                   if (hor_coords_marker[j] == 0) {
+                                        console.log("last")
+                                        hor_coords_marker[j] = 1; // marked! 
+                                   } else {
+                                        console.log("FATAL ERROR DUE TO OVERLAPPING CUBES"); 
+                                        return 0; // this is fatal error...meaning overlapping cubes! so get out of function with 0 code
+                                   }
+                              }
+                         }
+                    }
+               }   
+          }
+     }
+     console.log(hor_coords_marker)
 
 
      // fourth, scan stackplankConfig array for any matching patterns 
      // logic stipulated to be able to match any of the configuration, so store all matches in a local array
      // alongside an accompanying array to specfiy the composite stackc cube Center pos coords. 
-
+     
 
 
      // fifth, import the plank stackcubes, DO NOT use importStackCubes_SUPP callback func since it calls this function
