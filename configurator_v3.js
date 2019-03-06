@@ -1201,7 +1201,7 @@ function importPlankCube(scene, importedStackMesh) {
      // where importedStackMesh is the newly imported stackcube mesh object
 
      // define tolerance units in meters 
-     var TOL = 0.002; // 1mm , see if enough or not  
+     var TOL = 0.08; // 1mm , see if enough or not  
      
      // first, get the vertical coords of the newly imported mesh in terms of per cube 
      var vert_coord_import = importedStackMesh.position.y;
@@ -1231,27 +1231,47 @@ function importPlankCube(scene, importedStackMesh) {
           var x_center = importedStackMesh.position.x; // get its x coord, simple center
           // then find its position marker 
           for (var i=0; i < x_coord_definition.length; i++) {
-               if (x_center + TOL >=  x_coord_definition[i] && x_center - TOL <= x_coord_definition) {
-                    // then we have found its position and hence should mark it at the array
-                    hor_coords_marker[i] = 1; // marked! 
+               console.log(x_center);
+               if (x_center + TOL >=  x_coord_definition[i] && x_center - TOL <= x_coord_definition[i]) {
+                    // check if it is not marked yet
+                    if (hor_coords_marker[i] == 0) {
+                         // then we have found its position and hence should mark it at the array
+                         hor_coords_marker[i] = 1; // marked! 
+                    } else {
+                         console.log("FATAL ERROR DUE TO OVERLAPPING CUBES"); 
+                         return 0; // this is fatal error...meaning overlapping cubes! so get out of function
+                    }
                }
           }
      }
 
      // if its E2-E6
      // remmember we want to label all the individual cubes
+     // this is actually quite an expensive loop, but we shall optimize later
+     // seems that odd and even use the same logic
      else if (cubeInt > 1) {
           var x_center = importedStackMesh.position.x; // this is the center of the composite cube 
-          if (cubeInt % 2 == 0) { // if its even i.e. 2,4,6 
-               for (var i=0; i < cubeInt; i++) {
-                    // use this formulae
-                    
+
+          var localhorZero = x_center-(cubeInt*(boxgridWidth/1.95)); // zero horizontal coord wrt local cube  
+          for (var i=0; i < cubeInt; i++) { 
+               // this means scanning the cube (looking towards it fpv) from left to right
+               // left most being iter 0 and right most being iter cubeInt-1 
+               if (i == 0) {
+                    var x = localhorZero + (boxgridWidth/1.95); console.log(x);
+               } else { // for other rightwards cubes just superimpose boxgridwidth
+                    x = x + boxgridWidth;console.log(x);
                }
-          }
-          else { // if its odd , i.e. 1,3,5
-               for (var i=0; i < cubeInt; i++) {
-                    // use this formulae
-                    
+               // match this to x_coord_definition array, do not reuse i since its nested use j
+               for (var j=0; j < x_coord_definition.length; j++) {
+                    if (x + TOL >=  x_coord_definition[j] && x - TOL <= x_coord_definition[j]) {
+                         // then we have found its position and hence should mark it at the array
+                         if (hor_coords_marker[j] == 0) {
+                              hor_coords_marker[j] = 1; // marked! 
+                         } else {
+                              console.log("FATAL ERROR DUE TO OVERLAPPING CUBES"); 
+                              return 0; // this is fatal error...meaning overlapping cubes! so get out of function with 0 code
+                         }
+                    }
                }
           }
      }
@@ -1622,6 +1642,8 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                     // dont forget to update accesories with associated empty array
                     stackAccesoryArray.push(new Array(intprefix).fill(0));  
                     stackAccesoryPos.push(new Array(intprefix).fill(0)); 
+
+                    importPlankCube(scene, stackMesh); 
 
                     // define mesh rotation
                     stackMesh.rotation.y = Math.PI/2;
