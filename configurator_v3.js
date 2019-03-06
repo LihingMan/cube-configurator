@@ -1280,6 +1280,7 @@ function importPlankCube(scene, importedStackMesh) {
      // third, loop through stackcube pos array to find same vertical coordinate (same row) as the newly imported stackcube
      // if its same row, then find the particular stackcube name (glob stackcube array) and horizontal position  ..
      // then use this info to populate the binary position array defined in 'second' step. i.e. [1,1,0,0,1,1]
+     
 
 
      // fourth, scan stackplankConfig array for any matching patterns 
@@ -1287,14 +1288,15 @@ function importPlankCube(scene, importedStackMesh) {
      // alongside an accompanying array to specfiy the composite stackc cube Center pos coords. 
 
 
-     // fifth, 
+
+     // fifth, import the plank stackcubes, DO NOT use importStackCubes_SUPP callback func since it calls this function
+     // simply create - copy paste a new SUPP importPlankStackCubes callback 
 
 
      // sixth, remove the plus signs underneath the imported stack plank 
 
 
-
-     // update the stackcube global array trackers
+     // update the stackcube global array trackers to include the newly imported plank stacks
 
 
      // update price 
