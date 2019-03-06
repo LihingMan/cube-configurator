@@ -1241,7 +1241,7 @@ function importPlankCube(scene, importedStackMesh) {
           if (cubeInt % 2 == 0) { // if its even i.e. 2,4,6 
                for (var i=0; i < cubeInt; i++) {
                     // use this formulae
-
+                    
                }
           }
           else { // if its odd , i.e. 1,3,5
@@ -1323,7 +1323,7 @@ function importStackCubes_SUPP(scene, gridMat, rx, cy, stackprefix) {
           stackAccesoryPos.push(new Array(intprefix).fill(0)); 
 
           importPlankCube(scene, stackMesh); 
-          
+
           // configure actionManager
           meshSelectControl (scene, stackMesh,'2');
 
