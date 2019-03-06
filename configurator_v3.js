@@ -1214,13 +1214,19 @@ function importPlankCube(scene, importedStackMesh) {
      var cubeInt = parseInt(cubeName[1]);
      var hor_coords = [];
 
+     // if its E1, just push the coordinate of the mesh into the array
      if (cubeInt == 1) {
           hor_coord.push(importedStackMesh.position.x);
      }
+
+     // if its E2-E6
      else if (cubeInt > 1) {
           var x = importedStackMesh.position.x;
+
+          // if its an even number of cubes
           if (cubeInt % 2 == 0) {
                for (var i=0; i<cubeInt/2; i++) {
+                    // push the coordinates of the cube which are on the left and the right of the centroid
                     if (i == 0) {
                          hor_coords.push(x-boxgridWidth/2);
                          hor_coords.push(x+boxgridWidth/2);
@@ -1231,12 +1237,14 @@ function importPlankCube(scene, importedStackMesh) {
                     }
                }
           }
+          // if its an odd number of cubes
           else {
                for (var i=0; i<cubeInt/2; i++) {
                     if (i == 0) {
-                         hor_coords.push(x);
+                         hor_coords.push(x); // push the middle cube coordinates into the array
                     }
                     else {
+                         // now push the coordinate of the cubes on the right and left of the middle cube
                          hor_coords.push(x+boxgridWidth*i);
                          hor_coords.push(x-boxgridWidth*i);
                     }
