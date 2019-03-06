@@ -31,6 +31,7 @@ SPECIAL remark for stackcubes.
 var stackcubeArray = []; // to track the stack cubes in the scene by name i.e. E1 etc
 var stackcubeCtr = 0; // for mesh naming (unique id and name)
 var stackcubePos = []; // track 1:1 position in euler coords in tandem with the above two 
+
 // trackers for accesories for the stack cubes. this will follow the stackcube trackers 1:1
 var stackAccesoryArray = []; 
 var stackAccesoryPos = []; 
@@ -38,21 +39,20 @@ var stackAccesoryPos = [];
 // purpose is same as above baseIndex variable
 var stackIndex = 0; 
 
-var stackcubeName; // used to identify which cube to import accessory to
+var stackcubeName; // used to identify which cube to import accessory to and that this may be referred to outside this js file
+var totalStackcubes; // for purpose of price calc to pass to html
 var stackPrices = [["E1", 6.3], ["E2", 8.8], ["E3", 10.6], ["E4", 13.5], ["E5", 16.2], ["E6", 19],
                     ["E43", 6.3], ["E53", 8.8], ["E54", 10.6], ["E63", 13.5], ["E64", 16.2], ["E65b", 19],["E65a", 19], // not yet updated prices for composite stack
                     ]; // in USD
-var totalStackcubes;
 
 // define x coord of cubes per row from left to right 1,2,3,4,5,6 positions on the grid 
-var x_coord_definition = [1.20175, 1.59525, 1.9887500000000002, 2.38225, 2.77575, 3.16925];
+var x_coord_definition = [1.20175, 1.59525, 1.98875, 2.38225, 2.77575, 3.16925];
 
 // define pattern of the composite stackcubes which we call planks here 
 var stackplankConfig = [["E43", [1, 0, 0, 1]], ["E53", [1, 0, 0, 0, 1]], ["E54", [1, 1, 0, 0, 1]], ["E63", [1, 0, 0, 0, 0, 1]], ["E64", [1, 1, 0, 0, 0, 1]], ["E65b", [1, 1, 0, 0, 1, 1]], ["E65a", [1, 1, 1, 0, 0, 1]]];
 
 // NEW logic for stack cube planks
-var activeVert = 0; // active stack cube vertical position on new E1 import
-var activeHor = 0; // active stackc cube horizontal position on new E1 import 
+var stackplankVertTrack = []; // stores stack cube vertical position , to limit one composite stack cube per level 
 
 // inititate price 
 var price = 0;
@@ -1195,55 +1195,60 @@ function importPlanks(scene, v_new, h_new) {
 // this is to give user a choice to import composite stackcube 
 // callback whenever the stackcube scene has been updated i.e. WHENEVER directly after E1 / E2/ E3 / E4 / E5 / E6 etc etc is imported 
 // think of this as a 'modifier' to the E1-E6 imports. 
+// we only allow one composite stack cube per level 
 function importPlankCube(scene, importedStackMesh) {
 
      // where importedStackMesh is the newly imported stackcube mesh object
 
      // define tolerance units in meters 
-     var TOL = 0.001; // 1mm , see if enough or not  
+     var TOL = 0.002; // 1mm , see if enough or not  
      
      // first, get the vertical coords of the newly imported mesh in terms of per cube 
-     var vert_coord = importedStackMesh.position.y;
+     var vert_coord_import = importedStackMesh.position.y;
 
-     // second, get the horizontal coordinate of the newly imported mesh (use some logic to get individual cubes if composite i.e. >= E2)
-     // have provision of logic for the case of E1 E2 E3 etc. 
-     // i.e. if E2 is imported at the left side, then its [0,0,0,0,1,1]
-     var id = importedStackMesh.id;
-     
-     var cubeName = stackcubeArray[parseInt(id[1])];
-     var cubeInt = parseInt(cubeName[1]);
-     var hor_coords = [];
+     // breaking conditional statement 
+     // since we only allow one composite stack cube per level....
+     for (var i=0; i < stackplankVertTrack.length ; i++) {
+          if  (vert_coord_import + TOL >= stackplankVertTrack[i] && vert_coord_import - TOL <= stackplankVertTrack[i]) { 
+               // meaning if this levelrow contains composite stackcube 
+               return 0; // get out of this function 
+          } // else we continue onwards ...
+     }
+
+     // if we continue onwards....
+     // second, get the horizontal coordinates of the newly imported mesh (use some logic to get individual cubes if composite i.e. >= E2)
+     // have provision of logic for the case of E1 E2 E3 E4 E5 E6  (recall, no existing composite stack cube is possible on the same level) 
+     // i.e. if E2 is imported at the right side, then its [0,0,0,0,1,1]
+     var id = importedStackMesh.id; // get the imported cube's index in global array
+     var cubeName = stackcubeArray[parseInt(id.slice(1))]; // get the cube's name
+     var cubeInt = parseInt(cubeName.slice(1)); // get the cube's name integer to identify i.e. 1,2,3,4,5,6  
+     var hor_coords_marker = [0,0,0,0,0,0]; // initialize horizontal position markers for the row i.e. the [0,0,0,0,1,1]
+
+     // note that hor_coords_marker.length == x_coord_definition.length. this is a must. fatal error if not true
 
      if (cubeInt == 1) {
-          hor_coord.push(importedStackMesh.position.x);
+          var x_center = importedStackMesh.position.x; // get its x coord, simple center
+          // then find its position marker 
+          for (var i=0; i < x_coord_definition.length; i++) {
+               if (x_center + TOL >=  x_coord_definition[i] && x_center - TOL <= x_coord_definition) {
+                    // then we have found its position and hence should mark it at the array
+                    hor_coords_marker[i] = 1; // marked! 
+               }
+          }
      }
      else if (cubeInt > 1) {
-          var x = importedStackMesh.position.x;
-          if (cubeInt % 2 == 0) {
-               for (var i=0; i<cubeInt/2; i++) {
-                    if (i == 0) {
-                         hor_coords.push(x-boxgridWidth/2);
-                         hor_coords.push(x+boxgridWidth/2);
-                    }
-                    else {
-                         hor_coords.push(x+boxgridWidth*i);
-                         hor_coords.push(x-boxgridWidth*i);
-                    }
+          var x_center = importedStackMesh.position.x; // this is the center of the composite cube 
+          if (cubeInt % 2 == 0) { // if its even i.e. 2,4,6 
+               for (var i=0; i < cubeInt; i++) {
+                    // use this formulae
+
                }
           }
-          else {
-               for (var i=0; i<cubeInt/2; i++) {
-                    if (i == 0) {
-                         hor_coords.push(x);
-                    }
-                    else {
-                         hor_coords.push(x+boxgridWidth*i);
-                         hor_coords.push(x-boxgridWidth*i);
-                    }
-               }
+          else { // if its odd , i.e. 1,3,5
+
           }
      }
-     console.log(hor_coords)
+     console.log(hor_coords_marker); 
 
      // third, loop through stackcube pos array to find same vertical coordinate (same row) as the newly imported stackcube
      // if its same row, then find the particular stackcube name (glob stackcube array) and horizontal position  ..
@@ -1256,7 +1261,6 @@ function importPlankCube(scene, importedStackMesh) {
 
 
      // fifth, 
-
 
 
      // sixth, remove the plus signs underneath the imported stack plank 
@@ -1317,7 +1321,9 @@ function importStackCubes_SUPP(scene, gridMat, rx, cy, stackprefix) {
           // note: cant use zero here, since a stack cube may have more than one accesory
           stackAccesoryArray.push(new Array(intprefix).fill(0)); // on initial import of a cube mesh, there is no accesory, so initialize zero array
           stackAccesoryPos.push(new Array(intprefix).fill(0)); 
-          importPlankCube(scene, stackMesh)
+
+          importPlankCube(scene, stackMesh); 
+          
           // configure actionManager
           meshSelectControl (scene, stackMesh,'2');
 
