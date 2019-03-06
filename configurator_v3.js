@@ -1226,6 +1226,7 @@ function importPlankCube(scene, importedStackMesh) {
 
      // note that hor_coords_marker.length == x_coord_definition.length. this is a must. fatal error if not true
 
+     // if its E1, just push the coordinate of the mesh into the array
      if (cubeInt == 1) {
           var x_center = importedStackMesh.position.x; // get its x coord, simple center
           // then find its position marker 
@@ -1236,6 +1237,8 @@ function importPlankCube(scene, importedStackMesh) {
                }
           }
      }
+
+     // if its E2-E6
      else if (cubeInt > 1) {
           var x_center = importedStackMesh.position.x; // this is the center of the composite cube 
           if (cubeInt % 2 == 0) { // if its even i.e. 2,4,6 
@@ -1245,7 +1248,6 @@ function importPlankCube(scene, importedStackMesh) {
                }
           }
           else { // if its odd , i.e. 1,3,5
-
           }
      }
      console.log(hor_coords_marker); 
