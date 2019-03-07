@@ -1141,56 +1141,6 @@ function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
 /*
      Now it is time to define Imports of stacking cubes !! 
 */
-/*
-function fillCubeConfig() {
-
-     for (var i=0; i<stackcubePos.length; i++) {
-          for (var j=0; j<record_vert.length; j++) {
-               if (stackcubePos[i][1] == record_vert[j]) {
-                    for (var k=0; k<record_hor.length; k++) {
-                         for (var n=0; n<x_coord_definition.length; n++) {
-                              if (record_hor[k] == x_coord_definition[n]) {
-                                   if (cubeConfig[n] == 0) {
-                                        cubeConfig[n] = 1;
-                                   }
-                              }
-                         }
-                    }
-               }
-          }
-     }      
-}
-
-
-function importPlanks(scene, v_new, h_new) { 
-     
-     // if a cube is imported onto a higher level than before, start over again by resetting the record of the coordinates
-     if (record_hor != [] && record_vert != []) {
-          if (v_new > record_vert[record_vert.length-1]) {
-               record_hor = [];
-               record_vert = [];
-          } 
-     }
-
-     // keep records of the coords
-     record_hor.push(h_new); 
-     record_vert.push(v_new); 
-     
-     cubeConfig = new Array(basecubeCtr).fill(0); 
-     
-     fillCubeConfig();
-     var plankImport;
-     for (var i=0; i<plankConfig.length; i++) {
-          
-          var cubeConfigComp = JSON.stringify(cubeConfig);
-          // console.log(plankConfig[i][1]);
-          if (cubeConfigComp === JSON.stringify(plankConfig[i][1])) {
-               plankImport = plankConfig[i][0]
-               alert("you can import plank " + plankImport);
-          }          
-     }
-} 
-*/
 
 // this is to give user a choice to import composite stackcube 
 // callback whenever the stackcube scene has been updated i.e. WHENEVER directly after E1 / E2/ E3 / E4 / E5 / E6 etc etc is imported 
@@ -1291,20 +1241,29 @@ function importPlankCube(scene, importedStackMesh) {
           }
      }
 
-     // but to use power of regex this needs to be a string so transform array into String, and then remove the ','
+     // but to use power of 'indexOf' this needs to be a string so transform array into String, and then remove the ','
      hor_coords_marker = String(hor_coords_marker).replace(/,/g , ''); 
      //console.log(hor_coords_marker); // it works! now its a string 
 
      // next, scan stackplankConfig array for any matching patterns 
      // logic stipulated to be able to match any of the configuration, so store all matches in a local array
      // alongside an accompanying array to specfiy the composite stackc cube Center pos coords. 
-     // we first define the flags that will 
-     var flagpos1 = 0; 
-     var flagpos2 = 0; 
-     var flagpos3 = 0; 
-     var flagpos4 = 0;
-     var flagpos5 = 0; 
-     var flagpos6 = 0;
+     // store all matches in a nested array matches
+     var matches = []; // stores all possible composite stack cube in that row 
+
+     // loop through stackplankConfig and find the matches 
+     for (var i = 0; i < stackplankConfig.length; i++) {
+
+          // use indexOf method of string to find the start index of matched location in hor_coords_marker 
+          // note that if indexOf returns no match, then it gives -1
+          var indMatch = hor_coords_marker.indexOf(stackplankConfig[i][1]); // get the 1001, 11001 etc etc
+          // only if match later then get the name to populate stackcube
+
+          // 
+
+          // 
+
+     }
 
      // next, import the plank stackcubes, DO NOT use importStackCubes_SUPP callback func since it calls this function
      // simply create - copy paste a new SUPP importPlankStackCubes callback 
@@ -1687,10 +1646,8 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
 
                } else {
                     console.log("[ERROR] problem with right or left detection."); 
-               }
-               
+               }       
      });
-     
 }
 
 function prefixStackCubeComb (ENew, ELeft, ERight) {
