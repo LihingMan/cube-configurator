@@ -1289,13 +1289,13 @@ function importPlankCube(scene, importedStackMesh) {
           }
      }
 
-     console.log(hor_coords_marker);  
+     console.log(hor_coords_marker);  // it works now. 
+     // so for every cube imported, we will have the 
 
      // fourth, scan stackplankConfig array for any matching patterns 
      // logic stipulated to be able to match any of the configuration, so store all matches in a local array
      // alongside an accompanying array to specfiy the composite stackc cube Center pos coords. 
      
-
 
      // fifth, import the plank stackcubes, DO NOT use importStackCubes_SUPP callback func since it calls this function
      // simply create - copy paste a new SUPP importPlankStackCubes callback 
