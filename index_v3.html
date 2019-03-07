@@ -22,23 +22,29 @@
     </head> 
 
     <body>
+
         <div id="overlay">
-            <div id="text">Use landscape mode</div>
+            <div id="text">
+                Please tilt your phone to use landscape mode
+            </div>
         </div>
         
         <canvas id="main_app"></canvas>
 
         <script>
             // global variables so that the js file can read them
-
             var id; // cube number from left to right
             var asstype; // type of accessory to be imported
-
         </script>
 
         <script src="configurator_v3.js"></script>
 
-        <button class="save" id="saveAsImg">Save your work</button>
+        <button class="saveImg" id="saveAsImg">Save as Image</button>
+
+
+        <button class="btn btn-primary btn-sm priceDisp">
+            Price <span class="badge badge-light" id="price">USD --</span>
+        </button>
 
         <div class="modal fade" id="pop-up-modal" tabindex="-1">
             <div class="modal-dialog">
@@ -58,10 +64,6 @@
                 </div>
             </div>
         </div>
-
-        <p class="price">
-            <span id="price"></span>
-        </p>
 
         <!-- load JS lib and dependencies for bootstrap -->
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -216,7 +218,7 @@
 
                     price = totalBasecubes + totalStackcubes + totalBaseAccessories + totalStackAccessories;
                     
-                    document.getElementById("price").textContent = "RM" + price.toFixed(2);;
+                    document.getElementById("price").textContent = "USD" + price.toFixed(2);;
                 });
                
             });
