@@ -74,6 +74,7 @@ var accessoryPrices = [["XS", 3.6], ["DS", 6.8], ["SS", 5.2], ["NS", 4.8], ["DD"
 // assign basecubes file prefix for auto import of mesh into the scene.
 // but when integrated with the ezbo django app, this will be loaded from session storage 
 var bcubesPrefix_init = 'B1'; // can be B1-B6, as passed by html before it
+//var bcubesPrefix_init = localStorage.getItem('Bvar'); // use this when with webapp
 
 var totalBaseAccessories;
 var totalStackAccessories;

@@ -69,19 +69,19 @@ html {
      font-size: 20px;
  }
 
- .price {
+ .priceDisp {
      position: absolute;
-     top: 30%;
-     right: 22%;
+     top: 15%;
+     left: 5%;
      /* transform: translateY(-50%); */
      z-index: 2;
      font-size: 35px;
  }
 
- .save {
+ .saveImg {
     position: absolute;
-    top: 15%;
-    left: 15%;
+    top: 5%;
+    left: 5%;
     /* transform: translateY(-50%); */
     z-index: 2;
     font-size: 35px;
@@ -108,7 +108,7 @@ html {
      /* Portrait styles */
      /*hide main content and display message */
      /* #main_app {display: none;}
-     .price {display: none;} */
+     .priceDisp {display: none;} */
      #overlay {display: block;}
 
  }
@@ -116,5 +116,5 @@ html {
      /* Landscape styles */
      /* show your content*/
      #main_app {display: block;}
-     .price {display: block;}
+     .priceDisp {display: block;}
  }
