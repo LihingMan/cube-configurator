@@ -1216,124 +1216,80 @@ function importPlankCube(scene, importedStackMesh) {
      }
 
      // if we continue onwards....
-     // second, get the horizontal coordinates of the newly imported mesh (use some logic to get individual cubes if composite i.e. >= E2)
-     // have provision of logic for the case of E1 E2 E3 E4 E5 E6  (recall, no existing composite stack cube is possible on the same level) 
-     // i.e. if E2 is imported at the right side, then its [0,0,0,0,1,1]
-     var id = importedStackMesh.id; // get the imported cube's index in global array
-     var cubeName = stackcubeArray[parseInt(id.slice(1))]; // get the cube's name
-     var cubeInt = parseInt(cubeName.slice(1)); // get the cube's name integer to identify i.e. 1,2,3,4,5,6  
-     var hor_coords_marker = new Array(basecubeCtr).fill(0); // initialize horizontal position markers for the row i.e. the [0,0,0,0,1,1]
+     var hor_coords_marker = [0,0,0,0,0,0]; // initialize horizontal position markers for the row i.e. the [0,0,0,0,1,1]
 
      // note that hor_coords_marker.length == x_coord_definition.length. this is a must. fatal error if not true
 
-     // if its E1, just push the coordinate of the mesh into the array
-     if (cubeInt == 1) {
-          var x_center = importedStackMesh.position.x; // get its x coord, simple center
-          // then find its position marker 
-          for (var i=0; i < x_coord_definition.length; i++) {
-               
-               if (x_center + TOL >=  x_coord_definition[i] && x_center - TOL <= x_coord_definition[i]) {
-                    // check if it is not marked yet
-                    if (hor_coords_marker[i] == 0) {
-                         // then we have found its position and hence should mark it at the array
-                         
-                         hor_coords_marker[i] = 1; // marked! 
-                    } else {
-                         console.log("FATAL ERROR DUE TO OVERLAPPING CUBES"); 
-                         return 0; // this is fatal error...meaning overlapping cubes! so get out of function
-                    }
-               }
-          }
-     }
+     // loop through all the stackcube positions and qualify their vertical coordinates 
+     for (var i=0; i<stackcubePos.length; i++) {
 
-     // if its E2-E6
-     // remmember we want to label all the individual cubes
-     // this is actually quite an expensive loop, but we shall optimize later
-     // seems that odd and even use the same logic
-     else if (cubeInt > 1) {
-          var x_center = importedStackMesh.position.x; // this is the center of the composite cube 
+          if (stackcubePos[i] != 0) { // if it is not zero (zero means it has been previously deleted)
+               // only if the we have same row stackcubes then we consider them for further processing 
+               // only works for non first stackcube imports
 
-          var localhorZero = x_center-(cubeInt*(boxgridWidth/1.95)); // zero horizontal coord wrt local cube  
-          for (var i=0; i < cubeInt; i++) { 
-               // this means scanning the cube (looking towards it fpv) from left to right
-               // left most being iter 0 and right most being iter cubeInt-1 
-               if (i == 0) {
-                    var x = localhorZero + (boxgridWidth/1.95);
-               } else { // for other rightwards cubes just superimpose boxgridwidth
-                    x = x + boxgridWidth;
-               }
-               // match this to x_coord_definition array, do not reuse i since its nested use j
-               for (var j=0; j < x_coord_definition.length; j++) {
-                    if (x + TOL >=  x_coord_definition[j] && x - TOL <= x_coord_definition[j]) {
-                         // then we have found its position and hence should mark it at the array
-                         if (hor_coords_marker[j] == 0) {
-                              hor_coords_marker[j] = 1; // marked! 
-                         } else {
-                              console.log("FATAL ERROR DUE TO OVERLAPPING CUBES"); 
-                              return 0; // this is fatal error...meaning overlapping cubes! so get out of function with 0 code
-                         }
-                    }
-               }
-          }
-     }
+               if (vert_coord_import + TOL >= stackcubePos[i][1] && vert_coord_import - TOL <= stackcubePos[i][1]) {
 
-     // third, loop through stackcube pos array to find same vertical coordinate (same row) as the newly imported stackcube
-     // if its same row, then find the particular stackcube name (glob stackcube array) and horizontal position  ..
-     // then use this info to populate the binary position array defined in 'second' step. i.e. [1,1,0,0,1,1]
-     for (var i=0; i<stackcubePos.length-1; i++) {
-          
-          if (stackcubePos[i][1] == vert_coord_import) {  // check if same row 
-               
-               var sameRowCubeName = stackcubeArray[i]; // get the name of the stack cubes
-               
-               var hor_pos = stackcubePos[i][0];  // get horizontal position of the stack cubes
-               var sameRowCubeInt = parseInt(sameRowCubeName[1]); 
-               
-               if (sameRowCubeInt == 1) {
-                    for (var k=0; k<x_coord_definition.length; k++) {
-                         if (hor_pos + TOL >=  x_coord_definition[k] && hor_pos - TOL <= x_coord_definition[k]) {
-                              if (hor_coords_marker[k] == 0) {
-                                   hor_coords_marker[k] = 1;
-                              }
-                              else {
-                                   console.log("FATAL ERROR DUE TO OVERLAPPING CUBES"); 
-                                   return 0; // this is fatal error...meaning overlapping cubes! so get out of function with 0 code
-                              }
-                         }
-                    }
-               }
-               
-               else if (sameRowCubeInt > 1) {
-                    var x_center = hor_pos; // this is the center of the composite cube 
-                    var localhorZero = x_center-(sameRowCubeInt*(boxgridWidth/1.95)); // zero horizontal coord wrt local cube  
-                    for (var i=0; i < sameRowCubeInt; i++) { 
-                         // this means scanning the cube (looking towards it fpv) from left to right
-                         // left most being iter 0 and right most being iter cubeInt-1 
-                         if (i == 0) {
-                              var x = localhorZero + (boxgridWidth/1.95); 
-                         } else { // for other rightwards cubes just superimpose boxgridwidth
-                              x = x + boxgridWidth;
-                         }
-                         // match this to x_coord_definition array, do not reuse i since its nested use j
+                    var sameRowCubeName = stackcubeArray[i]; // get the name of the stack cubes
+                    var sameRowCubeInt = parseInt(sameRowCubeName.slice(1)); 
+
+                    // this is center position of cube (REMINDER)
+                    var x_center = stackcubePos[i][0];  // get horizontal position of the stack cubes
+
+                    // if its E1, just push the coordinate of the mesh into the array
+                    if (sameRowCubeInt == 1) {
+                         // then find its position marker 
                          for (var j=0; j < x_coord_definition.length; j++) {
                               
-                              if (x + TOL >=  x_coord_definition[j] && x - TOL <= x_coord_definition[j]) {
-                                   // then we have found its position and hence should mark it at the array
+                              if (x_center + TOL >=  x_coord_definition[j] && x_center - TOL <= x_coord_definition[j]) {
+                                   // check if it is not marked yet
                                    if (hor_coords_marker[j] == 0) {
-                                        console.log("last")
+                                        // then we have found its position and hence should mark it at the array
                                         hor_coords_marker[j] = 1; // marked! 
                                    } else {
                                         console.log("FATAL ERROR DUE TO OVERLAPPING CUBES"); 
-                                        return 0; // this is fatal error...meaning overlapping cubes! so get out of function with 0 code
+                                        return 0; // this is fatal error...meaning overlapping cubes! so get out of function
                                    }
                               }
                          }
                     }
-               }   
+
+                    // if its E2-E6
+                    // remmember we want to label all the individual cubes
+                    // this is actually quite an expensive loop, but we shall optimize later
+                    // seems that odd and even use the same logic
+                    else if (sameRowCubeInt > 1) {
+
+                         var localhorZero = x_center-(sameRowCubeInt*(boxgridWidth/1.95)); // zero horizontal coord wrt local cube  
+                         
+                         for (var j=0; j < sameRowCubeInt; j++) { 
+
+                              // this means scanning the cube (looking towards it fpv) from left to right
+                              // left most being iter 0 and right most being iter cubeInt-1 
+                              if (j == 0) {
+                                   var x = localhorZero + (boxgridWidth/1.95);
+                              } else { // for other rightwards cubes just superimpose boxgridwidth
+                                   x = x + boxgridWidth;
+                              }
+
+                              // match this to x_coord_definition array, do not reuse i since its nested use j
+                              for (var k=0; k < x_coord_definition.length; k++) {
+                                   if (x + TOL >=  x_coord_definition[k] && x - TOL <= x_coord_definition[k]) {
+                                        // then we have found its position and hence should mark it at the array
+                                        if (hor_coords_marker[k] == 0) {
+                                             hor_coords_marker[k] = 1; // marked! 
+                                        } else {
+                                             console.log("FATAL ERROR DUE TO OVERLAPPING CUBES"); 
+                                             return 0; // this is fatal error...meaning overlapping cubes! so get out of function with 0 code
+                                        }
+                                   }
+                              }
+                         }
+                    }
+               }
           }
      }
-     console.log(hor_coords_marker)
 
+     console.log(hor_coords_marker);  
 
      // fourth, scan stackplankConfig array for any matching patterns 
      // logic stipulated to be able to match any of the configuration, so store all matches in a local array
@@ -1349,6 +1305,9 @@ function importPlankCube(scene, importedStackMesh) {
 
 
      // update the stackcube global array trackers to include the newly imported plank stacks
+
+
+     // populate stackplankVertTrack with vertical level of the imported plank stack cube 
 
 
      // update price 
