@@ -1128,7 +1128,7 @@ function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
      // position the button at rx_target and cy_target, using gridMat, unmodified
      
      // on click event for the button
-     button.onPointerUpObservable.add(function() {
+     button.onPointerClickObservable.add(function() {
           // remove the button and in its place, put the base cube B1
           button.dispose(); 
           importBaseCubes(scene,gridMat,'B1',rx_target,cy_target,'nextLOGIC'); 
@@ -1180,7 +1180,7 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
      // active row being the level of vert_coord_import, which is the current cube 
      for (var i=0; i<stackcubePos.length; i++) {
 
-          if (stackcubePos[i] != 0) { // if it is not zero (zero means it has been previously deleted)
+          if (stackcubePos[i] != 0 && stackcubePos[i][1] == vert_coord_import) { // if it is not zero (zero means it has been previously deleted)
                // only if the we have same row stackcubes then we consider them for further processing 
                // only works for non first stackcube imports
 
@@ -1340,6 +1340,7 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
                     // simply create - copy paste a new SUPP importPlankStackCubes callback 
                     importPlankStackCubes_SUPP(scene, gridMat, x, vert_coord_import, name);
                     // break here cos the confirm box wont go away if there isnt a break
+                    
                     break;
 
                } else {
@@ -1829,7 +1830,7 @@ function btn_Stack(scene, gridMat, btnInt, rx_target, cy_target) {
      // position the button at rx_target and cy_target, using gridMat data, unmodified
  
      // on click event for the button
-     button.onPointerUpObservable.add(function() {
+     button.onPointerClickObservable.add(function() {
           // let intprefix = parseInt(bcubesPrefix_init[1]); 
           button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target+1][cy_target][1], 0), scene); 
           importStackCubes(scene, gridMat, rx_target, cy_target, "E1");
