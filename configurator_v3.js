@@ -49,7 +49,7 @@ var stackPrices = [["E1", 6.3], ["E2", 8.8], ["E3", 10.6], ["E4", 13.5], ["E5", 
 var x_coord_definition = [1.20175, 1.59525, 1.98875, 2.38225, 2.77575, 3.16925];
 
 // define pattern of the composite stackcubes which we call planks here 
-var stackplankConfig = [["E43", [1, 0, 0, 1]], ["E53", [1, 0, 0, 0, 1]], ["E54", [1, 1, 0, 0, 1]], ["E63", [1, 0, 0, 0, 0, 1]], ["E64", [1, 1, 0, 0, 0, 1]], ["E65b", [1, 1, 0, 0, 1, 1]], ["E65a", [1, 1, 1, 0, 0, 1]]];
+var stackplankConfig = [["E43",'1001'], ["E53", '10001'], ["E54", '11001'], ["E63",'100001'], ["E64",'110001'], ["E65b", '110011'], ["E65a",'111001']];
 
 // NEW logic for stack cube planks
 var stackplankVertTrack = []; // stores stack cube vertical position , to limit one composite stack cube per level 
@@ -1220,7 +1220,9 @@ function importPlankCube(scene, importedStackMesh) {
 
      // note that hor_coords_marker.length == x_coord_definition.length. this is a must. fatal error if not true
 
-     // loop through all the stackcube positions and qualify their vertical coordinates 
+     // next loop through all the stackcube positions and qualify their vertical coordinate
+     // at the same time, assign the binary position marker for the active row
+     // active row being the level of vert_coord_import, which is the current cube 
      for (var i=0; i<stackcubePos.length; i++) {
 
           if (stackcubePos[i] != 0) { // if it is not zero (zero means it has been previously deleted)
@@ -1289,28 +1291,36 @@ function importPlankCube(scene, importedStackMesh) {
           }
      }
 
-     console.log(hor_coords_marker);  // it works now. 
-     // so for every cube imported, we will have the 
+     // but to use power of regex this needs to be a string so transform array into String, and then remove the ','
+     hor_coords_marker = String(hor_coords_marker).replace(/,/g , ''); 
+     //console.log(hor_coords_marker); // it works! now its a string 
 
-     // fourth, scan stackplankConfig array for any matching patterns 
+     // next, scan stackplankConfig array for any matching patterns 
      // logic stipulated to be able to match any of the configuration, so store all matches in a local array
      // alongside an accompanying array to specfiy the composite stackc cube Center pos coords. 
-     
+     // we first define the flags that will 
+     var flagpos1 = 0; 
+     var flagpos2 = 0; 
+     var flagpos3 = 0; 
+     var flagpos4 = 0;
+     var flagpos5 = 0; 
+     var flagpos6 = 0;
 
-     // fifth, import the plank stackcubes, DO NOT use importStackCubes_SUPP callback func since it calls this function
+     // next, import the plank stackcubes, DO NOT use importStackCubes_SUPP callback func since it calls this function
      // simply create - copy paste a new SUPP importPlankStackCubes callback 
 
 
-     // sixth, remove the plus signs underneath the imported stack plank 
+     // next, remove the plus signs underneath the imported stack plank 
 
 
      // update the stackcube global array trackers to include the newly imported plank stacks
+     // and remove all data i.e. set to 0 for the cubes that it replaces 
 
 
      // populate stackplankVertTrack with vertical level of the imported plank stack cube 
+     // simply push 
 
-
-     // update price 
+     // update price based on the removed stack cubes and the newly imported plank stack cubes 
 
 }
 
