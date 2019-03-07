@@ -78,9 +78,12 @@ var bcubesPrefix_init = 'B1'; // can be B1-B6, as passed by html before it
 var totalBaseAccessories;
 var totalStackAccessories;
 
-// for (var i=0; i<5; i++) {
-//      cubeConfig.push(new Array(6).fill(0));
-// }
+var stackBtn_1;
+var stackBtn_2;
+var stackBtn_3;
+var stackBtn_4;
+var stackBtn_5;
+var stackBtn_6;
 
 // Check if  browser supports webGL
 if (BABYLON.Engine.isSupported()) {
@@ -1146,7 +1149,7 @@ function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
 // callback whenever the stackcube scene has been updated i.e. WHENEVER directly after E1 / E2/ E3 / E4 / E5 / E6 etc etc is imported 
 // think of this as a 'modifier' to the E1-E6 imports. 
 // we only allow one composite stack cube per level 
-function importPlankCube(scene, importedStackMesh) {
+function importPlankCube(scene, importedStackMesh, gridMat) {
 
      // where importedStackMesh is the newly imported stackcube mesh object
 
@@ -1168,6 +1171,7 @@ function importPlankCube(scene, importedStackMesh) {
      // if we continue onwards....
      var hor_coords_marker = [0,0,0,0,0,0]; // initialize horizontal position markers for the row i.e. the [0,0,0,0,1,1]
 
+     var cubeIDs = [];
      // note that hor_coords_marker.length == x_coord_definition.length. this is a must. fatal error if not true
 
      // next loop through all the stackcube positions and qualify their vertical coordinate
@@ -1179,8 +1183,12 @@ function importPlankCube(scene, importedStackMesh) {
                // only if the we have same row stackcubes then we consider them for further processing 
                // only works for non first stackcube imports
 
-               if (vert_coord_import + TOL >= stackcubePos[i][1] && vert_coord_import - TOL <= stackcubePos[i][1]) {
+               // get id of cube that is on the same row
+               var id = "E" + i;
+               cubeIDs.push(id);
 
+               if (vert_coord_import + TOL >= stackcubePos[i][1] && vert_coord_import - TOL <= stackcubePos[i][1]) {
+                    
                     var sameRowCubeName = stackcubeArray[i]; // get the name of the stack cubes
                     var sameRowCubeInt = parseInt(sameRowCubeName.slice(1)); 
 
@@ -1240,24 +1248,105 @@ function importPlankCube(scene, importedStackMesh) {
                }
           }
      }
+     
+     // define a holder to hold the values derived from hor_coords_marker
+     var holder = [];
 
+     // set first and last to -1 first
+     var first = -1; var last = -1;
+
+     // search for the first and last occurence of 1 in hor_coords_marker
+     for (var i=0; i<hor_coords_marker.length; i++) {
+         if (hor_coords_marker[i] != 1) {
+              continue;
+         }
+          if (first == -1) {
+               first = i 
+          }  
+          last = i 
+     }
+     
+     // then copy the contents from the first and last indexes of hor_coords_marker into holder
+     // now holder will contain the configurations properly. i.e if hor_coords_marker were [0,1,0,0,1,0], then holder would be [1,0,0,1] so we can import E43
+     if (first != last) {
+          for (var i=first; i<last; i++) {
+               holder.push(hor_coords_marker[i]);
+          }
+
+          // dont forget to include the last index
+          holder.push(hor_coords_marker[last]);
+     }
+     
      // but to use power of 'indexOf' this needs to be a string so transform array into String, and then remove the ','
-     hor_coords_marker = String(hor_coords_marker).replace(/,/g , ''); 
+     // hor_coords_marker = String(hor_coords_marker).replace(/,/g , ''); 
+     // console.log(hor_coords_marker)
      //console.log(hor_coords_marker); // it works! now its a string 
+
+     holder = String(holder).replace(/,/g , ''); 
 
      // next, scan stackplankConfig array for any matching patterns 
      // logic stipulated to be able to match any of the configuration, so store all matches in a local array
      // alongside an accompanying array to specfiy the composite stackc cube Center pos coords. 
      // store all matches in a nested array matches
      var matches = []; // stores all possible composite stack cube in that row 
+     var name;
 
      // loop through stackplankConfig and find the matches 
      for (var i = 0; i < stackplankConfig.length; i++) {
 
           // use indexOf method of string to find the start index of matched location in hor_coords_marker 
           // note that if indexOf returns no match, then it gives -1
-          var indMatch = hor_coords_marker.indexOf(stackplankConfig[i][1]); // get the 1001, 11001 etc etc
+          
+          // THE INDEXOF METHOD RETURNS TOO EARLY THUS IMPORTING THE WRONG PLANK CUBE
+          // var indMatch = holder.indexOf(stackplankConfig[i][1]); // get the 1001, 11001 etc etc
+
+          var indMatch;
+          if (holder == stackplankConfig[i][1]) {
+               indMatch = 1;
+          }
+          else {
+               indMatch = -1; 
+          }
+
           // only if match later then get the name to populate stackcube
+          if (indMatch != -1) {
+               name  = stackplankConfig[i][0];
+          }
+
+          if (name != null) {
+               if (confirm("Import a plank?")) {
+                    for (var j=0; j<cubeIDs.length; j++) {
+                         var getMeshObj = scene.getMeshByID(cubeIDs[j]);
+                         getMeshObj.dispose(); 
+                         getMeshObj = null; // can just ignore error msg from babylon due to this i.e. import error or some shit
+
+                         // remove from stack cube tracker arrays by setting null
+                         var cubeInd = parseInt(cubeIDs[j][1]);
+                         stackcubeArray[cubeInd] = 0; 
+                         stackcubePos[cubeInd] = 0; 
+
+                         // note: if a cube has been removed, remove its associated accesory array by setting to 0
+                         stackAccesoryArray[cubeInd] = 0;  // also reset empty array for any associated accesories 
+                         stackAccesoryPos[cubeInd] = 0; 
+                    }
+
+                    var multiplier = (last - first)/2;
+
+                    // 0.0198 is to make the centre coordinate more flush with the other cubes
+                    var x = x_coord_definition[first] + boxgridWidth*multiplier + 0.0198;
+
+                    // next, import the plank stackcubes, DO NOT use importStackCubes_SUPP callback func since it calls this function
+                    // simply create - copy paste a new SUPP importPlankStackCubes callback 
+                    importPlankStackCubes_SUPP(scene, gridMat, x, vert_coord_import, name);
+                    // break here cos the confirm box wont go away if there isnt a break
+                    break;
+
+               } else {
+                    // break here cos the confirm box wont go away if there isnt a break
+                    break;
+               }
+          }
+          
 
           // 
 
@@ -1265,12 +1354,15 @@ function importPlankCube(scene, importedStackMesh) {
 
      }
 
-     // next, import the plank stackcubes, DO NOT use importStackCubes_SUPP callback func since it calls this function
-     // simply create - copy paste a new SUPP importPlankStackCubes callback 
-
-
      // next, remove the plus signs underneath the imported stack plank 
+     if (name != null) {
+          var plankInt = parseInt(name[1]);
+          console.log(plankInt)
+     }
+     
+     if (plankInt == 4) {
 
+     }
 
      // update the stackcube global array trackers to include the newly imported plank stacks
      // and remove all data i.e. set to 0 for the cubes that it replaces 
@@ -1281,6 +1373,51 @@ function importPlankCube(scene, importedStackMesh) {
 
      // update price based on the removed stack cubes and the newly imported plank stack cubes 
 
+}
+
+function importPlankStackCubes_SUPP(scene, gridMat, x, y, plankstackprefix) {
+     // name of cube to be imported
+     var cubeName = plankstackprefix + postfix;  
+     
+     // var intprefix = parseInt(cubeName.slice(1)); // get the integer 2 out of E2 for instance.
+     
+     BABYLON.SceneLoader.ImportMesh("", hostUrl, cubeName, scene, 
+     function (newMeshes) {
+
+          // dirty hack to get around not being able to assign name and id to mesh
+          var plankstackMesh = newMeshes[0]; 
+
+          // this is a general purpose mesh import subroutine for internal use within importstackcube
+          
+          // IMPORTANT NOTICE!--> in this case of 'quick', 
+          //      the rx cy args are euler coordinates! NOT gridMat index! (see rx_coord / cy_coord args input in quick callback)
+          //      we will just reuse the rx cy args only  
+          // give the mesh a unique ID (do this for every 'if') 
+          
+          plankstackMesh.position.x = x; 
+          plankstackMesh.position.y = y;
+          plankstackMesh.position.z = gridMat[0][0][2]; // this one is constant for all stack cubes 
+          
+          // define mesh rotation
+          plankstackMesh.rotation.y = Math.PI/2;
+
+          // define mesh material
+          var boxMaterial = createboxMaterial(scene); 
+          plankstackMesh.material = boxMaterial;
+         
+          // update global counter for stack cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
+          
+
+          // update global stack cube accesory in tandem, populate with empty array and empty matrix 
+          // note: cant use zero here, since a stack cube may have more than one accesory
+
+          // update price after importing an extra cube
+          // var curprice = calcPrice(stackPrices, stackcubeArray);
+          // totalStackcubes = curprice;
+
+          // update price after importing an extra cube
+          // makeEvent("priceUpdate");
+     }); 
 }
 
 
@@ -1331,7 +1468,7 @@ function importStackCubes_SUPP(scene, gridMat, rx, cy, stackprefix) {
           stackAccesoryArray.push(new Array(intprefix).fill(0)); // on initial import of a cube mesh, there is no accesory, so initialize zero array
           stackAccesoryPos.push(new Array(intprefix).fill(0)); 
 
-          importPlankCube(scene, stackMesh); 
+          importPlankCube(scene, stackMesh, gridMat); 
 
           // configure actionManager
           meshSelectControl (scene, stackMesh,'2');
@@ -1625,7 +1762,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                     stackAccesoryArray.push(new Array(intprefix).fill(0));  
                     stackAccesoryPos.push(new Array(intprefix).fill(0)); 
 
-                    importPlankCube(scene, stackMesh); 
+                    importPlankCube(scene, stackMesh, gridMat); 
 
                     // define mesh rotation
                     stackMesh.rotation.y = Math.PI/2;
@@ -1672,7 +1809,7 @@ function prefixStackCubeComb (ENew, ELeft, ERight) {
 
 // this deserves its own callback since at the start, the pluses are added for the remaining base cube spaces
 // i.e. if initially the 6cube base is imported, then no plus! 
-function btn_Stack(scene, gridMat, btnInt, rx_target,cy_target) {
+function btn_Stack(scene, gridMat, btnInt, rx_target, cy_target) {
 
      // horizontal btns for the base cubes manipulation
      // this will add a base cube at the plus position that is being clicked. 
