@@ -79,12 +79,7 @@ var bcubesPrefix_init = 'B1'; // can be B1-B6, as passed by html before it
 var totalBaseAccessories;
 var totalStackAccessories;
 
-var stackBtn_1;
-var stackBtn_2;
-var stackBtn_3;
-var stackBtn_4;
-var stackBtn_5;
-var stackBtn_6;
+var stackbtnCtr = 0;
 
 // Check if  browser supports webGL
 if (BABYLON.Engine.isSupported()) {
@@ -182,7 +177,7 @@ function createRoomScene() {
  });
 
     window.addEventListener("saveScene", function() {
-        BABYLON.Tools.CreateScreenshotUsingRenderTarget(engine, camera, 1920); // download the room scene as png
+        BABYLON.Tools.CreateScreenshotUsingRenderTarget(engine, camera, 800); // download the room scene as png
     });
 
     // finally ... 
@@ -557,7 +552,6 @@ function importBaseCubes_SUPP(scene,gridMat,bcubesPrefix,rx,cy) {
     // concat with the constant global postfix to give import name 
     var bcubename = bcubesPrefix + postfix; 
     var intprefix = parseInt(bcubesPrefix.slice(1)); // get the integer 6 out of B6 for instance.
-
     BABYLON.SceneLoader.ImportMesh("", hostUrl, bcubename, scene, 
     function (newMeshes) {
 
@@ -672,60 +666,60 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                switch(intprefix) {
                     case 1: 
                          // for B1, we will have five pluses to its right, each at the native grid (no mods)
-                         horBtn_1 = btn_BaseHorInit (scene, gridMat, 1, 0,1);
-                         horBtn_2 = btn_BaseHorInit (scene, gridMat, 2, 0,2);
-                         horBtn_3 = btn_BaseHorInit (scene, gridMat, 3, 0,3);
-                         horBtn_4 = btn_BaseHorInit (scene, gridMat, 4, 0,4);
-                         horBtn_5 = btn_BaseHorInit (scene, gridMat, 5, 0,5);
+                         horBtn_1 = btn_BaseHorInit (scene, gridMat, 0,1);
+                         horBtn_2 = btn_BaseHorInit (scene, gridMat, 0,2);
+                         horBtn_3 = btn_BaseHorInit (scene, gridMat, 0,3);
+                         horBtn_4 = btn_BaseHorInit (scene, gridMat, 0,4);
+                         horBtn_5 = btn_BaseHorInit (scene, gridMat, 0,5);
                          // associated vertical
-                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 1, 0);
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 0);
                          break; 
                     case 2: 
                          // for B2, we will have four pluses to its right
-                         horBtn_1 = btn_BaseHorInit (scene, gridMat, 1, 0,2);
-                         horBtn_2 = btn_BaseHorInit (scene, gridMat, 2, 0,3);
-                         horBtn_3 = btn_BaseHorInit (scene, gridMat, 3, 0,4);
-                         horBtn_4 = btn_BaseHorInit (scene, gridMat, 4, 0,5);
+                         horBtn_1 = btn_BaseHorInit (scene, gridMat, 0,2);
+                         horBtn_2 = btn_BaseHorInit (scene, gridMat, 0,3);
+                         horBtn_3 = btn_BaseHorInit (scene, gridMat, 0,4);
+                         horBtn_4 = btn_BaseHorInit (scene, gridMat, 0,5);
                          // associated vertical
-                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 1, 0);
-                         stackBtn_2 = btn_Stack(scene, gridMat, 2, 1, 1);
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 0);
+                         stackBtn_2 = btn_Stack(scene, gridMat, 1, 1);
                          break; 
                     case 3: 
-                         horBtn_1 = btn_BaseHorInit (scene, gridMat, 1, 0,3);
-                         horBtn_2 = btn_BaseHorInit (scene, gridMat, 2, 0,4);
-                         horBtn_3 = btn_BaseHorInit (scene, gridMat, 3, 0,5);
+                         horBtn_1 = btn_BaseHorInit (scene, gridMat, 0,3);
+                         horBtn_2 = btn_BaseHorInit (scene, gridMat, 0,4);
+                         horBtn_3 = btn_BaseHorInit (scene, gridMat, 0,5);
                          // associated vertical
-                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 1, 0);
-                         stackBtn_2 = btn_Stack(scene, gridMat, 2, 1, 1);
-                         stackBtn_3 = btn_Stack(scene, gridMat, 3, 1, 2);
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 0);
+                         stackBtn_2 = btn_Stack(scene, gridMat, 1, 1);
+                         stackBtn_3 = btn_Stack(scene, gridMat, 1, 2);
                          break; 
                     case 4:
-                         horBtn_1 = btn_BaseHorInit (scene, gridMat, 1, 0,4);
-                         horBtn_2 = btn_BaseHorInit (scene, gridMat, 2, 0,5);
+                         horBtn_1 = btn_BaseHorInit (scene, gridMat, 0,4);
+                         horBtn_2 = btn_BaseHorInit (scene, gridMat, 0,5);
                          // associated vertical
-                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 1, 0);
-                         stackBtn_2 = btn_Stack(scene, gridMat, 2, 1, 1);
-                         stackBtn_3 = btn_Stack(scene, gridMat, 3, 1, 2);
-                         stackBtn_4 = btn_Stack(scene, gridMat, 4, 1, 3);
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 0);
+                         stackBtn_2 = btn_Stack(scene, gridMat, 1, 1);
+                         stackBtn_3 = btn_Stack(scene, gridMat, 1, 2);
+                         stackBtn_4 = btn_Stack(scene, gridMat, 1, 3);
                          break; 
                     case 5:
-                         horBtn_1 = btn_BaseHorInit (scene, gridMat, 1, 0,5);
+                         horBtn_1 = btn_BaseHorInit (scene, gridMat, 0,5);
                          // associated vertical
-                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 1, 0);
-                         stackBtn_2 = btn_Stack(scene, gridMat, 2, 1, 1);
-                         stackBtn_3 = btn_Stack(scene, gridMat, 3, 1, 2);
-                         stackBtn_4 = btn_Stack(scene, gridMat, 4, 1, 3);
-                         stackBtn_5 = btn_Stack(scene, gridMat, 5, 1, 4);
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 0);
+                         stackBtn_2 = btn_Stack(scene, gridMat, 1, 1);
+                         stackBtn_3 = btn_Stack(scene, gridMat, 1, 2);
+                         stackBtn_4 = btn_Stack(scene, gridMat, 1, 3);
+                         stackBtn_5 = btn_Stack(scene, gridMat, 1, 4);
                          break; 
                     default:
                          // case 6 has zero horizontal pluses 
                          // associated vertical 
-                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 1, 0);
-                         stackBtn_2 = btn_Stack(scene, gridMat, 2, 1, 1);
-                         stackBtn_3 = btn_Stack(scene, gridMat, 3, 1, 2);
-                         stackBtn_4 = btn_Stack(scene, gridMat, 4, 1, 3);
-                         stackBtn_5 = btn_Stack(scene, gridMat, 5, 1, 4);
-                         stackBtn_6 = btn_Stack(scene, gridMat, 6, 1, 5);
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 0);
+                         stackBtn_2 = btn_Stack(scene, gridMat, 1, 1);
+                         stackBtn_3 = btn_Stack(scene, gridMat, 1, 2);
+                         stackBtn_4 = btn_Stack(scene, gridMat, 1, 3);
+                         stackBtn_5 = btn_Stack(scene, gridMat, 1, 4);
+                         stackBtn_6 = btn_Stack(scene, gridMat, 1, 5);
                          break; 
                }
 
@@ -1106,7 +1100,7 @@ function prefixBaseCubeComb (BNew, BLeft, BRight) {
      Button stuffs, as callbacks into cube functions 
 */
 // for the base cubes' horizontal pluses , use once for initialization of the default base cube only! 
-function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
+function btn_BaseHorInit (scene, gridMat, rx_target,cy_target) {
 
      // this deserves its own callback since at the start, the pluses are added for the remaining base cube spaces
      // i.e. if initially the 6cube base is imported, then no plus! 
@@ -1120,7 +1114,7 @@ function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
      
      //  button stuff
      var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-     var button = BABYLON.GUI.Button.CreateImageOnlyButton(btnInt, "https://cdn.shopify.com/s/files/1/0185/5092/products/symbols-0173_800x.png?v=1369543613");
+     var button = BABYLON.GUI.Button.CreateImageOnlyButton("", "https://cdn.shopify.com/s/files/1/0185/5092/products/symbols-0173_800x.png?v=1369543613");
      button.width = "20px";
      button.height = "20px";
      button.color = "white";
@@ -1132,7 +1126,7 @@ function btn_BaseHorInit (scene, gridMat, btnInt, rx_target,cy_target) {
           // remove the button and in its place, put the base cube B1
           button.dispose(); 
           importBaseCubes(scene,gridMat,'B1',rx_target,cy_target,'nextLOGIC'); 
-          btn_Stack(scene, gridMat, btnInt, rx_target+1, cy_target);
+          btn_Stack(scene, gridMat, rx_target+1, cy_target);
      });
 
      advancedTexture.addControl(button);
@@ -1253,8 +1247,11 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
      // define a holder to hold the values derived from hor_coords_marker
      var holder = [];
 
-     // set first and last to -1 first
+     // set first and last to -1 
      var first = -1; var last = -1;
+
+     // set a flag to determine if the user wants to import a plank cube
+     var flag = false;
 
      // search for the first and last occurence of 1 in hor_coords_marker
      for (var i=0; i<hor_coords_marker.length; i++) {
@@ -1316,21 +1313,28 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
 
           if (name != null) {
                if (confirm("Import a plank?")) {
+                    console.log(cubeIDs)
+                    // console.log(stackcubeArray)
                     for (var j=0; j<cubeIDs.length; j++) {
                          var getMeshObj = scene.getMeshByID(cubeIDs[j]);
                          getMeshObj.dispose(); 
                          getMeshObj = null; // can just ignore error msg from babylon due to this i.e. import error or some shit
-
+                         
                          // remove from stack cube tracker arrays by setting null
-                         var cubeInd = parseInt(cubeIDs[j][1]);
+                         
+                         cubeIDs[j] = cubeIDs[j].substring(1)
+                         
+                         var cubeInd = parseInt(cubeIDs[j]);
+                         console.log(cubeInd)
                          stackcubeArray[cubeInd] = 0; 
                          stackcubePos[cubeInd] = 0; 
-
+                         
                          // note: if a cube has been removed, remove its associated accesory array by setting to 0
-                         stackAccesoryArray[cubeInd] = 0;  // also reset empty array for any associated accesories 
-                         stackAccesoryPos[cubeInd] = 0; 
+                         // stackAccesoryArray[cubeInd] = 0;  // also reset empty array for any associated accesories 
+                         // stackAccesoryPos[cubeInd] = 0; 
+                         
                     }
-
+                    console.log(stackcubeArray)
                     var multiplier = (last - first)/2;
 
                     // 0.0198 is to make the centre coordinate more flush with the other cubes
@@ -1340,7 +1344,7 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
                     // simply create - copy paste a new SUPP importPlankStackCubes callback 
                     importPlankStackCubes_SUPP(scene, gridMat, x, vert_coord_import, name);
                     // break here cos the confirm box wont go away if there isnt a break
-                    
+                    flag = true;
                     break;
 
                } else {
@@ -1348,22 +1352,24 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
                     break;
                }
           }
-          
-
-          // 
-
-          // 
+         
 
      }
 
      // next, remove the plus signs underneath the imported stack plank 
-     if (name != null) {
-          var plankInt = parseInt(name[1]);
-          console.log(plankInt)
-     }
-     
-     if (plankInt == 4) {
-
+     if (name != null && flag) {
+          for (var i=first; i<last; i++) {
+               if (i != last-1) {
+                    if (hor_coords_marker[i] == 0){
+                         var btnInt = i + 1;
+                         var eventName = "move" + btnInt;
+                         makeEvent(eventName);
+                    }
+               }
+               
+          }
+          var eventName = "move" + last;
+          makeEvent(eventName);
      }
 
      // update the stackcube global array trackers to include the newly imported plank stacks
@@ -1426,7 +1432,7 @@ function importPlankStackCubes_SUPP(scene, gridMat, x, y, plankstackprefix) {
 function importStackCubes_SUPP(scene, gridMat, rx, cy, stackprefix) {
      // name of cube to be imported
      var cubeName = stackprefix + postfix;  
-     
+     // console.log(stackcubeArray)
      var intprefix = parseInt(cubeName.slice(1)); // get the integer 2 out of E2 for instance.
      
      BABYLON.SceneLoader.ImportMesh("", hostUrl, cubeName, scene, 
@@ -1434,7 +1440,7 @@ function importStackCubes_SUPP(scene, gridMat, rx, cy, stackprefix) {
 
           // dirty hack to get around not being able to assign name and id to mesh
           var stackMesh = newMeshes[0]; 
-
+          console.log(stackprefix)
           // this is a general purpose mesh import subroutine for internal use within importstackcube
           
           // IMPORTANT NOTICE!--> in this case of 'quick', 
@@ -1525,61 +1531,67 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                 if (stackcubeArray[i] != 0) { // if it is zero then it has been flagged as removed from scene so we IGNORE
                     var stackcubeInt = parseInt(stackcubeArray[i].slice(1)); // get the looped existing stack cube number, by slicing out the 'B' letter
                     var ELeftX , ERightX; 
-                    
-                    if (stackcubeInt == 1) {
-                        // if it is staack cube 1 then just use the position as is (i.e. single value for left right testing)
-                        // extract the x coord
-                        ELeftX = stackcubePos[i][0];
-                        ERightX = stackcubePos[i][0];
-                    } else if (stackcubeInt > 1) { // if it is more than 1, then need to assign left and right x coordinate
-                        // then use this formulae to figure out right most and left most cubes
-                        var tempLimit = ((stackcubeInt/2) - 0.5)*boxgridWidth; 
-                        
-                        // BRight by add to the centroid (cube mesh center) , recall all X coords
-                        // for existing neighbour cubes
-                        ERightX = stackcubePos[i][0] + tempLimit;
-                        // BLeft by subtract from the centroid (cube mesh center)
-                        // for existing neighbour cubes 
-                        ELeftX = stackcubePos[i][0] - tempLimit; 
-                    }   
-
-                    // check if this existing looped cube is left to the new B1 import (meaning the existing active cube has lower x value)
-                    if (LeftExistCubePrefix == '' && newX > ERightX && (newX - ERightX) >= MEASURE_LOWER && (newX - ERightX) <= MEASURE_UPPER) {
-                         // if the existing cube is left neighbour to the new B1 import, then...
-                         // find the median coordinate (horizontal) for the composite cube 
-                         // and define them as rx_coord , cy_coord
-                         // note that if Left var is already populated , then it means that there is already one left match. 
-                         //  ...   so this if statement will not pass, since we can only have one left neighbour for each B1 import 
-
-                         // populate Left var with the stackprefix of the existing cube 
-                         LeftExistCubePrefix = stackcubeArray[i]; 
-                         var cubemultiplierL = parseInt(LeftExistCubePrefix.slice(1));  
-                         // populate associated X position (original)
-                         LeftExistCubePos = stackcubePos[i][0]; 
-                         // populate the index with i. we need this to remove the mesh later
-                         LeftExistCubeInd = i; 
-
-                         // RULE is, for every existing cube to the left, we subtract boxgridWidth/2 to the NEW cube's mesh centroid
-                         // BUG FIX - here we use 1.95 to prevent leftward drift of the stack cube, small but noticeable! so use 1.95!
-                         var rx_coordAdjust = rx_coordAdjust - (cubemultiplierL*(boxgridWidth/1.95));
-                    
+                    if (stackcubePos[i][1] == newY) {
+                         if (stackcubeInt == 1) {
+                              // if it is stack cube 1 then just use the position as is (i.e. single value for left right testing)
+                              // extract the x coord
+                              ELeftX = stackcubePos[i][0];
+                              ERightX = stackcubePos[i][0];
+                         } else if (stackcubeInt > 1) { // if it is more than 1, then need to assign left and right x coordinate
+                              // then use this formulae to figure out right most and left most cubes
+                              var tempLimit = ((stackcubeInt/2) - 0.5)*boxgridWidth; 
+                              
+                              // BRight by add to the centroid (cube mesh center) , recall all X coords
+                              // for existing neighbour cubes
+                              ERightX = stackcubePos[i][0] + tempLimit;
+                              // BLeft by subtract from the centroid (cube mesh center)
+                              // for existing neighbour cubes 
+                              ELeftX = stackcubePos[i][0] - tempLimit; 
+                         }   
+      
+                         // check if this existing looped cube is left to the new B1 import (meaning the existing active cube has lower x value)
+                         if (LeftExistCubePrefix == '' && newX > ERightX && (newX - ERightX) >= MEASURE_LOWER && (newX - ERightX) <= MEASURE_UPPER) {
+                              // if the existing cube is left neighbour to the new B1 import, then...
+                              // find the median coordinate (horizontal) for the composite cube 
+                              // and define them as rx_coord , cy_coord
+                              // note that if Left var is already populated , then it means that there is already one left match. 
+                              //  ...   so this if statement will not pass, since we can only have one left neighbour for each B1 import 
+     
+                              // populate Left var with the stackprefix of the existing cube 
+                              LeftExistCubePrefix = stackcubeArray[i]; 
+                              var cubemultiplierL = parseInt(LeftExistCubePrefix.slice(1));  
+                              // populate associated X position (original)
+                              LeftExistCubePos = stackcubePos[i][0]; 
+                              // populate the index with i. we need this to remove the mesh later
+                              LeftExistCubeInd = i; 
+     
+                              // RULE is, for every existing cube to the left, we subtract boxgridWidth/2 to the NEW cube's mesh centroid
+                              // BUG FIX - here we use 1.95 to prevent leftward drift of the stack cube, small but noticeable! so use 1.95!
+                              var rx_coordAdjust = rx_coordAdjust - (cubemultiplierL*(boxgridWidth/1.95));
+                          
+                         }
+                         else if (RightExistCubePrefix == '' && ELeftX > newX && (ELeftX - newX) >= MEASURE_LOWER && (ELeftX - newX) <= MEASURE_UPPER) { 
+                              // if the existing cube is right neighbour to the new B1 import,then ... 
+     
+                              // populate Left var with the basecubeprefix of the existing cube 
+                              RightExistCubePrefix = stackcubeArray[i];
+                              
+                              var cubemultiplierR = parseInt(RightExistCubePrefix.slice(1)); 
+                              // populate associated X position
+                              RightExistCubePos = stackcubePos[i][0]; 
+                              // populate the index with i. we need this to remove the mesh later
+                              RightExistCubeInd = i; // note this is not only index in the array but also the mesh's unique ID
+                              // reminder to append 'B' to the i integer to identify name and mesh 
+     
+                              // RULE is, for every cube added to the right , we add boxgridWidth/2 to the NEW cube's mesh centroid
+                              // BUG FIX - here we use 1.95 to prevent rightwards drift of the base cube, small but noticeable! so use 1.95!
+                              var rx_coordAdjust = rx_coordAdjust + (cubemultiplierR*(boxgridWidth/1.95));
+                         } 
                     }
-                    else if (RightExistCubePrefix == '' && ELeftX > newX && (ELeftX - newX) >= MEASURE_LOWER && (ELeftX - newX) <= MEASURE_UPPER) { 
-                         // if the existing cube is right neighbour to the new B1 import,then ... 
 
-                         // populate Left var with the basecubeprefix of the existing cube 
-                         RightExistCubePrefix = stackcubeArray[i];
-                         var cubemultiplierR = parseInt(RightExistCubePrefix.slice(1)); 
-                         // populate associated X position
-                         RightExistCubePos = stackcubePos[i][0]; 
-                         // populate the index with i. we need this to remove the mesh later
-                         RightExistCubeInd = i; // note this is not only index in the array but also the mesh's unique ID
-                         // reminder to append 'B' to the i integer to identify name and mesh 
-
-                         // RULE is, for every cube added to the right , we add boxgridWidth/2 to the NEW cube's mesh centroid
-                         // BUG FIX - here we use 1.95 to prevent rightwards drift of the base cube, small but noticeable! so use 1.95!
-                         var rx_coordAdjust = rx_coordAdjust + (cubemultiplierR*(boxgridWidth/1.95));
-                    } 
+                    
+                    
+                    
                }
           }
 
@@ -1596,7 +1608,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                if (LeftExistCubePrefix != '' && RightExistCubePrefix != '') {
 
                     // simply check if both flags have been activated. if they have,, then ...
-                    // destroy the NEw B1 (since this is new import of basecube it MUST be B1! if not check the callback bug!) stackMesh obj
+                    // // destroy the NEw B1 (since this is new import of basecube it MUST be B1! if not check the callback bug!) stackMesh obj
                     stackMesh.dispose(); 
                     stackMesh = null; // nullify to tell GC to collect ! this will result in some error msg by babylon which we can ignore!
 
@@ -1607,9 +1619,10 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                     // RightExistCubePrefix ...
                     var meshid_R = 'E' + String(RightExistCubeInd); 
                     var getMeshObj_R = scene.getMeshByID(meshid_R);
+                    
                     getMeshObj_R.dispose(); 
                     getMeshObj_R = null; // can just ignore error msg from babylon due to this i.e. import error or some shit
-
+                    
                     if (stackAccesoryArray[RightExistCubeInd] != 0) {
                         for (var i=0; i<baseAccesoryArray.length; i++) {
                             if (stackAccesoryArray[RightExistCubeInd][i] != 0 && stackAccesoryArray[RightExistCubeInd][i] != null) {
@@ -1634,7 +1647,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                     var getMeshObj_L = scene.getMeshByID(meshid_L);
                     getMeshObj_L.dispose(); 
                     getMeshObj_L = null;
-
+                   
                     if (stackAccesoryArray[LeftExistCubeInd] != 0) {
                         for (var i=0; i<baseAccesoryArray.length; i++) {
                             if (stackAccesoryArray[LeftExistCubeInd][i] != 0 && stackAccesoryArray[LeftExistCubeInd][i] != null) {
@@ -1668,82 +1681,90 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                }
                // else if either one is activated...
                else if (RightExistCubePrefix != '' || LeftExistCubePrefix != '') { 
-
+                    
                     // destroy the NEw B1 (since this is new import of stackcube it MUST be B1! if not check the callback bug!) stackMesh obj
                     stackMesh.dispose(); 
-                    stackMesh = null; // nullify to tell GC to collect ! this will result in some error msg by babylon which we can ignore!
+                    stackMesh = null;// nullify to tell GC to collect ! this will result in some error msg by babylon which we can ignore!
 
                     // Destroy all 'old' EXISTING meshes to the left OR right , if any, 
                     // this implies the right OR left (potential, if any) neighbouring cubes 
                     // apply this to left and right cubes individually
                     if (RightExistCubePrefix != '') {
+                         
                          var meshid_R = 'E' + String(RightExistCubeInd); 
-                         var getMeshObj_R = scene.getMeshByID(meshid_R);
-                         getMeshObj_R.dispose(); 
-                         getMeshObj_R = null; // can just ignore error msg from babylon due to this i.e. import error or some shit
+                         var getMeshObj_R = scene.getMeshByID(meshid_R);                            
+                         if (getMeshObj_R != null) {
+                              getMeshObj_R.dispose(); 
+                              getMeshObj_R = null; // can just ignore error msg from babylon due to this i.e. import error or some shit
 
-                         if (stackAccesoryArray[RightExistCubeInd] != 0) {
-                            for (var i=0; i<stackAccesoryArray.length; i++) {
-                                if (stackAccesoryArray[RightExistCubeInd][i] != 0 && stackAccesoryArray[RightExistCubeInd][i] != null) {
-                                    var accessoryID = stackAccesoryArray[RightExistCubeInd][i];
-                                    accessoryID = "B" + accessoryID + String(RightExistCubeInd);
-                                    var getaccessoryObj = scene.getMeshByID(accessoryID);
-                                    getaccessoryObj.dispose(); 
-                                    getaccessoryObj = null;
-                                }
-                            }
-                        }
-                        
-                        // remove from stackcube tracker arrays by setting null
-                         stackcubeArray[RightExistCubeInd] = 0; 
-                         stackcubePos[RightExistCubeInd] = 0; 
-                         stackAccesoryArray[RightExistCubeInd] = 0;  
-                         stackAccesoryPos[RightExistCubeInd] = 0;
+                              if (stackAccesoryArray[RightExistCubeInd] != 0) {
+                                   for (var i=0; i<stackAccesoryArray.length; i++) {
+                                        if (stackAccesoryArray[RightExistCubeInd][i] != 0 && stackAccesoryArray[RightExistCubeInd][i] != null) {
+                                             var accessoryID = stackAccesoryArray[RightExistCubeInd][i];
+                                             accessoryID = "B" + accessoryID + String(RightExistCubeInd);
+                                             var getaccessoryObj = scene.getMeshByID(accessoryID);
+                                             getaccessoryObj.dispose(); 
+                                             getaccessoryObj = null;
+                                        }
+                                   }
+                              }
+                              // remove from stackcube tracker arrays by setting null
+                              stackcubeArray[RightExistCubeInd] = 0; 
+                              stackcubePos[RightExistCubeInd] = 0; 
+                              stackAccesoryArray[RightExistCubeInd] = 0;  
+                              stackAccesoryPos[RightExistCubeInd] = 0;
+                         }
+                         
+                         
                          //console.log("INFO - Obtained right neighbour cube mesh via id");
                     } else if (LeftExistCubePrefix != '') {
+                         console.log("here")
                          var meshid_L = 'E' + String(LeftExistCubeInd);
                          var getMeshObj_L = scene.getMeshByID(meshid_L);
-                         getMeshObj_L.dispose(); 
-                         getMeshObj_L = null;
-
-                        if (stackAccesoryArray[LeftExistCubeInd] != 0) {
-                            for (var i=0; i<baseAccesoryArray.length; i++) {
-                                if (stackAccesoryArray[LeftExistCubeInd][i] != 0 && stackAccesoryArray[LeftExistCubeInd][i] != null) {
-                                    var accessoryID = stackAccesoryArray[LeftExistCubeInd][i];
-                                    accessoryID = "B" + accessoryID + String(LeftExistCubeInd);
-                                    var getaccessoryObj = scene.getMeshByID(accessoryID);
-                                    getaccessoryObj.dispose(); 
-                                    getaccessoryObj = null;
-                                }
-                            }
-                        }
-                        // remove from stackcube tracker arrays by setting null
-                        stackcubeArray[LeftExistCubeInd] = 0; 
-                        stackcubePos[LeftExistCubeInd] = 0; 
-                        stackAccesoryArray[LeftExistCubeInd] = 0;  
-                        stackAccesoryPos[LeftExistCubeInd] = 0; 
-                        //console.log("INFO - Obtained left neighbour cube mesh via id");
+                         if (getMeshObj_L != null) {
+                              getMeshObj_L.dispose(); 
+                              getMeshObj_L = null;
+                              console.log("here")
+                              if (stackAccesoryArray[LeftExistCubeInd] != 0) {
+                                   for (var i=0; i<baseAccesoryArray.length; i++) {
+                                        if (stackAccesoryArray[LeftExistCubeInd][i] != 0 && stackAccesoryArray[LeftExistCubeInd][i] != null) {
+                                             var accessoryID = stackAccesoryArray[LeftExistCubeInd][i];
+                                             accessoryID = "B" + accessoryID + String(LeftExistCubeInd);
+                                             var getaccessoryObj = scene.getMeshByID(accessoryID);
+                                             getaccessoryObj.dispose(); 
+                                             getaccessoryObj = null;
+                                        }
+                                   }
+                              }
+                              // remove from stackcube tracker arrays by setting null
+                              stackcubeArray[LeftExistCubeInd] = 0; 
+                              stackcubePos[LeftExistCubeInd] = 0; 
+                              stackAccesoryArray[LeftExistCubeInd] = 0;  
+                              stackAccesoryPos[LeftExistCubeInd] = 0; 
+                              //console.log("INFO - Obtained left neighbour cube mesh via id");
+                         }
+                    
                     }
 
                     // update price after importing an extra cube
                     var curprice = 0;
                     for (var i=0; i<stackAccesoryArray.length; i++) {
-                        curprice += calcPrice(accessoryPrices, stackAccesoryArray[i]);
+                         curprice += calcPrice(accessoryPrices, stackAccesoryArray[i]);
                     }
                     totalStackAccessories = curprice;
-            
+          
                     makeEvent("priceUpdate");
                     
                     // this implements just a simple mesh import directly to rx_coord, cy_coord which are specific coordinates 
                     
                     // use newY as the y coord since its the same for all base cubes 
-                    importStackCubes_SUPP(scene,gridMat,rx_coord,newY,stackprefix, newX);
-
+                    importStackCubes_SUPP(scene,gridMat,rx_coord,newY,stackprefix);
+                   
                } else if (RightExistCubePrefix == '' && LeftExistCubePrefix == '') {
                     // just import the E1 new cube as is 
 
                     console.log("no match neighbours");
-
+                    
                     var intprefix = parseInt(stackprefix.slice(1));
                     
                     // else if both are still '', meaning no match so we can do business as usual and place the new B1 at the grid box r-c center 
@@ -1811,7 +1832,7 @@ function prefixStackCubeComb (ENew, ELeft, ERight) {
 
 // this deserves its own callback since at the start, the pluses are added for the remaining base cube spaces
 // i.e. if initially the 6cube base is imported, then no plus! 
-function btn_Stack(scene, gridMat, btnInt, rx_target, cy_target) {
+function btn_Stack(scene, gridMat, rx_target, cy_target) {
 
      // horizontal btns for the base cubes manipulation
      // this will add a base cube at the plus position that is being clicked. 
@@ -1819,24 +1840,29 @@ function btn_Stack(scene, gridMat, btnInt, rx_target, cy_target) {
  
      // btnInt can only be an integer and it is to serve as a unique number for each button
      // no need to track the button index for the horizontal cubes since its permutations are very small 
-     
+     stackbtnCtr += 1;
      //  button stuff
      var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-     var button = BABYLON.GUI.Button.CreateImageOnlyButton(btnInt, "https://cdn.shopify.com/s/files/1/0185/5092/products/symbols-0173_800x.png?v=1369543613");
+     var button = BABYLON.GUI.Button.CreateImageOnlyButton(stackbtnCtr, "https://cdn.shopify.com/s/files/1/0185/5092/products/symbols-0173_800x.png?v=1369543613");
      button.width = "20px";
      button.height = "20px";
      button.color = "white";
+     
  
      // position the button at rx_target and cy_target, using gridMat data, unmodified
  
      // on click event for the button
      button.onPointerClickObservable.add(function() {
-          // let intprefix = parseInt(bcubesPrefix_init[1]); 
           button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target+1][cy_target][1], 0), scene); 
           importStackCubes(scene, gridMat, rx_target, cy_target, "E1");
           rx_target += 1; // increment the row number   
      });
-     
+
+     var eventName = "move" + stackbtnCtr;
+     console.log(eventName)
+     window.addEventListener(eventName, function(){
+          button.dispose()
+     });
      
      advancedTexture.addControl(button);
      button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], 0), scene);
