@@ -1352,8 +1352,6 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
                     break;
                }
           }
-         
-
      }
 
      // next, remove the plus signs underneath the imported stack plank 
@@ -1374,7 +1372,6 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
 
      // update the stackcube global array trackers to include the newly imported plank stacks
      // and remove all data i.e. set to 0 for the cubes that it replaces 
-
 
      // populate stackplankVertTrack with vertical level of the imported plank stack cube 
      // simply push 
