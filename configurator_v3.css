@@ -70,18 +70,18 @@ html {
  }
 
  .priceDisp {
-     position: absolute;
-     top: 5%;
-     left: 5%;
+     position: relative;
+     margin-top: 5vh;
+     margin-left: 1vw;
      /* transform: translateY(-50%); */
      z-index: 2;
      font-size: 35px;
  }
 
  .saveImg {
-    position: absolute;
-    top: 18%;
-    left: 5%;
+    position: relative;
+    margin-top: 10vh;
+    margin-left: 1vw;
     /* transform: translateY(-50%); */
     z-index: 2;
     font-size: 35px;
