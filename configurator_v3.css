@@ -1,120 +1,127 @@
 html {
-     position: fixed;
-     height: 100%;
-     overflow: hidden;
- }
- body {
-     width: 100vw;
-     height: 100vh;
-     overflow-y: scroll;
-     overflow-x: hidden;
-     -webkit-overflow-scrolling: touch;
-     font: 12pt Titillium;
-     color: black;
-     -webkit-user-select: none;
-     -moz-user-select: none;
-     -ms-user-select: none;
-     user-select: none;
-     background-color: rgb(20,20,20);
- }
- html, body {
-     margin: 0;
-     padding: 0;
- }
-
- #main_app {
-     width: 100%;
-     height: 100%;
-     position: absolute;
-     background-color: rgba(0,0,0,0);
-     background-size: cover;
-     background-position: center;
-     background-repeat: no-repeat;
-     margin: 0 auto;
-     left: 0;
-     top: 0;
-     touch-action: none;
- }
-
- #text{
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    font-size: 50px;
-    color: white;
-    transform: translate(-50%,-50%);
-    -ms-transform: translate(-50%,-50%);
- }
-
- #overlay {
     position: fixed;
-    display: none;
+    height: 100%;
+    overflow: hidden;
+}
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    font: 12pt Titillium;
+    color: black;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-color: rgb(20,20,20);
+}
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+#main_app {
     width: 100%;
     height: 100%;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0,0,0,0.95);
-    z-index: 3;
-    cursor: pointer;
-  }
-  
- .data {
-     position: absolute;
-     top: 30%;
-     right: 21.2%;
-     /* transform: translateY(-50%); */
-     z-index: 2;
-     font-size: 20px;
- }
-
- .priceDisp {
-     position: absolute;
-     top: 15%;
-     left: 5%;
-     /* transform: translateY(-50%); */
-     z-index: 2;
-     font-size: 35px;
- }
-
- .saveImg {
     position: absolute;
-    top: 5%;
-    left: 5%;
+    background-color: rgba(0,0,0,0);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin: 0 auto;
+    left: 0;
+    top: 0;
+    touch-action: none;
+}
+
+#text{
+   position: absolute;
+   top: 50%;
+   left: 50%;
+   font-size: 50px;
+   color: white;
+   transform: translate(-50%,-50%);
+   -ms-transform: translate(-50%,-50%);
+}
+
+#overlay {
+   position: fixed;
+   display: none;
+   width: 100%;
+   height: 100%;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   background-color: rgba(0,0,0,0.95);
+   z-index: 3;
+   cursor: pointer;
+ }
+ 
+.data {
+    position: absolute;
+    top: 30%;
+    right: 21.2%;
+    /* transform: translateY(-50%); */
+    z-index: 2;
+    font-size: 20px;
+}
+
+.infoblock {
+    position: absolute;
+    margin-top: 5vh;
+    margin-left: 1vw;
+    z-index: 2;
+}
+
+.priceDisp {
+    position: absolute;
+    margin-top: 5vh;
+    margin-left: 1vw;
     /* transform: translateY(-50%); */
     z-index: 2;
     font-size: 35px;
- }
-
- table, th, td, tr s{
-     border: 1px solid black;
-     border-collapse: collapse;
-     text-align: center;
- }
- 
- .modal-backdrop {
-     opacity:0.5;
- }
-
- .divider{
-    width:5px;
-    height:auto;
-    display:inline-block;
 }
- 
 
- @media screen and (orientation:portrait) {
-     /* Portrait styles */
-     /*hide main content and display message */
-     /* #main_app {display: none;}
-     .priceDisp {display: none;} */
-     #overlay {display: block;}
+.saveImg {
+   position: absolute;
+   margin-top: 10vh;
+   margin-left: 1vw;
+   /* transform: translateY(-50%); */
+   z-index: 2;
+   font-size: 35px;
+}
 
- }
- @media screen and (orientation:landscape) {
-     /* Landscape styles */
-     /* show your content*/
-     #main_app {display: block;}
-     .priceDisp {display: block;}
- }
+table, th, td, tr s{
+    border: 1px solid black;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.modal-backdrop {
+    opacity:0.5;
+}
+
+.divider{
+   width:5px;
+   height:auto;
+   display:inline-block;
+}
+
+
+@media screen and (orientation:portrait) {
+    /* Portrait styles */
+    /*hide main content and display message */
+    /* #main_app {display: none;}
+    .priceDisp {display: none;} */
+    #overlay {display: block;}
+
+}
+@media screen and (orientation:landscape) {
+    /* Landscape styles */
+    /* show your content*/
+    #main_app {display: block;}
+    .priceDisp {display: block;}
+}

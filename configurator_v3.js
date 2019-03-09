@@ -21,6 +21,7 @@ var baseIndex = 0;
 
 var basecubeName; // used to identify which cube to import accessory to
 var basePrices = [["B1", 7.6], ["B2", 10.9], ["B3", 14.5], ["B4", 18.5], ["B5", 22.4], ["B6", 26.3]]; // in USD
+//var basePrices = [["B1", 50], ["B2", 50], ["B3", 50.5], ["B4", 50.5], ["B5", 50.4], ["B6", 50.3]]; // in USD
 var totalBasecubes;
 
 /*
@@ -44,7 +45,10 @@ var totalStackcubes; // for purpose of price calc to pass to html
 var stackPrices = [["E1", 6.3], ["E2", 8.8], ["E3", 10.6], ["E4", 13.5], ["E5", 16.2], ["E6", 19],
                     ["E43", 6.3], ["E53", 8.8], ["E54", 10.6], ["E63", 13.5], ["E64", 16.2], ["E65b", 19],["E65a", 19], // not yet updated prices for composite stack
                     ]; // in USD
-
+                    /*
+var stackPrices = [["E1", 50.3], ["E2", 50.8], ["E3", 50.6], ["E4", 50.5], ["E5", 50.2], ["E6", 50],
+                    ["E43", 50.3], ["E53", 50.8], ["E54", 50.6], ["E63", 50.5], ["E64", 50.2], ["E65b", 50],["E65a", 50], // not yet updated prices for composite stack
+                    ]; // in USD*/
 // define x coord of cubes per row from left to right 1,2,3,4,5,6 positions on the grid 
 var x_coord_definition = [1.20175, 1.59525, 1.98875, 2.38225, 2.77575, 3.16925];
 
@@ -1353,8 +1357,6 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
                     break;
                }
           }
-         
-
      }
      console.log(first)
      // next, remove the plus signs underneath the imported stack plank 
@@ -1373,7 +1375,6 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
      
      // update the stackcube global array trackers to include the newly imported plank stacks
      // and remove all data i.e. set to 0 for the cubes that it replaces 
-
 
      // populate stackplankVertTrack with vertical level of the imported plank stack cube 
      // simply push 
