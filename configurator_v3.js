@@ -79,8 +79,6 @@ var bcubesPrefix_init = 'B1'; // can be B1-B6, as passed by html before it
 var totalBaseAccessories;
 var totalStackAccessories;
 
-var stackbtnCtr = 0;
-
 // Check if  browser supports webGL
 if (BABYLON.Engine.isSupported()) {
 
@@ -666,36 +664,39 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                switch(intprefix) {
                     case 1: 
                          // for B1, we will have five pluses to its right, each at the native grid (no mods)
-                         horBtn_1 = btn_BaseHorInit (scene, gridMat, 0,1);
-                         horBtn_2 = btn_BaseHorInit (scene, gridMat, 0,2);
-                         horBtn_3 = btn_BaseHorInit (scene, gridMat, 0,3);
-                         horBtn_4 = btn_BaseHorInit (scene, gridMat, 0,4);
-                         horBtn_5 = btn_BaseHorInit (scene, gridMat, 0,5);
+
+                         // last parameter of btn_BaseHorInit() is the name of the button. the stack cubes will follow this naming. 
+                         // it starts off with 2 because its the button on the right of the FIRST base cubs.
+                         horBtn_1 = btn_BaseHorInit (scene, gridMat, 0, 1, 2);
+                         horBtn_2 = btn_BaseHorInit (scene, gridMat, 0, 2, 3);
+                         horBtn_3 = btn_BaseHorInit (scene, gridMat, 0, 3, 4);
+                         horBtn_4 = btn_BaseHorInit (scene, gridMat, 0, 4, 5);
+                         horBtn_5 = btn_BaseHorInit (scene, gridMat, 0, 5, 6);
                          // associated vertical
                          stackBtn_1 = btn_Stack(scene, gridMat, 1, 0);
                          break; 
                     case 2: 
                          // for B2, we will have four pluses to its right
-                         horBtn_1 = btn_BaseHorInit (scene, gridMat, 0,2);
-                         horBtn_2 = btn_BaseHorInit (scene, gridMat, 0,3);
-                         horBtn_3 = btn_BaseHorInit (scene, gridMat, 0,4);
-                         horBtn_4 = btn_BaseHorInit (scene, gridMat, 0,5);
+                         horBtn_1 = btn_BaseHorInit (scene, gridMat, 0, 2, 3);
+                         horBtn_2 = btn_BaseHorInit (scene, gridMat, 0, 3, 4);
+                         horBtn_3 = btn_BaseHorInit (scene, gridMat, 0, 4, 5);
+                         horBtn_4 = btn_BaseHorInit (scene, gridMat, 0, 5, 6);
                          // associated vertical
                          stackBtn_1 = btn_Stack(scene, gridMat, 1, 0);
                          stackBtn_2 = btn_Stack(scene, gridMat, 1, 1);
                          break; 
                     case 3: 
-                         horBtn_1 = btn_BaseHorInit (scene, gridMat, 0,3);
-                         horBtn_2 = btn_BaseHorInit (scene, gridMat, 0,4);
-                         horBtn_3 = btn_BaseHorInit (scene, gridMat, 0,5);
+                         horBtn_1 = btn_BaseHorInit (scene, gridMat, 0, 3, 4);
+                         horBtn_2 = btn_BaseHorInit (scene, gridMat, 0, 4, 5);
+                         horBtn_3 = btn_BaseHorInit (scene, gridMat, 0, 5, 6);
                          // associated vertical
                          stackBtn_1 = btn_Stack(scene, gridMat, 1, 0);
                          stackBtn_2 = btn_Stack(scene, gridMat, 1, 1);
                          stackBtn_3 = btn_Stack(scene, gridMat, 1, 2);
                          break; 
                     case 4:
-                         horBtn_1 = btn_BaseHorInit (scene, gridMat, 0,4);
-                         horBtn_2 = btn_BaseHorInit (scene, gridMat, 0,5);
+                         horBtn_1 = btn_BaseHorInit (scene, gridMat, 0, 4, 5);
+                         horBtn_2 = btn_BaseHorInit (scene, gridMat, 0, 5, 6);
                          // associated vertical
                          stackBtn_1 = btn_Stack(scene, gridMat, 1, 0);
                          stackBtn_2 = btn_Stack(scene, gridMat, 1, 1);
@@ -703,7 +704,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                          stackBtn_4 = btn_Stack(scene, gridMat, 1, 3);
                          break; 
                     case 5:
-                         horBtn_1 = btn_BaseHorInit (scene, gridMat, 0,5);
+                         horBtn_1 = btn_BaseHorInit (scene, gridMat, 0, 5, 6);
                          // associated vertical
                          stackBtn_1 = btn_Stack(scene, gridMat, 1, 0);
                          stackBtn_2 = btn_Stack(scene, gridMat, 1, 1);
@@ -1100,7 +1101,7 @@ function prefixBaseCubeComb (BNew, BLeft, BRight) {
      Button stuffs, as callbacks into cube functions 
 */
 // for the base cubes' horizontal pluses , use once for initialization of the default base cube only! 
-function btn_BaseHorInit (scene, gridMat, rx_target,cy_target) {
+function btn_BaseHorInit (scene, gridMat, rx_target,cy_target, btnName) {
 
      // this deserves its own callback since at the start, the pluses are added for the remaining base cube spaces
      // i.e. if initially the 6cube base is imported, then no plus! 
@@ -1114,7 +1115,7 @@ function btn_BaseHorInit (scene, gridMat, rx_target,cy_target) {
      
      //  button stuff
      var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-     var button = BABYLON.GUI.Button.CreateImageOnlyButton("", "https://cdn.shopify.com/s/files/1/0185/5092/products/symbols-0173_800x.png?v=1369543613");
+     var button = BABYLON.GUI.Button.CreateImageOnlyButton(btnName, "https://cdn.shopify.com/s/files/1/0185/5092/products/symbols-0173_800x.png?v=1369543613");
      button.width = "20px";
      button.height = "20px";
      button.color = "white";
@@ -1126,7 +1127,7 @@ function btn_BaseHorInit (scene, gridMat, rx_target,cy_target) {
           // remove the button and in its place, put the base cube B1
           button.dispose(); 
           importBaseCubes(scene,gridMat,'B1',rx_target,cy_target,'nextLOGIC'); 
-          btn_Stack(scene, gridMat, rx_target+1, cy_target);
+          btn_Stack(scene, gridMat, rx_target+1, cy_target, btnName);
      });
 
      advancedTexture.addControl(button);
@@ -1355,23 +1356,21 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
          
 
      }
-
+     console.log(first)
      // next, remove the plus signs underneath the imported stack plank 
      if (name != null && flag) {
           for (var i=first; i<last; i++) {
-               if (i != last-1) {
-                    if (hor_coords_marker[i] == 0){
-                         var btnInt = i + 1;
-                         var eventName = "move" + btnInt;
-                         makeEvent(eventName);
-                    }
-               }
-               
+               if (hor_coords_marker[i] == 0){
+                    var btnInt = i+1;
+                    var eventName = "move" + btnInt;
+                    makeEvent(eventName);
+                    console.log(eventName)
+               }               
           }
           var eventName = "move" + last;
           makeEvent(eventName);
      }
-
+     
      // update the stackcube global array trackers to include the newly imported plank stacks
      // and remove all data i.e. set to 0 for the cubes that it replaces 
 
@@ -1832,7 +1831,7 @@ function prefixStackCubeComb (ENew, ELeft, ERight) {
 
 // this deserves its own callback since at the start, the pluses are added for the remaining base cube spaces
 // i.e. if initially the 6cube base is imported, then no plus! 
-function btn_Stack(scene, gridMat, rx_target, cy_target) {
+function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
 
      // horizontal btns for the base cubes manipulation
      // this will add a base cube at the plus position that is being clicked. 
@@ -1840,10 +1839,10 @@ function btn_Stack(scene, gridMat, rx_target, cy_target) {
  
      // btnInt can only be an integer and it is to serve as a unique number for each button
      // no need to track the button index for the horizontal cubes since its permutations are very small 
-     stackbtnCtr += 1;
+     
      //  button stuff
      var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-     var button = BABYLON.GUI.Button.CreateImageOnlyButton(stackbtnCtr, "https://cdn.shopify.com/s/files/1/0185/5092/products/symbols-0173_800x.png?v=1369543613");
+     var button = BABYLON.GUI.Button.CreateImageOnlyButton(btnName, "https://cdn.shopify.com/s/files/1/0185/5092/products/symbols-0173_800x.png?v=1369543613");
      button.width = "20px";
      button.height = "20px";
      button.color = "white";
@@ -1858,8 +1857,8 @@ function btn_Stack(scene, gridMat, rx_target, cy_target) {
           rx_target += 1; // increment the row number   
      });
 
-     var eventName = "move" + stackbtnCtr;
-     console.log(eventName)
+     var eventName = "move" + btnName;
+     // console.log(eventName)
      window.addEventListener(eventName, function(){
           button.dispose()
      });
