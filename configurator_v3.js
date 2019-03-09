@@ -2046,6 +2046,7 @@ function importStackAccesories(scene, asstype, cubeNameId, specificcubeNum) {
         
         // position the accesory mesh at base cube 
         assMesh.position.x = xposMesh;
+        
         assMesh.position.y = cubePos[1];
         assMesh.position.z = cubePos[2];
         assMesh.rotation.y = Math.PI/2;
