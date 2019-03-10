@@ -217,14 +217,14 @@ function createCamera(scene) {
      // note its coords are always defined in alpha, beta and radius .. https://doc.babylonjs.com/babylon101/cameras
      // Parameters: name, alpha, beta, radius, target position, scene 
      var camera = new BABYLON.ArcRotateCamera("camera", -Math.PI/2, Math.PI/2, 4, new BABYLON.Vector3(2,1.25,0), scene); 
-     camera.attachControl(canvas, true);
+     // camera.attachControl(canvas, true);
      // set limits to camera movement so users dont get disorganized  
-     camera.lowerRadiusLimit = 4;
-     camera.upperRadiusLimit = 4; 
-     camera.lowerAlphaLimit = -1.8; // rmbr this is radians!  
-     camera.upperAlphaLimit = -1.3; 
-     camera.lowerBetaLimit = 1.35; 
-     camera.upperBetaLimit = 1.75; 
+     // camera.lowerRadiusLimit = 4;
+     // camera.upperRadiusLimit = 4; 
+     // camera.lowerAlphaLimit = -1.8; // rmbr this is radians!  
+     // camera.upperAlphaLimit = -1.3; 
+     // camera.lowerBetaLimit = 1.35; 
+     // camera.upperBetaLimit = 1.75; 
 
      // totally deactivate panning (if developer requires to see beyond cube, comment this out in development)
      scene.activeCamera.panningSensibility = 0;
@@ -446,7 +446,7 @@ function gridEngine () {
      }
 
      // return the matrix
-     // console.log(matCoords); 
+     console.log(matCoords); 
      return matCoords; 
 }
 
@@ -677,7 +677,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                          horBtn_4 = btn_BaseHorInit (scene, gridMat, 0, 4, 5);
                          horBtn_5 = btn_BaseHorInit (scene, gridMat, 0, 5, 6);
                          // associated vertical
-                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 0);
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 0, 1);
                          break; 
                     case 2: 
                          // for B2, we will have four pluses to its right
@@ -686,45 +686,45 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                          horBtn_3 = btn_BaseHorInit (scene, gridMat, 0, 4, 5);
                          horBtn_4 = btn_BaseHorInit (scene, gridMat, 0, 5, 6);
                          // associated vertical
-                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 0);
-                         stackBtn_2 = btn_Stack(scene, gridMat, 1, 1);
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 0, 1);
+                         stackBtn_2 = btn_Stack(scene, gridMat, 1, 1, 2);
                          break; 
                     case 3: 
                          horBtn_1 = btn_BaseHorInit (scene, gridMat, 0, 3, 4);
                          horBtn_2 = btn_BaseHorInit (scene, gridMat, 0, 4, 5);
                          horBtn_3 = btn_BaseHorInit (scene, gridMat, 0, 5, 6);
                          // associated vertical
-                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 0);
-                         stackBtn_2 = btn_Stack(scene, gridMat, 1, 1);
-                         stackBtn_3 = btn_Stack(scene, gridMat, 1, 2);
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 0, 1);
+                         stackBtn_2 = btn_Stack(scene, gridMat, 1, 1, 2);
+                         stackBtn_3 = btn_Stack(scene, gridMat, 1, 2, 3);
                          break; 
                     case 4:
                          horBtn_1 = btn_BaseHorInit (scene, gridMat, 0, 4, 5);
                          horBtn_2 = btn_BaseHorInit (scene, gridMat, 0, 5, 6);
                          // associated vertical
-                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 0);
-                         stackBtn_2 = btn_Stack(scene, gridMat, 1, 1);
-                         stackBtn_3 = btn_Stack(scene, gridMat, 1, 2);
-                         stackBtn_4 = btn_Stack(scene, gridMat, 1, 3);
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 0, 1);
+                         stackBtn_2 = btn_Stack(scene, gridMat, 1, 1, 2);
+                         stackBtn_3 = btn_Stack(scene, gridMat, 1, 2, 3);
+                         stackBtn_4 = btn_Stack(scene, gridMat, 1, 3, 4);
                          break; 
                     case 5:
                          horBtn_1 = btn_BaseHorInit (scene, gridMat, 0, 5, 6);
                          // associated vertical
-                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 0);
-                         stackBtn_2 = btn_Stack(scene, gridMat, 1, 1);
-                         stackBtn_3 = btn_Stack(scene, gridMat, 1, 2);
-                         stackBtn_4 = btn_Stack(scene, gridMat, 1, 3);
-                         stackBtn_5 = btn_Stack(scene, gridMat, 1, 4);
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 0, 1);
+                         stackBtn_2 = btn_Stack(scene, gridMat, 1, 1, 2);
+                         stackBtn_3 = btn_Stack(scene, gridMat, 1, 2, 3);
+                         stackBtn_4 = btn_Stack(scene, gridMat, 1, 3, 4);
+                         stackBtn_5 = btn_Stack(scene, gridMat, 1, 4, 5);
                          break; 
                     default:
                          // case 6 has zero horizontal pluses 
                          // associated vertical 
-                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 0);
-                         stackBtn_2 = btn_Stack(scene, gridMat, 1, 1);
-                         stackBtn_3 = btn_Stack(scene, gridMat, 1, 2);
-                         stackBtn_4 = btn_Stack(scene, gridMat, 1, 3);
-                         stackBtn_5 = btn_Stack(scene, gridMat, 1, 4);
-                         stackBtn_6 = btn_Stack(scene, gridMat, 1, 5);
+                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 0, 1);
+                         stackBtn_2 = btn_Stack(scene, gridMat, 1, 1, 2);
+                         stackBtn_3 = btn_Stack(scene, gridMat, 1, 2, 3);
+                         stackBtn_4 = btn_Stack(scene, gridMat, 1, 3, 4);
+                         stackBtn_5 = btn_Stack(scene, gridMat, 1, 4, 5);
+                         stackBtn_6 = btn_Stack(scene, gridMat, 1, 5, 6);
                          break; 
                }
 
@@ -1124,17 +1124,50 @@ function btn_BaseHorInit (scene, gridMat, rx_target,cy_target, btnName) {
      button.height = "20px";
      button.color = "white";
 
-     // position the button at rx_target and cy_target, using gridMat, unmodified
-     
+     // define the base cube vertical coordinates
+     var BASE_CUBE_YCOORD = 0.29500000000000004;
+
      // on click event for the button
      button.onPointerClickObservable.add(function() {
           // remove the button and in its place, put the base cube B1
+          // var TOL = 0.08;
+          var plankAbove = false;
+          var plankInt = 0;
           button.dispose(); 
+
           importBaseCubes(scene,gridMat,'B1',rx_target,cy_target,'nextLOGIC'); 
-          btn_Stack(scene, gridMat, rx_target+1, cy_target, btnName);
+
+          for (var i=0; i<stackcubeArray.length; i++) {
+               if (stackcubeArray[i] != 0) {
+                    for (var j=0; j<stackplankConfig.length; j++) {
+                         if (stackcubeArray[i] == stackplankConfig[j][0]) {
+                              // check if the plank stack cube is directly above the base cubes
+                              // if it is not, then the stack buttons are imported after the base buttons are pressed
+                              
+                              if (stackcubePos[i][1] >= BASE_CUBE_YCOORD+(boxgridWidth*2)) {
+                                   continue;
+                              }
+                              // if there is a plank stack cube directly above the buttons, don't import the stack cube buttons
+                              else {
+                                   var name = stackplankConfig[j][0]
+                                   plankInt = parseInt(name[1]); // plankInt is to determine how many buttons are underneath the plank
+                                   plankAbove = true;
+                              }
+                         }
+                    }
+               }
+          }
+          
+          // if there is a plank directly above the base cubes, don't spawn a stack button
+          // if the base cube is not under a plank, spawn a stack button
+          if (!plankAbove || btnName >= plankInt) {
+               btn_Stack(scene, gridMat, rx_target+1, cy_target, btnName);
+          }
+          
      });
 
      advancedTexture.addControl(button);
+     // position the button at rx_target and cy_target, using gridMat, unmodified
      button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], 0), scene);
 
      return button;
@@ -1186,12 +1219,13 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
                // get id of cube that is on the same row
                var id = "E" + i;
                cubeIDs.push(id);
-
-               if (vert_coord_import + TOL >= stackcubePos[i][1] && vert_coord_import - TOL <= stackcubePos[i][1]) {
+               var CHECK = stackcubeArray[i];
+               if (vert_coord_import + TOL >= stackcubePos[i][1] && vert_coord_import - TOL <= stackcubePos[i][1] && CHECK.length == 2) {
                     
                     var sameRowCubeName = stackcubeArray[i]; // get the name of the stack cubes
+                    
                     var sameRowCubeInt = parseInt(sameRowCubeName.slice(1)); 
-
+                    
                     // this is center position of cube (REMINDER)
                     var x_center = stackcubePos[i][0];  // get horizontal position of the stack cubes
 
@@ -1318,7 +1352,7 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
 
           if (name != null) {
                if (confirm("Import a plank?")) {
-                    console.log(cubeIDs)
+                    
                     // console.log(stackcubeArray)
                     for (var j=0; j<cubeIDs.length; j++) {
                          var getMeshObj = scene.getMeshByID(cubeIDs[j]);
@@ -1330,16 +1364,16 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
                          cubeIDs[j] = cubeIDs[j].substring(1)
                          
                          var cubeInd = parseInt(cubeIDs[j]);
-                         console.log(cubeInd)
+                         
                          stackcubeArray[cubeInd] = 0; 
                          stackcubePos[cubeInd] = 0; 
                          
                          // note: if a cube has been removed, remove its associated accesory array by setting to 0
-                         // stackAccesoryArray[cubeInd] = 0;  // also reset empty array for any associated accesories 
-                         // stackAccesoryPos[cubeInd] = 0; 
+                         stackAccesoryArray[cubeInd] = 0;  // also reset empty array for any associated accesories 
+                         stackAccesoryPos[cubeInd] = 0; 
                          
                     }
-                    console.log(stackcubeArray)
+                    
                     var multiplier = (last - first)/2;
 
                     // 0.0198 is to make the centre coordinate more flush with the other cubes
@@ -1358,18 +1392,17 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
                }
           }
      }
-     console.log(first)
+
      // next, remove the plus signs underneath the imported stack plank 
      if (name != null && flag) {
           for (var i=first; i<last; i++) {
                if (hor_coords_marker[i] == 0){
                     var btnInt = i+1;
-                    var eventName = "move" + btnInt;
+                    var eventName = "delete" + btnInt;
                     makeEvent(eventName);
-                    console.log(eventName)
                }               
           }
-          var eventName = "move" + last;
+          var eventName = "delete" + last;
           makeEvent(eventName);
      }
      
@@ -1387,20 +1420,16 @@ function importPlankStackCubes_SUPP(scene, gridMat, x, y, plankstackprefix) {
      // name of cube to be imported
      var cubeName = plankstackprefix + postfix;  
      
-     // var intprefix = parseInt(cubeName.slice(1)); // get the integer 2 out of E2 for instance.
+     var intprefix = parseInt(cubeName[2]) - 1; // get the integer 2 out of E2 for instance.
      
      BABYLON.SceneLoader.ImportMesh("", hostUrl, cubeName, scene, 
      function (newMeshes) {
 
           // dirty hack to get around not being able to assign name and id to mesh
           var plankstackMesh = newMeshes[0]; 
-
-          // this is a general purpose mesh import subroutine for internal use within importstackcube
+          plankstackMesh.id = String('ES' + stackcubeCtr); 
           
-          // IMPORTANT NOTICE!--> in this case of 'quick', 
-          //      the rx cy args are euler coordinates! NOT gridMat index! (see rx_coord / cy_coord args input in quick callback)
-          //      we will just reuse the rx cy args only  
-          // give the mesh a unique ID (do this for every 'if') 
+          plankstackMesh.name = String('ES' + stackcubeCtr); 
           
           plankstackMesh.position.x = x; 
           plankstackMesh.position.y = y;
@@ -1412,12 +1441,19 @@ function importPlankStackCubes_SUPP(scene, gridMat, x, y, plankstackprefix) {
           // define mesh material
           var boxMaterial = createboxMaterial(scene); 
           plankstackMesh.material = boxMaterial;
-         
-          // update global counter for stack cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
-          
 
+          // update global counter for stack cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
+          stackcubeArray.push(plankstackprefix);
+          
+          stackcubePos.push([x, y, plankstackMesh.position.z]); // push grid position in stackcubePos array as an array of 3 elements x,y,z 
+          
+          stackcubeCtr = stackcubeCtr + 1;
+          
           // update global stack cube accesory in tandem, populate with empty array and empty matrix 
           // note: cant use zero here, since a stack cube may have more than one accesory
+
+          stackAccesoryArray.push(new Array(intprefix).fill(0)); // on initial import of a cube mesh, there is no accesory, so initialize zero array
+          stackAccesoryPos.push(new Array(intprefix).fill(0)); 
 
           // update price after importing an extra cube
           // var curprice = calcPrice(stackPrices, stackcubeArray);
@@ -1432,15 +1468,15 @@ function importPlankStackCubes_SUPP(scene, gridMat, x, y, plankstackprefix) {
 function importStackCubes_SUPP(scene, gridMat, rx, cy, stackprefix) {
      // name of cube to be imported
      var cubeName = stackprefix + postfix;  
-     // console.log(stackcubeArray)
-     var intprefix = parseInt(cubeName.slice(1)); // get the integer 2 out of E2 for instance.
+     
+     // INTPREFIX FOR THIS FUNCTION INDICATES HOW MANY SLOTS WHERE AN ACCESSORY CAN BE IMPORTED IN A PLANK CUBE
+     var intprefix = parseInt(cubeName.slice(1)); 
      
      BABYLON.SceneLoader.ImportMesh("", hostUrl, cubeName, scene, 
      function (newMeshes) {
 
           // dirty hack to get around not being able to assign name and id to mesh
           var stackMesh = newMeshes[0]; 
-          console.log(stackprefix)
           // this is a general purpose mesh import subroutine for internal use within importstackcube
           
           // IMPORTANT NOTICE!--> in this case of 'quick', 
@@ -1588,10 +1624,6 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                               var rx_coordAdjust = rx_coordAdjust + (cubemultiplierR*(boxgridWidth/1.95));
                          } 
                     }
-
-                    
-                    
-                    
                }
           }
 
@@ -1718,14 +1750,14 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                          
                          //console.log("INFO - Obtained right neighbour cube mesh via id");
                     } else if (LeftExistCubePrefix != '') {
-                         console.log("here")
                          var meshid_L = 'E' + String(LeftExistCubeInd);
                          var getMeshObj_L = scene.getMeshByID(meshid_L);
                          if (getMeshObj_L != null) {
                               getMeshObj_L.dispose(); 
                               getMeshObj_L = null;
-                              console.log("here")
+                              
                               if (stackAccesoryArray[LeftExistCubeInd] != 0) {
+                                   console.log("here")
                                    for (var i=0; i<baseAccesoryArray.length; i++) {
                                         if (stackAccesoryArray[LeftExistCubeInd][i] != 0 && stackAccesoryArray[LeftExistCubeInd][i] != null) {
                                              var accessoryID = stackAccesoryArray[LeftExistCubeInd][i];
@@ -1738,7 +1770,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                               }
                               // remove from stackcube tracker arrays by setting null
                               stackcubeArray[LeftExistCubeInd] = 0; 
-                              stackcubePos[LeftExistCubeInd] = 0; 
+                              stackcubePos[LeftExistCubeInd] = 0;
                               stackAccesoryArray[LeftExistCubeInd] = 0;  
                               stackAccesoryPos[LeftExistCubeInd] = 0; 
                               //console.log("INFO - Obtained left neighbour cube mesh via id");
@@ -1848,18 +1880,53 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
      button.height = "20px";
      button.color = "white";
      
- 
+      // get the vertical coordinates of the stack cube 
+     
      // position the button at rx_target and cy_target, using gridMat data, unmodified
  
      // on click event for the button
      button.onPointerClickObservable.add(function() {
-          button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target+1][cy_target][1], 0), scene); 
+          var plankAbove = false;
+          var plankInt = 0;
+          var stack_cube_ycoord = gridMat[rx_target][cy_target][1];
+          
+          for (var i=0; i<stackcubeArray.length; i++) {
+               if (stackcubeArray[i] != 0) {
+                    for (var j=0; j<stackplankConfig.length; j++) {
+                         if (stackcubeArray[i] == stackplankConfig[j][0]) {
+                              // check if the plank stack cube is directly above the base cubes
+                              // if it is not, then the stack buttons are imported after the base buttons are pressed
+                              if (stackcubePos[i][1] >= stack_cube_ycoord+(boxgridWidth*2) || stackcubePos[i][1] < stack_cube_ycoord) {
+                                   continue;
+                              }
+                              // if there is a plank stack cube directly above the buttons, don't import the stack cube buttons
+                              else {
+                                   var name = stackplankConfig[j][0];
+                                   plankInt = parseInt(name[1]); // plankInt is to determine how many buttons are underneath the plank
+                                   plankAbove = true;
+                              }
+                         }
+                    }
+               }
+          }
+          
+          // if there is a plank directly above the stack cubes, don't move the stack button
+          // if the stack cube is not under a plank, don't spawn a button
+          
           importStackCubes(scene, gridMat, rx_target, cy_target, "E1");
-          rx_target += 1; // increment the row number   
+          if (!plankAbove || btnName >= plankInt) {
+               button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target+1][cy_target][1], 0), scene); 
+               rx_target += 1; // increment the row number  
+          }
+          else {
+               button.dispose();
+          }
+
+           
      });
 
-     var eventName = "move" + btnName;
-     // console.log(eventName)
+     var eventName = "delete" + btnName;
+
      window.addEventListener(eventName, function(){
           button.dispose()
      });
@@ -2046,7 +2113,7 @@ function importStackAccesories(scene, asstype, cubeNameId, specificcubeNum) {
         
         // position the accesory mesh at base cube 
         assMesh.position.x = xposMesh;
-        
+
         assMesh.position.y = cubePos[1];
         assMesh.position.z = cubePos[2];
         assMesh.rotation.y = Math.PI/2;
