@@ -1152,6 +1152,7 @@ function btn_BaseHorInit (scene, gridMat, rx_target,cy_target, btnName) {
                                    var name = stackplankConfig[j][0]
                                    plankInt = parseInt(name[1]); // plankInt is to determine how many buttons are underneath the plank
                                    plankAbove = true;
+                                   break;
                               }
                          }
                     }
@@ -1904,6 +1905,7 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
                                    var name = stackplankConfig[j][0];
                                    plankInt = parseInt(name[1]); // plankInt is to determine how many buttons are underneath the plank
                                    plankAbove = true;
+                                   break;
                               }
                          }
                     }
