@@ -83,6 +83,8 @@ var bcubesPrefix_init = 'B1'; // can be B1-B6, as passed by html before it
 var totalBaseAccessories;
 var totalStackAccessories;
 
+var button_vert_Position;
+
 // Check if  browser supports webGL
 if (BABYLON.Engine.isSupported()) {
 
@@ -1383,6 +1385,7 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
                     // next, import the plank stackcubes, DO NOT use importStackCubes_SUPP callback func since it calls this function
                     // simply create - copy paste a new SUPP importPlankStackCubes callback 
                     importPlankStackCubes_SUPP(scene, gridMat, x, vert_coord_import, name);
+
                     // break here cos the confirm box wont go away if there isnt a break
                     flag = true;
                     break;
@@ -1393,18 +1396,22 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
                }
           }
      }
+     
 
      // next, remove the plus signs underneath the imported stack plank 
      if (name != null && flag) {
-          for (var i=first; i<last; i++) {
-               if (hor_coords_marker[i] == 0){
+          for (var i=first; i<last+1; i++) {
+               if (hor_coords_marker[i] == 0) {
                     var btnInt = i+1;
-                    var eventName = "delete" + btnInt;
-                    makeEvent(eventName);
+                    var btnPosEvent = "position" + btnInt;
+                    makeEvent(btnPosEvent)
+                    if (button_vert_Position <= vert_coord_import && button_vert_Position >= vert_coord_import-boxgridWidth) {
+                         var eventName = "delete" + btnInt;
+                         makeEvent(eventName);
+                    }
                }               
           }
-          var eventName = "delete" + last;
-          makeEvent(eventName);
+          
      }
      
      // update the stackcube global array trackers to include the newly imported plank stacks
@@ -1863,16 +1870,8 @@ function prefixStackCubeComb (ENew, ELeft, ERight) {
      return compositePrefix; 
 }
 
-// this deserves its own callback since at the start, the pluses are added for the remaining base cube spaces
-// i.e. if initially the 6cube base is imported, then no plus! 
-function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
 
-     // horizontal btns for the base cubes manipulation
-     // this will add a base cube at the plus position that is being clicked. 
-     // will be initialized alongside the first base cube import
- 
-     // btnInt can only be an integer and it is to serve as a unique number for each button
-     // no need to track the button index for the horizontal cubes since its permutations are very small 
+function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) { 
      
      //  button stuff
      var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -1932,10 +1931,15 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
      window.addEventListener(eventName, function(){
           button.dispose()
      });
+
+     var btnPos = "position" + btnName;
+     window.addEventListener(btnPos, function() {
+          button_vert_Position = gridMat[rx_target][cy_target][1];
+     });
      
      advancedTexture.addControl(button);
      button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], 0), scene);
- 
+     
      return button;
  }
 
