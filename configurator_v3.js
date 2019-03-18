@@ -53,7 +53,7 @@ var stackPrices = [["E1", 50.3], ["E2", 50.8], ["E3", 50.6], ["E4", 50.5], ["E5"
 var x_coord_definition = [1.20175, 1.59525, 1.98875, 2.38225, 2.77575, 3.16925];
 
 // define pattern of the composite stackcubes which we call planks here 
-var stackplankConfig = [["E43",'1001'], ["E53", '10001'], ["E54", '11001'], ["E63",'100001'], ["E64",'110001'], ["E65b", '110011'], ["E65a",'111001']];
+var stackplankConfig = [["E43",'1001'], ["E53", '10001'], ["E54", '11001'], ["E63",'100001'], ["E64",'110001'], ["E65b", '110011'], ["E65a",'111001'], ["RE54", '10011'], ["RE64", '100011'], ["RE65a", '100111']];
 
 // NEW logic for stack cube planks
 var stackplankVertTrack = []; // stores stack cube vertical position , to limit one composite stack cube per level 
@@ -1404,7 +1404,7 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
                if (hor_coords_marker[i] == 0) {
                     var btnInt = i+1;
                     var btnPosEvent = "position" + btnInt;
-                    makeEvent(btnPosEvent)
+                    makeEvent(btnPosEvent);
                     if (button_vert_Position <= vert_coord_import && button_vert_Position >= vert_coord_import-boxgridWidth) {
                          var eventName = "delete" + btnInt;
                          makeEvent(eventName);
@@ -1425,7 +1425,16 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
 }
 
 function importPlankStackCubes_SUPP(scene, gridMat, x, y, plankstackprefix) {
+     var reverse = false;
+
+     
      // name of cube to be imported
+     // check if it is the reverse of a stack plank or not
+     if (plankstackprefix[0] == "R") {
+          plankstackprefix = plankstackprefix.slice(1);
+          reverse = true;
+     }
+
      var cubeName = plankstackprefix + postfix;  
      
      var intprefix = parseInt(cubeName[2]) - 1; // get the integer 2 out of E2 for instance.
@@ -1444,8 +1453,15 @@ function importPlankStackCubes_SUPP(scene, gridMat, x, y, plankstackprefix) {
           plankstackMesh.position.z = gridMat[0][0][2]; // this one is constant for all stack cubes 
           
           // define mesh rotation
+          var radians = BABYLON.Tools.ToRadians(180);
           plankstackMesh.rotation.y = Math.PI/2;
 
+          if (reverse) {
+               plankstackMesh.rotation.x = radians;
+               plankstackMesh.rotation.z = radians;
+          }
+          
+          
           // define mesh material
           var boxMaterial = createboxMaterial(scene); 
           plankstackMesh.material = boxMaterial;
