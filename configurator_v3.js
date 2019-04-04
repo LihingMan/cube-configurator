@@ -468,12 +468,12 @@ function Create2DArray(rows) {
 
 // Define the cube materials
 // should be efficient since we reference to a single texture image file for all boxes (cache friendly also)
-// note that only this product configurator loads babylon files directly.  
 function createboxMaterial (scene) {
     // create box material
     var boxMaterial = new BABYLON.StandardMaterial("boxMaterial", scene);
-    var boxMaterialUrl = hostUrl + 'walnut-fine-wood.jpg'; 
-    boxMaterial.diffuseTexture = new BABYLON.Texture(boxMaterialUrl,scene);
+    var boxMaterialUrl = hostUrl + 'melamine001.jpg'; 
+    boxMaterial.diffuseTexture = new BABYLON.Texture(boxMaterialUrl, scene);
+    boxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
     //boxMaterial.ambientTexture = new BABYLON.Texture(boxMaterialUrl,scene);
     
     return boxMaterial; 
