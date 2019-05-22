@@ -2146,7 +2146,7 @@ function importStackAccesories(scene, asstype, cubeNameId, specificcubeNum) {
         if (cubePrefixInt%2 == 0) {
             // if this cube is either B2,B4,B6 , use this formulae to determine x pos rel to cube CoG
             var xposMesh = cubePos[0] + ((specificcubeNum - ((cubePrefixInt/2) + 0.5))*boxgridWidth); 
-
+ 
         } 
         else if (cubePrefixInt%2 > 0) {
             // else if the cube is either B1,B3,B5, use this formulae to determine x pos rel to cube CoG
