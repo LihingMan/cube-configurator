@@ -21,7 +21,7 @@ var baseIndex = 0;
 
 var basecubeName; // used to identify which cube to import accessory to
 var basePrices = [["B1", 7.6], ["B2", 10.9], ["B3", 14.5], ["B4", 18.5], ["B5", 22.4], ["B6", 26.3]]; // in USD
-//var basePrices = [["B1", 50], ["B2", 50], ["B3", 50.5], ["B4", 50.5], ["B5", 50.4], ["B6", 50.3]]; // in USD
+
 var totalBasecubes;
 
 /*
@@ -41,19 +41,21 @@ var stackAccesoryPos = [];
 var stackIndex = 0; 
 
 var stackcubeName; // used to identify which cube to import accessory to and that this may be referred to outside this js file
+
 var totalStackcubes; // for purpose of price calc to pass to html
+
 var stackPrices = [["E1", 6.3], ["E2", 8.8], ["E3", 10.6], ["E4", 13.5], ["E5", 16.2], ["E6", 19],
                     ["E43", 6.3], ["E53", 8.8], ["E54", 10.6], ["E63", 13.5], ["E64", 16.2], ["E65b", 19],["E65a", 19], // not yet updated prices for composite stack
                     ]; // in USD
-                    /*
-var stackPrices = [["E1", 50.3], ["E2", 50.8], ["E3", 50.6], ["E4", 50.5], ["E5", 50.2], ["E6", 50],
-                    ["E43", 50.3], ["E53", 50.8], ["E54", 50.6], ["E63", 50.5], ["E64", 50.2], ["E65b", 50],["E65a", 50], // not yet updated prices for composite stack
-                    ]; // in USD*/
+
 // define x coord of cubes per row from left to right 1,2,3,4,5,6 positions on the grid 
 var x_coord_definition = [1.20175, 1.59525, 1.98875, 2.38225, 2.77575, 3.16925];
 
 // define pattern of the composite stackcubes which we call planks here 
 var stackplankConfig = [["E43",'1001'], ["E53", '10001'], ["E54", '11001'], ["E63",'100001'], ["E64",'110001'], ["E65b", '110011'], ["E65a",'111001'], ["RE54", '10011'], ["RE64", '100011'], ["RE65a", '100111']];
+
+var plankIndex = 0;
+var plankcubeName;
 
 // NEW logic for stack cube planks
 var stackplankVertTrack = []; // stores stack cube vertical position , to limit one composite stack cube per level 
@@ -84,6 +86,11 @@ var totalBaseAccessories;
 var totalStackAccessories;
 
 var button_vert_Position;
+
+var plank_marker = [0, 0, 0, 0, 0, 0];
+
+// define the mathematical grid to arrange cubes. call once only!
+var gridMat = gridEngine();
 
 // Check if  browser supports webGL
 if (BABYLON.Engine.isSupported()) {
@@ -138,54 +145,56 @@ function createRoomScene() {
 
      console.log('[INFO] Room mesh created by computation');
      console.log('[INFO] Cube mesh imported as babylon files');
-	
-	// create the scene 
-	var scene = new BABYLON.Scene(engine);
-     
-    // camera
-    var camera = createCamera(scene); 
 
-	// light (sun directional)
-	createLights(scene); 
+     // create the scene 
+     var scene = new BABYLON.Scene(engine);
 
-	// create the floor
-	createFloor(scene); 
+     // camera
+     var camera = createCamera(scene); 
 
-	// create the walls with windows 
-	createWalls_Winds(scene); 
-	
-	// create the roof 
-	createRoof(scene); 
+     // light (sun directional)
+     createLights(scene); 
 
-	// create the outdoor env --> skybox!
-    createOutdEnv(scene); 
-    
-    // define the mathematical grid to arrange cubes. call once only!
-    var gridMat = gridEngine(); 
+     // create the floor
+     createFloor(scene); 
 
-    // Load base cubes and enable modifications to the base cubes 
-    importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0, 'init');
+     // create the walls with windows 
+     createWalls_Winds(scene); 
 
-    window.addEventListener("importAccessoryBase", function(){
-        var specificcubeNum = id;
-        
-        importBaseAccesories(scene, asstype, basecubeName, specificcubeNum);
-        
-    });
+     // create the roof 
+     createRoof(scene); 
 
-    window.addEventListener("importAccessoryStack", function(){
-     var specificcubeNum = id;
-     
-     importStackAccesories(scene, asstype, stackcubeName, specificcubeNum);
-     
- });
+     // create the outdoor env --> skybox!
+     createOutdEnv(scene);  
 
-    window.addEventListener("saveScene", function() {
-        BABYLON.Tools.CreateScreenshotUsingRenderTarget(engine, camera, 800); // download the room scene as png
-    });
+     // Load base cubes and enable modifications to the base cubes 
+     importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0, 'init');
 
-    // finally ... 
-    return scene; 
+     window.addEventListener("importAccessoryBase", function(){
+          var specificcubeNum = id;
+          
+          importBaseAccesories(scene, asstype, basecubeName, specificcubeNum); 
+     });
+
+     window.addEventListener("importAccessoryStack", function(){
+          var specificcubeNum = id;
+
+          importStackAccesories(scene, asstype, stackcubeName, specificcubeNum);
+
+     });
+
+     window.addEventListener("importAccessoryPlank", function(){
+          var specificcubeNum = id;
+          
+          importPlankAccesories(scene, asstype, plankcubeName, specificcubeNum); 
+     });
+
+     window.addEventListener("saveScene", function() {
+          BABYLON.Tools.CreateScreenshotUsingRenderTarget(engine, camera, 800); // download the room scene as png
+     });
+
+     // finally ... 
+     return scene; 
 }
 
 // ----------------------------------------------------------------------------------------------------------------
@@ -500,7 +509,7 @@ function meshSelectControl (scene, meshObj, color) {
             if (color=='1') {
                 hl.addMesh(mesh, BABYLON.Color3.Blue());
 
-            } else if (color=='2') {
+            } else if (color=='2' || color=='3') {
                 hl.addMesh(mesh, BABYLON.Color3.Green());
             } else {
                 console.log("ERROR - Color not supported!"); 
@@ -524,9 +533,7 @@ function meshSelectControl (scene, meshObj, color) {
             if (color == '1') {
                 // then update global base cube id tracking (integer)
                 baseIndex =  parseInt(meshID.slice(1));
-                // baseIndex =  basecubeArray[parseInt(meshID.slice(1))];
-                // baseIndex = parseInt(baseIndex.slice(1));
-                // console.log(baseIndex)
+
                 basecubeName = meshID;
 
                 // and make the base cube event
@@ -541,6 +548,14 @@ function meshSelectControl (scene, meshObj, color) {
                 // fire up an event to be picked up from the jquery for dom manipulation
                 // in this case, its popping up a modal upon click of a particular mesh
                 makeEvent("popupStack");
+
+            } else if (color=='3'){
+
+               plankIndex = parseInt(meshID.slice(2));
+
+               plankcubeName = meshID;
+
+               makeEvent("popupPlank");
             }
     })
    );
@@ -1167,6 +1182,7 @@ function btn_BaseHorInit (scene, gridMat, rx_target,cy_target, btnName) {
                btn_Stack(scene, gridMat, rx_target+1, cy_target, btnName);
           }
           
+          
      });
 
      advancedTexture.addControl(button);
@@ -1295,14 +1311,20 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
      // set a flag to determine if the user wants to import a plank cube
      var flag = false;
 
+     // reset the value of the plank markers
+     plank_marker = [0, 0, 0, 0, 0, 0];
+
      // search for the first and last occurence of 1 in hor_coords_marker
      for (var i=0; i<hor_coords_marker.length; i++) {
-         if (hor_coords_marker[i] != 1) {
-              continue;
-         }
+          if (hor_coords_marker[i] != 1) {
+               continue;
+          }
           if (first == -1) {
                first = i 
-          }  
+          }
+          if (hor_coords_marker[i] == 1)   {
+               plank_marker[i] = 1;
+          }
           last = i 
      }
      
@@ -1319,8 +1341,6 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
      
      // but to use power of 'indexOf' this needs to be a string so transform array into String, and then remove the ','
      // hor_coords_marker = String(hor_coords_marker).replace(/,/g , ''); 
-     // console.log(hor_coords_marker)
-     //console.log(hor_coords_marker); // it works! now its a string 
 
      holder = String(holder).replace(/,/g , ''); 
 
@@ -1397,7 +1417,6 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
           }
      }
      
-
      // next, remove the plus signs underneath the imported stack plank 
      if (name != null && flag) {
           for (var i=first; i<last+1; i++) {
@@ -1427,7 +1446,6 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
 function importPlankStackCubes_SUPP(scene, gridMat, x, y, plankstackprefix) {
      var reverse = false;
 
-     
      // name of cube to be imported
      // check if it is the reverse of a stack plank or not
      if (plankstackprefix[0] == "R") {
@@ -1444,6 +1462,7 @@ function importPlankStackCubes_SUPP(scene, gridMat, x, y, plankstackprefix) {
 
           // dirty hack to get around not being able to assign name and id to mesh
           var plankstackMesh = newMeshes[0]; 
+          
           plankstackMesh.id = String('ES' + stackcubeCtr); 
           
           plankstackMesh.name = String('ES' + stackcubeCtr); 
@@ -1461,14 +1480,13 @@ function importPlankStackCubes_SUPP(scene, gridMat, x, y, plankstackprefix) {
                plankstackMesh.rotation.z = radians;
           }
           
-          
           // define mesh material
           var boxMaterial = createboxMaterial(scene); 
           plankstackMesh.material = boxMaterial;
 
           // update global counter for stack cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
           stackcubeArray.push(plankstackprefix);
-          
+
           stackcubePos.push([x, y, plankstackMesh.position.z]); // push grid position in stackcubePos array as an array of 3 elements x,y,z 
           
           stackcubeCtr = stackcubeCtr + 1;
@@ -1479,6 +1497,7 @@ function importPlankStackCubes_SUPP(scene, gridMat, x, y, plankstackprefix) {
           stackAccesoryArray.push(new Array(intprefix).fill(0)); // on initial import of a cube mesh, there is no accesory, so initialize zero array
           stackAccesoryPos.push(new Array(intprefix).fill(0)); 
 
+          meshSelectControl (scene, plankstackMesh,'3');
           // update price after importing an extra cube
           // var curprice = calcPrice(stackPrices, stackcubeArray);
           // totalStackcubes = curprice;
@@ -1830,6 +1849,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
 
                     // give the mesh a unique ID (do this for every 'if'). since this is base cube, it is B1 B2 B3 B4 .. BN
                     stackMesh.id = String('E' + stackcubeCtr); 
+                    
                     stackMesh.name = String('E' + stackcubeCtr); 
 
                     // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
@@ -1930,8 +1950,10 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
           // if there is a plank directly above the stack cubes, don't move the stack button
           // if the stack cube is not under a plank, don't spawn a button
           
-          importStackCubes(scene, gridMat, rx_target, cy_target, "E1");
-          if (!plankAbove || btnName >= plankInt) {
+          importStackCubes(scene, gridMat, rx_target, cy_target, "E1"); 
+
+          if (!plankAbove || btnName >= plankInt || btnName <= plankInt) {
+               
                button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target+1][cy_target][1], 0), scene); 
                rx_target += 1; // increment the row number  
           }
@@ -1939,7 +1961,6 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
                button.dispose();
           }
 
-           
      });
 
      var eventName = "delete" + btnName;
@@ -2091,10 +2112,10 @@ function importStackAccesories(scene, asstype, cubeNameId, specificcubeNum) {
     // } 
     // get the cube integer unique number
     cubemeshInd = parseInt(cubeNameId.slice(1)); 
-
+    
     // get the target cube mesh coords pos (remmember, cubePos is an array of 3 elements x y z)
     var cubePos = stackcubePos[cubemeshInd]; // this will be the base position for any assceory imports
-
+    
     // get the target cube mesh prefix (only interested in the number 1-6 for B1-B6)
 
     var cubePrefixInt = parseInt(stackcubeArray[cubemeshInd].slice(1)); 
@@ -2115,10 +2136,10 @@ function importStackAccesories(scene, asstype, cubeNameId, specificcubeNum) {
         var boxMaterial = createboxMaterial(scene); 
         assMesh.material = boxMaterial;
         
-        // naming convention for accesories stack cube mesh BX<int> i.e. BXS1, BXS2, BXS3, BXS4 ... for X shelve
+        // naming convention for accesories stack cube mesh SX<int> i.e. SXS1, SXS2, SXS3, SXS4 ... for X shelve
         // where <int> refers to the associated cube mesh unique index 
-        assMesh.name = 'B' + asstype + String(cubemeshInd); 
-        assMesh.id = 'B' + asstype + String(cubemeshInd); 
+        assMesh.name = 'S' + asstype + String(cubemeshInd); 
+        assMesh.id = 'S' + asstype + String(cubemeshInd); 
         
         // here, compute the x position of the imported accesory 
         // NOTE SEE TO-DO below.
@@ -2159,3 +2180,113 @@ function importStackAccesories(scene, asstype, cubeNameId, specificcubeNum) {
         makeEvent("priceUpdate");
     });
 }
+
+function importPlankAccesories(scene, asstype, cubeNameId, specificcubeNum) {
+
+     // accesories management for base cubes only
+ 
+     // here, args type is a string to identify which accesory is being imported. 
+     //            cubeNameId is a string identifying id of associated cube , which contains its array tracker index! 
+     //            cubeType is a string whether or not it is 'stack' or 'base' 
+     //            specificcubeNum is an integer specifying which cube of a composite cube is being referred to
+     //             ..... (this can be taken any integer between 1-6 i.e. cube 1 - cube 6 for B6, so on so forth)
+ 
+     if (asstype == 'XS') { // X shelve
+           var assmeshImp = 'Xshelve.babylon'; // this name has to be same as the mesh file from cdn
+      } else if (asstype == 'SS') { // Single shelve
+           var assmeshImp = 'singleshelve.babylon';
+      } else if  (asstype == 'DS') { // Double shelve
+           var assmeshImp = 'doubleshelve.babylon'; 
+      } else if (asstype == 'NS') { // nine box shelve
+           var assmeshImp = 'nineboxshelve.babylon'; 
+      } else if (asstype == 'SB') { // six box shelve
+           var assmeshImp = 'sixboxshelve.babylon'; 
+     } 
+     // else if (asstype == 'DD') { // six box shelve
+      // 	var assmeshImp = 'doubledrawer.babylon'; // continue on...until all accesory is covered
+     // } else if (asstype == 'TA') { // six box shelve
+      // 	var assmeshImp = 'table.babylon'; // continue on...until all accesory is covered
+     // } else if (asstype == 'DO') { // six box shelve
+      // 	var assmeshImp = 'door.babylon'; // continue on...until all accesory is covered
+     // } 
+     // get the cube integer unique number
+     cubemeshInd = parseInt(cubeNameId.slice(2)); 
+     
+     // get the target cube mesh coords pos (remmember, cubePos is an array of 3 elements x y z)
+     var cubePos = stackcubePos[cubemeshInd]; // this will be the base position for any assceory imports
+ 
+     // get the target cube mesh prefix (only interested in the number 1-6 for B1-B6)
+     var cubePrefixInt = parseInt(stackcubeArray[cubemeshInd].slice(1)); 
+     
+     // console.log(cubeNameId, stackcubeArray[cubemeshInd])
+
+     // simple sanity check 
+     if (specificcubeNum > cubePrefixInt) {
+          console.log('[ERROR] Specific cube position cannot be larger than stack cube prefix int');
+          return 0; 
+     }
+ 
+     console.log("[INFO] Imported accesory mesh"); 
+ 
+     BABYLON.SceneLoader.ImportMesh("", hostUrl, assmeshImp, scene, 
+     function (assMesh) {
+          var assMesh = assMesh[0]; // get the mesh object 
+ 
+          // define mesh material
+          var boxMaterial = createboxMaterial(scene); 
+          assMesh.material = boxMaterial;
+          
+          // naming convention for accesories stack cube mesh PX<int> i.e. PXS1, PXS2, PXS3, PXS4 ... for X shelve
+          // where <int> refers to the associated cube mesh unique index 
+          assMesh.name = 'P' + asstype + String(cubemeshInd); 
+          assMesh.id = 'P' + asstype + String(cubemeshInd); 
+          
+          // find out which cube in the scene the user wants to import the mesh to
+          var whichCube = findIndex(plank_marker, 1, specificcubeNum);
+
+          if (whichCube >= 0) {
+               var xpos = gridMat[whichCube][whichCube][0];
+
+               assMesh.position.x = xpos;
+               assMesh.position.y = cubePos[1];
+               assMesh.position.z = cubePos[2];
+               assMesh.rotation.y = Math.PI/2;
+               
+               // register the mesh for actions
+               assMesh.actionManager = new BABYLON.ActionManager(scene); 
+
+               // update base accesory arrays at their respective specific cubes position
+               // recall that specificcubeNum is the cube prefix int from 1-6 for B1-B6. so in terms of index, it is 0-5
+               stackAccesoryArray[cubemeshInd][specificcubeNum - 1] = asstype;
+               stackAccesoryPos[cubemeshInd][specificcubeNum - 1] = [[xpos], [cubePos[1]], [cubePos[2]]]; 
+               
+               // update price after importing an extra cube
+               var curprice = 0;
+
+               for (var i=0; i<stackAccesoryArray.length; i++) {
+                    curprice += calcPrice(accessoryPrices, stackAccesoryArray[i]);
+               }
+
+               totalStackAccessories = curprice;
+
+               makeEvent("priceUpdate");
+          }
+          
+          // position the accesory mesh at base cube 
+  
+     });
+ }
+
+ function findIndex(array, subject, occurence){
+     var counter = 0;
+     for (var i=0; i<array.length; i++){
+          if (array[i] == subject) {
+               counter += 1;
+               
+               if (counter == occurence) {
+                    return i;
+               }
+          }    
+     }
+     return -1;
+ }

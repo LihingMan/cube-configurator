@@ -143,9 +143,9 @@
 
                 // this is for the stack cube manipulation popup
                 window.addEventListener("popupStack", function(){  
-                    // get the active base cube accesory array
+                    // get the active stack cube accesory array
                     var activeAssArr = stackAccesoryArray[stackIndex]; // note this should equal to the integer of each cube i.e. 6 for B6 etc
-                    
+                    // console.log(activeAssArr.length)
                     // init the render to html dropdown selection
                     // idea is to use the global accesory tracker which is always updated in the main logic upon import of accesory
                     var cubelistHTML = ''; 
@@ -197,6 +197,60 @@
                     $('#pop-up-modal').modal(); // show modal
                                        
                 });
+
+                window.addEventListener("popupPlank", function(){
+                    var activeAssArr = stackAccesoryArray[plankIndex]; // note this should equal to the integer of each cube i.e. 6 for B6 etc
+
+                    // init the render to html dropdown selection
+                    // idea is to use the global accesory tracker which is always updated in the main logic upon import of accesory
+                    var cubelistHTML = ''; 
+                    // basically, we only want those which have not been rendered to be available for selection
+                    for (var i=0; i < activeAssArr.length; i++) {
+                        if (activeAssArr[i] != 0) {
+                            // meaning a particular cube is not empty,
+                            continue // continue to next iter
+                        } else {
+                            // if it is zero, meaning it is empty so we populate the cubelist array with the cube number specific location
+                            cubelistHTML = cubelistHTML + `<a class="dropdown-item" id="${i+1}">Stack cube ${i+1}</a>`
+                            // later, jquery, on click dropdown-item, we get its id, then use this as input into the import accesory arg - specificcubeNum
+                        }
+                    }
+                    for (var i=0; i < accesoryList[0].length; i++) {
+                        // we then simply pass the logic filtered values into the string
+                        $("#contentAss").append (
+                            ` 
+                            <div class="card text-center">
+                                <img class="card-img-top" src="">
+                                <div class="card-body">
+                                    <h5 class="card-title"></h5>
+                                    <p class="card-text">${accesoryList[1][i]}</p>
+                                    <div class="dropdown">
+                                        <button type="button" href="#" class="btn btn-sm btn-outline-dark dropdown-toggle" data-toggle="dropdown" id='${accesoryList[0][i]}'>Add to..</button>
+                                        <div class="dropdown-menu">
+                                            ${cubelistHTML}
+                                        </div>
+                                    </div>  
+                                </div>
+                            </div>    
+                            `
+                        );
+                    }   
+
+                    // this is to identify which accessory to import
+                    $(".dropdown-toggle").click(function(){
+                        asstype = this.id;
+                    });
+
+                    // import the identified accessory to the selected cube
+                    $(".dropdown-item").click(function(){
+                        id = parseInt(this.id); // id of selected cube
+                        makeEvent("importAccessoryPlank");
+                        $('#pop-up-modal').modal("hide"); // close modal after choosing accessory
+                    });
+
+                    $('#pop-up-modal').modal(); // show modal
+                                   
+                }); 
 
                 // reset modal when hidden from view so buttons can change dynamically based on which cube is selected
                 $(".modal").on("hidden.bs.modal", function(){
