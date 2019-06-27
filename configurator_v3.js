@@ -1149,7 +1149,7 @@ function btn_BaseHorInit (scene, gridMat, rx_target,cy_target, btnName) {
           // remove the button and in its place, put the base cube B1
           // var TOL = 0.08;
           var plankAbove = false;
-          var plankInt = 0;
+          
           button.dispose(); 
 
           importBaseCubes(scene,gridMat,'B1',rx_target,cy_target,'nextLOGIC'); 
@@ -1161,14 +1161,25 @@ function btn_BaseHorInit (scene, gridMat, rx_target,cy_target, btnName) {
                               // check if the plank stack cube is directly above the base cubes
                               // if it is not, then the stack buttons are imported after the base buttons are pressed
                               
+                              
                               if (stackcubePos[i][1] >= BASE_CUBE_YCOORD+(boxgridWidth*2)) {
                                    continue;
                               }
                               // if there is a plank stack cube directly above the buttons, don't import the stack cube buttons
                               else {
-                                   var name = stackplankConfig[j][0]
-                                   plankInt = parseInt(name[1]); // plankInt is to determine how many buttons are underneath the plank
-                                   plankAbove = true;
+                                   var name = stackplankConfig[j][0];
+                                   var plankSize = parseInt(name[1]);
+                                   var plankCoor = stackcubePos[i][0];
+                                   var halfplankLength = (plankSize*boxgridWidth)/2;
+
+                                   // get the left most and right most coordinates of the plank
+                                   var low = plankCoor - halfplankLength;
+                                   var high = plankCoor + halfplankLength;
+                                   
+                                   // don't spawn the buttons which are underneath the plank
+                                   if (gridMat[rx_target][cy_target][0] >= low && gridMat[rx_target][cy_target][0] <= high){
+                                        plankAbove = true;
+                                   }
                                    break;
                               }
                          }
@@ -1176,9 +1187,10 @@ function btn_BaseHorInit (scene, gridMat, rx_target,cy_target, btnName) {
                }
           }
           
+          
           // if there is a plank directly above the base cubes, don't spawn a stack button
           // if the base cube is not under a plank, spawn a stack button
-          if (!plankAbove || btnName >= plankInt) {
+          if (!plankAbove) {
                btn_Stack(scene, gridMat, rx_target+1, cy_target, btnName);
           }
           
@@ -1350,6 +1362,21 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
      // store all matches in a nested array matches
      var matches = []; // stores all possible composite stack cube in that row 
      var name;
+     var plankExist = false;
+
+     // check if there is a plank on the level I wanna import a plank on
+     // only one plank may be on one level thus no plank is imported if there is already a plank on the level
+     for (var i=0; i<stackcubeArray.length; i++) {
+          if (stackcubeArray[i] != 0) {
+               for (var j=0; j<stackplankConfig.length; j++) {
+                    if (stackcubeArray[i] == stackplankConfig[j][0]) {
+                         if (stackcubePos[i][1] <= vert_coord_import+0.08 && stackcubePos[i][1] >= vert_coord_import-0.08) {
+                              plankExist = true;
+                         }
+                    }
+               }
+          }
+     }
 
      // loop through stackplankConfig and find the matches 
      for (var i = 0; i < stackplankConfig.length; i++) {
@@ -1367,13 +1394,14 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
           else {
                indMatch = -1; 
           }
-
           // only if match later then get the name to populate stackcube
           if (indMatch != -1) {
                name  = stackplankConfig[i][0];
           }
 
-          if (name != null) {
+          
+
+          if (name != null && !plankExist) {
                if (confirm("Import a plank?")) {
                     
                     // console.log(stackcubeArray)
@@ -1932,15 +1960,25 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
                          if (stackcubeArray[i] == stackplankConfig[j][0]) {
                               // check if the plank stack cube is directly above the base cubes
                               // if it is not, then the stack buttons are imported after the base buttons are pressed
-                              if (stackcubePos[i][1] >= stack_cube_ycoord+(boxgridWidth*2) || stackcubePos[i][1] < stack_cube_ycoord) {
+                              // if the plank is two times higher than the width of the box or if the plank is lower than the coordinates of the box, then the plank is not directly above
+                              if (stackcubePos[i][1] >= stack_cube_ycoord+(boxgridWidth*2) || stackcubePos[i][1] <= stack_cube_ycoord) {
                                    continue;
                               }
                               // if there is a plank stack cube directly above the buttons, don't import the stack cube buttons
                               else {
                                    var name = stackplankConfig[j][0];
-                                   plankInt = parseInt(name[1]); // plankInt is to determine how many buttons are underneath the plank
-                                   plankAbove = true;
-                                   break;
+                                   var plankSize = parseInt(name[1]);
+                                   var plankCoor = stackcubePos[i][0];
+                                   var halfplankLength = (plankSize*boxgridWidth)/2;
+
+                                   // get the left most and right most coordinates of the plank
+                                   var low = plankCoor - halfplankLength;
+                                   var high = plankCoor + halfplankLength;
+                                   
+                                   // don't spawn the buttons which are underneath the plank
+                                   if (gridMat[rx_target][cy_target][0] >= low && gridMat[rx_target][cy_target][0] <= high){
+                                        plankAbove = true;
+                                   }
                               }
                          }
                     }
@@ -1951,9 +1989,8 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
           // if the stack cube is not under a plank, don't spawn a button
           
           importStackCubes(scene, gridMat, rx_target, cy_target, "E1"); 
-
-          if (!plankAbove || btnName >= plankInt || btnName <= plankInt) {
-               
+          console.log(plankInt)
+          if (!plankAbove) {
                button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target+1][cy_target][1], 0), scene); 
                rx_target += 1; // increment the row number  
           }
@@ -2289,4 +2326,13 @@ function importPlankAccesories(scene, asstype, cubeNameId, specificcubeNum) {
           }    
      }
      return -1;
+ }
+
+ // remove all zeroes from an array
+ function cleanUp(array) {
+     for (var i=array.length-1; i>= 0; i--){
+          if (array[i] === 0) {
+               array.splice(i, 1);
+          }
+     }
  }
