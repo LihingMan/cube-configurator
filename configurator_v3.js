@@ -137,7 +137,7 @@ function mainApp() {
      window.addEventListener("resize", function () {
           engine.resize();
      });
- }
+}
 
 // create the room scene which will be served to the user
 // Useful --> https://playground.babylonjs.com/#4G18GY#7 --> extruded polygon
