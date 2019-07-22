@@ -1730,7 +1730,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                         for (var i=0; i<baseAccesoryArray.length; i++) {
                             if (stackAccesoryArray[RightExistCubeInd][i] != 0 && stackAccesoryArray[RightExistCubeInd][i] != null) {
                                 var accessoryID = stackAccesoryArray[RightExistCubeInd][i];
-                                accessoryID = "B" + accessoryID + String(RightExistCubeInd);
+                                accessoryID = "S" + accessoryID + String(RightExistCubeInd);
                                 var getaccessoryObj = scene.getMeshByID(accessoryID);
                                 getaccessoryObj.dispose(); 
                                 getaccessoryObj = null;
@@ -1755,7 +1755,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                         for (var i=0; i<baseAccesoryArray.length; i++) {
                             if (stackAccesoryArray[LeftExistCubeInd][i] != 0 && stackAccesoryArray[LeftExistCubeInd][i] != null) {
                                 var accessoryID = stackAccesoryArray[LeftExistCubeInd][i];
-                                accessoryID = "B" + accessoryID + String(LeftExistCubeInd);
+                                accessoryID = "S" + accessoryID + String(LeftExistCubeInd);
                                 var getaccessoryObj = scene.getMeshByID(accessoryID);
                                 getaccessoryObj.dispose(); 
                                 getaccessoryObj = null;
@@ -1804,7 +1804,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                                    for (var i=0; i<stackAccesoryArray.length; i++) {
                                         if (stackAccesoryArray[RightExistCubeInd][i] != 0 && stackAccesoryArray[RightExistCubeInd][i] != null) {
                                              var accessoryID = stackAccesoryArray[RightExistCubeInd][i];
-                                             accessoryID = "B" + accessoryID + String(RightExistCubeInd);
+                                             accessoryID = "S" + accessoryID + String(RightExistCubeInd);
                                              var getaccessoryObj = scene.getMeshByID(accessoryID);
                                              getaccessoryObj.dispose(); 
                                              getaccessoryObj = null;
@@ -1832,7 +1832,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                                    for (var i=0; i<baseAccesoryArray.length; i++) {
                                         if (stackAccesoryArray[LeftExistCubeInd][i] != 0 && stackAccesoryArray[LeftExistCubeInd][i] != null) {
                                              var accessoryID = stackAccesoryArray[LeftExistCubeInd][i];
-                                             accessoryID = "B" + accessoryID + String(LeftExistCubeInd);
+                                             accessoryID = "S" + accessoryID + String(LeftExistCubeInd);
                                              var getaccessoryObj = scene.getMeshByID(accessoryID);
                                              getaccessoryObj.dispose(); 
                                              getaccessoryObj = null;
