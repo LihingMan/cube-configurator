@@ -54,6 +54,9 @@ var x_coord_definition = [1.20175, 1.59525, 1.98875, 2.38225, 2.77575, 3.16925];
 // define pattern of the composite stackcubes which we call planks here 
 var stackplankConfig = [["E43",'1001'], ["E53", '10001'], ["E54", '11001'], ["E63",'100001'], ["E64",'110001'], ["E65b", '110011'], ["E65a",'111001'], ["RE54", '10011'], ["RE64", '100011'], ["RE65a", '100111']];
 
+// list of plank configurations that can have a table
+var tableReady = [["E54", '11001'], ["E64",'110001'], ["E65b", '110011'], ["E65a",'111001'], ["RE54", '10011'], ["RE64", '100011'], ["RE65a", '100111']];
+
 var plankIndex = 0;
 var plankcubeName;
 
@@ -86,8 +89,6 @@ var totalBaseAccessories;
 var totalStackAccessories;
 
 var button_vert_Position;
-
-var plank_marker = [0, 0, 0, 0, 0, 0];
 
 // define the mathematical grid to arrange cubes. call once only!
 var gridMat = gridEngine();
@@ -162,7 +163,7 @@ function createRoomScene() {
      createWalls_Winds(scene); 
 
      // create the roof 
-     createRoof(scene); 
+    //  createRoof(scene); 
 
      // create the outdoor env --> skybox!
      createOutdEnv(scene);  
@@ -171,22 +172,22 @@ function createRoomScene() {
      importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0, 'init');
 
      window.addEventListener("importAccessoryBase", function(){
-          var specificcubeNum = id;
+          var importPos = id;
           
-          importBaseAccesories(scene, asstype, basecubeName, specificcubeNum); 
+          importBaseAccesories(scene, asstype, basecubeName, importPos); 
      });
 
      window.addEventListener("importAccessoryStack", function(){
-          var specificcubeNum = id;
+          var importPos = id;
 
-          importStackAccesories(scene, asstype, stackcubeName, specificcubeNum);
+          importStackAccesories(scene, asstype, stackcubeName, importPos);
 
      });
 
      window.addEventListener("importAccessoryPlank", function(){
-          var specificcubeNum = id;
+          var importPos = id;
           
-          importPlankAccesories(scene, asstype, plankcubeName, specificcubeNum); 
+          importPlankAccesories(scene, asstype, plankcubeName, importPos); 
      });
 
      window.addEventListener("saveScene", function() {
@@ -228,14 +229,14 @@ function createCamera(scene) {
      // note its coords are always defined in alpha, beta and radius .. https://doc.babylonjs.com/babylon101/cameras
      // Parameters: name, alpha, beta, radius, target position, scene 
      var camera = new BABYLON.ArcRotateCamera("camera", -Math.PI/2, Math.PI/2, 4, new BABYLON.Vector3(2,1.25,0), scene); 
-     // camera.attachControl(canvas, true);
+     camera.attachControl(canvas, true);
      // set limits to camera movement so users dont get disorganized  
-     // camera.lowerRadiusLimit = 4;
-     // camera.upperRadiusLimit = 4; 
-     // camera.lowerAlphaLimit = -1.8; // rmbr this is radians!  
-     // camera.upperAlphaLimit = -1.3; 
-     // camera.lowerBetaLimit = 1.35; 
-     // camera.upperBetaLimit = 1.75; 
+    //  camera.lowerRadiusLimit = 4;
+    //  camera.upperRadiusLimit = 4; 
+    //  camera.lowerAlphaLimit = -1.8; // rmbr this is radians!  
+    //  camera.upperAlphaLimit = -1.3; 
+    //  camera.lowerBetaLimit = 1.35; 
+    //  camera.upperBetaLimit = 1.75; 
 
      // totally deactivate panning (if developer requires to see beyond cube, comment this out in development)
      scene.activeCamera.panningSensibility = 0;
@@ -1214,105 +1215,105 @@ function btn_BaseHorInit (scene, gridMat, rx_target,cy_target, btnName) {
 // think of this as a 'modifier' to the E1-E6 imports. 
 // we only allow one composite stack cube per level 
 function importPlankCube(scene, importedStackMesh, gridMat) {
+	var plank_marker = [0, 0, 0, 0, 0, 0];
+	// where importedStackMesh is the newly imported stackcube mesh object
 
-     // where importedStackMesh is the newly imported stackcube mesh object
+	// define tolerance units in meters 
+	var TOL = 0.08; // 1mm , see if enough or not  
+	
+	// first, get the vertical coords of the newly imported mesh in terms of per cube 
+	var vert_coord_import = importedStackMesh.position.y;
 
-     // define tolerance units in meters 
-     var TOL = 0.08; // 1mm , see if enough or not  
-     
-     // first, get the vertical coords of the newly imported mesh in terms of per cube 
-     var vert_coord_import = importedStackMesh.position.y;
+	// breaking conditional statement 
+	// since we only allow one composite stack cube per level....
+	for (var i=0; i < stackplankVertTrack.length ; i++) {
+		if  (vert_coord_import + TOL >= stackplankVertTrack[i] && vert_coord_import - TOL <= stackplankVertTrack[i]) { 
+			// meaning if this levelrow contains composite stackcube 
+			return 0; // get out of this function 
+		} // else we continue onwards ...
+	}
 
-     // breaking conditional statement 
-     // since we only allow one composite stack cube per level....
-     for (var i=0; i < stackplankVertTrack.length ; i++) {
-          if  (vert_coord_import + TOL >= stackplankVertTrack[i] && vert_coord_import - TOL <= stackplankVertTrack[i]) { 
-               // meaning if this levelrow contains composite stackcube 
-               return 0; // get out of this function 
-          } // else we continue onwards ...
-     }
+	// if we continue onwards....
+	var hor_coords_marker = [0,0,0,0,0,0]; // initialize horizontal position markers for the row i.e. the [0,0,0,0,1,1]
 
-     // if we continue onwards....
-     var hor_coords_marker = [0,0,0,0,0,0]; // initialize horizontal position markers for the row i.e. the [0,0,0,0,1,1]
+	var cubeIDs = [];
+	// note that hor_coords_marker.length == x_coord_definition.length. this is a must. fatal error if not true
 
-     var cubeIDs = [];
-     // note that hor_coords_marker.length == x_coord_definition.length. this is a must. fatal error if not true
+	// next loop through all the stackcube positions and qualify their vertical coordinate
+	// at the same time, assign the binary position marker for the active row
+	// active row being the level of vert_coord_import, which is the current cube 
+	for (var i=0; i<stackcubePos.length; i++) {
 
-     // next loop through all the stackcube positions and qualify their vertical coordinate
-     // at the same time, assign the binary position marker for the active row
-     // active row being the level of vert_coord_import, which is the current cube 
-     for (var i=0; i<stackcubePos.length; i++) {
+		if (stackcubePos[i] != 0 && stackcubePos[i][1] == vert_coord_import) { // if it is not zero (zero means it has been previously deleted)
+			// only if the we have same row stackcubes then we consider them for further processing 
+			// only works for non first stackcube imports
 
-          if (stackcubePos[i] != 0 && stackcubePos[i][1] == vert_coord_import) { // if it is not zero (zero means it has been previously deleted)
-               // only if the we have same row stackcubes then we consider them for further processing 
-               // only works for non first stackcube imports
-
-               // get id of cube that is on the same row
-               var id = "E" + i;
-               cubeIDs.push(id);
-               var CHECK = stackcubeArray[i];
-               if (vert_coord_import + TOL >= stackcubePos[i][1] && vert_coord_import - TOL <= stackcubePos[i][1] && CHECK.length == 2) {
+			// get id of cube that is on the same row
+			var id = "E" + i;
+			cubeIDs.push(id);
+			var CHECK = stackcubeArray[i];
+			if (vert_coord_import + TOL >= stackcubePos[i][1] && vert_coord_import - TOL <= stackcubePos[i][1] && CHECK.length == 2) {
                     
-                    var sameRowCubeName = stackcubeArray[i]; // get the name of the stack cubes
-                    
-                    var sameRowCubeInt = parseInt(sameRowCubeName.slice(1)); 
-                    
-                    // this is center position of cube (REMINDER)
-                    var x_center = stackcubePos[i][0];  // get horizontal position of the stack cubes
+				var sameRowCubeName = stackcubeArray[i]; // get the name of the stack cubes
+				
+				var sameRowCubeInt = parseInt(sameRowCubeName.slice(1)); 
+				
+				// this is center position of cube (REMINDER)
+				var x_center = stackcubePos[i][0];  // get horizontal position of the stack cubes
 
-                    // if its E1, just push the coordinate of the mesh into the array
-                    if (sameRowCubeInt == 1) {
-                         // then find its position marker 
-                         for (var j=0; j < x_coord_definition.length; j++) {
-                              
-                              if (x_center + TOL >=  x_coord_definition[j] && x_center - TOL <= x_coord_definition[j]) {
-                                   // check if it is not marked yet
-                                   if (hor_coords_marker[j] == 0) {
-                                        // then we have found its position and hence should mark it at the array
-                                        hor_coords_marker[j] = 1; // marked! 
-                                   } else {
-                                        console.log("FATAL ERROR DUE TO OVERLAPPING CUBES"); 
-                                        return 0; // this is fatal error...meaning overlapping cubes! so get out of function
-                                   }
-                              }
-                         }
-                    }
+				// if its E1, just push the coordinate of the mesh into the array
+				if (sameRowCubeInt == 1) {
+					// then find its position marker 
+					for (var j=0; j < x_coord_definition.length; j++) {
+						
+						if (x_center + TOL >=  x_coord_definition[j] && x_center - TOL <= x_coord_definition[j]) {
+							// check if it is not marked yet
+							if (hor_coords_marker[j] == 0) {
+								// then we have found its position and hence should mark it at the array
+								hor_coords_marker[j] = 1; // marked! 
+							} else {
+								console.log("FATAL ERROR DUE TO OVERLAPPING CUBES"); 
+								return 0; // this is fatal error...meaning overlapping cubes! so get out of function
+							}
+						}
+					}
+				}
 
-                    // if its E2-E6
-                    // remmember we want to label all the individual cubes
-                    // this is actually quite an expensive loop, but we shall optimize later
-                    // seems that odd and even use the same logic
-                    else if (sameRowCubeInt > 1) {
+				// if its E2-E6
+				// remmember we want to label all the individual cubes
+				// this is actually quite an expensive loop, but we shall optimize later
+				// seems that odd and even use the same logic
+				else if (sameRowCubeInt > 1) {
 
-                         var localhorZero = x_center-(sameRowCubeInt*(boxgridWidth/1.95)); // zero horizontal coord wrt local cube  
-                         
-                         for (var j=0; j < sameRowCubeInt; j++) { 
+					var localhorZero = x_center-(sameRowCubeInt*(boxgridWidth/1.95)); // zero horizontal coord wrt local cube  
+					
+					for (var j=0; j < sameRowCubeInt; j++) { 
 
-                              // this means scanning the cube (looking towards it fpv) from left to right
-                              // left most being iter 0 and right most being iter cubeInt-1 
-                              if (j == 0) {
-                                   var x = localhorZero + (boxgridWidth/1.95);
-                              } else { // for other rightwards cubes just superimpose boxgridwidth
-                                   x = x + boxgridWidth;
-                              }
+						// this means scanning the cube (looking towards it fpv) from left to right
+						// left most being iter 0 and right most being iter cubeInt-1 
+						if (j == 0) {
+							var x = localhorZero + (boxgridWidth/1.95);
+						} else { // for other rightwards cubes just superimpose boxgridwidth
+							x = x + boxgridWidth;
+						}
 
-                              // match this to x_coord_definition array, do not reuse i since its nested use j
-                              for (var k=0; k < x_coord_definition.length; k++) {
-                                   if (x + TOL >=  x_coord_definition[k] && x - TOL <= x_coord_definition[k]) {
-                                        // then we have found its position and hence should mark it at the array
-                                        if (hor_coords_marker[k] == 0) {
-                                             hor_coords_marker[k] = 1; // marked! 
-                                        } else {
-                                             console.log("FATAL ERROR DUE TO OVERLAPPING CUBES"); 
-                                             return 0; // this is fatal error...meaning overlapping cubes! so get out of function with 0 code
-                                        }
-                                   }
-                              }
-                         }
-                    }
-               }
-          }
-     }
+						// match this to x_coord_definition array, do not reuse i since its nested use j
+						for (var k=0; k < x_coord_definition.length; k++) {
+							if (x + TOL >=  x_coord_definition[k] && x - TOL <= x_coord_definition[k]) {
+								// then we have found its position and hence should mark it at the array
+								if (hor_coords_marker[k] == 0) {
+										hor_coords_marker[k] = 1; // marked! 
+								} else {
+										console.log("FATAL ERROR DUE TO OVERLAPPING CUBES"); 
+										return 0; // this is fatal error...meaning overlapping cubes! so get out of function with 0 code
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
      
      // define a holder to hold the values derived from hor_coords_marker
      var holder = [];
@@ -1339,7 +1340,7 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
           }
           last = i 
      }
-     
+
      // then copy the contents from the first and last indexes of hor_coords_marker into holder
      // now holder will contain the configurations properly. i.e if hor_coords_marker were [0,1,0,0,1,0], then holder would be [1,0,0,1] so we can import E43
      if (first != last) {
@@ -1477,6 +1478,7 @@ function importPlankStackCubes_SUPP(scene, gridMat, x, y, plankstackprefix) {
      // name of cube to be imported
      // check if it is the reverse of a stack plank or not
      if (plankstackprefix[0] == "R") {
+          // remove the R so that we can import the plank
           plankstackprefix = plankstackprefix.slice(1);
           reverse = true;
      }
@@ -1511,6 +1513,11 @@ function importPlankStackCubes_SUPP(scene, gridMat, x, y, plankstackprefix) {
           // define mesh material
           var boxMaterial = createboxMaterial(scene); 
           plankstackMesh.material = boxMaterial;
+
+          // place back the R to the prefix if it is reversed
+          if (reverse) {
+               plankstackprefix = "R" + plankstackprefix;
+          }
 
           // update global counter for stack cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
           stackcubeArray.push(plankstackprefix);
@@ -1727,7 +1734,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                     getMeshObj_R = null; // can just ignore error msg from babylon due to this i.e. import error or some shit
                     
                     if (stackAccesoryArray[RightExistCubeInd] != 0) {
-                        for (var i=0; i<baseAccesoryArray.length; i++) {
+                        for (var i=0; i<stackAccesoryArray.length; i++) {
                             if (stackAccesoryArray[RightExistCubeInd][i] != 0 && stackAccesoryArray[RightExistCubeInd][i] != null) {
                                 var accessoryID = stackAccesoryArray[RightExistCubeInd][i];
                                 accessoryID = "S" + accessoryID + String(RightExistCubeInd);
@@ -1752,7 +1759,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                     getMeshObj_L = null;
                    
                     if (stackAccesoryArray[LeftExistCubeInd] != 0) {
-                        for (var i=0; i<baseAccesoryArray.length; i++) {
+                        for (var i=0; i<stackAccesoryArray.length; i++) {
                             if (stackAccesoryArray[LeftExistCubeInd][i] != 0 && stackAccesoryArray[LeftExistCubeInd][i] != null) {
                                 var accessoryID = stackAccesoryArray[LeftExistCubeInd][i];
                                 accessoryID = "S" + accessoryID + String(LeftExistCubeInd);
@@ -1794,58 +1801,71 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                     // apply this to left and right cubes individually
                     if (RightExistCubePrefix != '') {
                          
-                         var meshid_R = 'E' + String(RightExistCubeInd); 
-                         var getMeshObj_R = scene.getMeshByID(meshid_R);                            
-                         if (getMeshObj_R != null) {
-                              getMeshObj_R.dispose(); 
-                              getMeshObj_R = null; // can just ignore error msg from babylon due to this i.e. import error or some shit
+						var meshid_R = 'E' + String(RightExistCubeInd); 
+						var getMeshObj_R = scene.getMeshByID(meshid_R);                            
+						if (getMeshObj_R != null) {
+							getMeshObj_R.dispose(); 
+							getMeshObj_R = null; // can just ignore error msg from babylon due to this i.e. import error or some shit
 
-                              if (stackAccesoryArray[RightExistCubeInd] != 0) {
-                                   for (var i=0; i<stackAccesoryArray.length; i++) {
-                                        if (stackAccesoryArray[RightExistCubeInd][i] != 0 && stackAccesoryArray[RightExistCubeInd][i] != null) {
-                                             var accessoryID = stackAccesoryArray[RightExistCubeInd][i];
-                                             accessoryID = "S" + accessoryID + String(RightExistCubeInd);
-                                             var getaccessoryObj = scene.getMeshByID(accessoryID);
-                                             getaccessoryObj.dispose(); 
-                                             getaccessoryObj = null;
-                                        }
-                                   }
-                              }
-                              // remove from stackcube tracker arrays by setting null
-                              stackcubeArray[RightExistCubeInd] = 0; 
-                              stackcubePos[RightExistCubeInd] = 0; 
-                              stackAccesoryArray[RightExistCubeInd] = 0;  
-                              stackAccesoryPos[RightExistCubeInd] = 0;
-                         }
-                         
-                         
-                         //console.log("INFO - Obtained right neighbour cube mesh via id");
+							if (stackAccesoryArray[RightExistCubeInd] != 0) {
+								for (var i=0; i<stackAccesoryArray.length; i++) {
+									if (stackAccesoryArray[RightExistCubeInd][i] != 0 && stackAccesoryArray[RightExistCubeInd][i] != null) {
+											var accessoryID = stackAccesoryArray[RightExistCubeInd][i];
+											// if it is a table accessory, then the next index is also taken up by "TA", but since we have removed "TA" in this iteration, 
+											// set the next index to 0 to avoid trying to remove it again
+											// next index is also "TA" because a table takes the space of two cubes 
+											if (accessoryID === "TA") {
+												stackAccesoryArray[RightExistCubeInd][i+1] = 0;
+											}
+											accessoryID = "S" + accessoryID + String(RightExistCubeInd);
+											var getaccessoryObj = scene.getMeshByID(accessoryID);
+											getaccessoryObj.dispose(); 
+											getaccessoryObj = null;
+									}
+								}
+							}
+							// remove from stackcube tracker arrays by setting null
+							stackcubeArray[RightExistCubeInd] = 0; 
+							stackcubePos[RightExistCubeInd] = 0; 
+							stackAccesoryArray[RightExistCubeInd] = 0;  
+							stackAccesoryPos[RightExistCubeInd] = 0;
+						}
+						
+						
+						//console.log("INFO - Obtained right neighbour cube mesh via id");
                     } else if (LeftExistCubePrefix != '') {
-                         var meshid_L = 'E' + String(LeftExistCubeInd);
-                         var getMeshObj_L = scene.getMeshByID(meshid_L);
-                         if (getMeshObj_L != null) {
-                              getMeshObj_L.dispose(); 
-                              getMeshObj_L = null;
+						var meshid_L = 'E' + String(LeftExistCubeInd);
+						var getMeshObj_L = scene.getMeshByID(meshid_L);
+						if (getMeshObj_L != null) {
+							getMeshObj_L.dispose(); 
+							getMeshObj_L = null;
                               
-                              if (stackAccesoryArray[LeftExistCubeInd] != 0) {
-                                   console.log("here")
-                                   for (var i=0; i<baseAccesoryArray.length; i++) {
-                                        if (stackAccesoryArray[LeftExistCubeInd][i] != 0 && stackAccesoryArray[LeftExistCubeInd][i] != null) {
-                                             var accessoryID = stackAccesoryArray[LeftExistCubeInd][i];
-                                             accessoryID = "S" + accessoryID + String(LeftExistCubeInd);
-                                             var getaccessoryObj = scene.getMeshByID(accessoryID);
-                                             getaccessoryObj.dispose(); 
-                                             getaccessoryObj = null;
-                                        }
-                                   }
-                              }
-                              // remove from stackcube tracker arrays by setting null
-                              stackcubeArray[LeftExistCubeInd] = 0; 
-                              stackcubePos[LeftExistCubeInd] = 0;
-                              stackAccesoryArray[LeftExistCubeInd] = 0;  
-                              stackAccesoryPos[LeftExistCubeInd] = 0; 
-                              //console.log("INFO - Obtained left neighbour cube mesh via id");
-                         }
+							if (stackAccesoryArray[LeftExistCubeInd] != 0) {
+                                   
+								for (var i=0; i<stackAccesoryArray.length; i++) {
+									if (stackAccesoryArray[LeftExistCubeInd][i] != 0 && stackAccesoryArray[LeftExistCubeInd][i] != null) {
+										var accessoryID = stackAccesoryArray[LeftExistCubeInd][i];
+										// if it is a table accessory, then the next index is also taken up by "TA", but since we have removed "TA" in this iteration, 
+										// set the next index to 0 to avoid trying to remove it again
+										// next index is also "TA" because a table takes the space of two cubes 
+										if (accessoryID === "TA") {
+											stackAccesoryArray[LeftExistCubeInd][i+1] = 0;
+										}
+										accessoryID = "S" + accessoryID + String(LeftExistCubeInd);
+										var getaccessoryObj = scene.getMeshByID(accessoryID);
+										getaccessoryObj.dispose(); 
+										console.log("here")
+										getaccessoryObj = null;
+									}
+								}
+							}
+							// remove from stackcube tracker arrays by setting null
+							stackcubeArray[LeftExistCubeInd] = 0; 
+							stackcubePos[LeftExistCubeInd] = 0;
+							stackAccesoryArray[LeftExistCubeInd] = 0;  
+							stackAccesoryPos[LeftExistCubeInd] = 0; 
+							//console.log("INFO - Obtained left neighbour cube mesh via id");
+						}
                     
                     }
 
@@ -1989,7 +2009,7 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
           // if the stack cube is not under a plank, don't spawn a button
           
           importStackCubes(scene, gridMat, rx_target, cy_target, "E1"); 
-          console.log(plankInt)
+
           if (!plankAbove) {
                button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target+1][cy_target][1], 0), scene); 
                rx_target += 1; // increment the row number  
@@ -2020,14 +2040,14 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
  // -------------------------------------- ACCESORIES ----------------------------------------------- //
 
 // Accesories import for base cubes 
-function importBaseAccesories(scene, asstype, cubeNameId, specificcubeNum) {
+function importBaseAccesories(scene, asstype, cubeNameId, importPos) {
 
     // accesories management for base cubes only
 
     // here, args type is a string to identify which accesory is being imported. 
     //            cubeNameId is a string identifying id of associated cube , which contains its array tracker index! 
     //            cubeType is a string whether or not it is 'stack' or 'base' 
-    //            specificcubeNum is an integer specifying which cube of a composite cube is being referred to
+    //            importPos is an integer specifying which cube of a composite cube is being referred to
     //             ..... (this can be taken any integer between 1-6 i.e. cube 1 - cube 6 for B6, so on so forth)
 
     if (asstype == 'XS') { // X shelve
@@ -2059,7 +2079,7 @@ function importBaseAccesories(scene, asstype, cubeNameId, specificcubeNum) {
     var cubePrefixInt = parseInt(basecubeArray[cubemeshInd].slice(1)); 
     
     // simple sanity check 
-    if (specificcubeNum > cubePrefixInt) {
+    if (importPos > cubePrefixInt) {
         console.log('[ERROR] Specific cube position cannot be larger than base cube prefix int');
         return 0; 
     }
@@ -2083,13 +2103,13 @@ function importBaseAccesories(scene, asstype, cubeNameId, specificcubeNum) {
         // NOTE SEE TO-DO below.
         if (cubePrefixInt%2 == 0) {
             // if this cube is either B2,B4,B6 , use this formulae to determine x pos rel to cube CoG
-            var xposMesh = cubePos[0] + ((specificcubeNum - ((cubePrefixInt/2) + 0.5))*boxgridWidth); 
+            var xposMesh = cubePos[0] + ((importPos - ((cubePrefixInt/2) + 0.5))*boxgridWidth); 
 
         } 
         else if (cubePrefixInt%2 > 0) {
             // else if the cube is either B1,B3,B5, use this formulae to determine x pos rel to cube CoG
             // TO-DO: if both are exactly same formulae, just use one no need conditional...check properly first 
-            var xposMesh = cubePos[0] + ((specificcubeNum - ((cubePrefixInt/2) + 0.5))*boxgridWidth);
+            var xposMesh = cubePos[0] + ((importPos - ((cubePrefixInt/2) + 0.5))*boxgridWidth);
         }
         
         // position the accesory mesh at base cube 
@@ -2102,10 +2122,10 @@ function importBaseAccesories(scene, asstype, cubeNameId, specificcubeNum) {
         assMesh.actionManager = new BABYLON.ActionManager(scene); 
         
         // update base accesory arrays at their respective specific cubes position
-        // recall that specificcubeNum is the cube prefix int from 1-6 for B1-B6. so in terms of index, it is 0-5
+        // recall that importPos is the cube prefix int from 1-6 for B1-B6. so in terms of index, it is 0-5
         
-        baseAccesoryArray[cubemeshInd][specificcubeNum - 1] = asstype;
-        baseAccesoryPos[cubemeshInd][specificcubeNum - 1] = [[xposMesh],[cubePos[1]],[cubePos[2]]]; 
+        baseAccesoryArray[cubemeshInd][importPos - 1] = asstype;
+        baseAccesoryPos[cubemeshInd][importPos - 1] = [[xposMesh, cubePos[1], cubePos[2]]]; 
         console.log(baseAccesoryArray)
 
         var curprice = 0; 
@@ -2119,15 +2139,14 @@ function importBaseAccesories(scene, asstype, cubeNameId, specificcubeNum) {
     });
 }
 
-function importStackAccesories(scene, asstype, cubeNameId, specificcubeNum) {
+function importStackAccesories(scene, asstype, cubeNameId, importPos) {
 
     // accesories management for base cubes only
 
     // here, args type is a string to identify which accesory is being imported. 
     //            cubeNameId is a string identifying id of associated cube , which contains its array tracker index! 
     //            cubeType is a string whether or not it is 'stack' or 'base' 
-    //            specificcubeNum is an integer specifying which cube of a composite cube is being referred to
-    //             ..... (this can be taken any integer between 1-6 i.e. cube 1 - cube 6 for B6, so on so forth)
+    //            importPos is an integer specifying which position we want to import the accessory to.... 
 
     if (asstype == 'XS') { // X shelve
 		var assmeshImp = 'Xshelve.babylon'; // this name has to be same as the mesh file from cdn
@@ -2139,200 +2158,243 @@ function importStackAccesories(scene, asstype, cubeNameId, specificcubeNum) {
 		var assmeshImp = 'nineboxshelve.babylon'; 
 	} else if (asstype == 'SB') { // six box shelve
 		var assmeshImp = 'sixboxshelve.babylon'; 
-    } 
-    // else if (asstype == 'DD') { // six box shelve
-	// 	var assmeshImp = 'doubledrawer.babylon'; // continue on...until all accesory is covered
-    // } else if (asstype == 'TA') { // six box shelve
-	// 	var assmeshImp = 'table.babylon'; // continue on...until all accesory is covered
-    // } else if (asstype == 'DO') { // six box shelve
-	// 	var assmeshImp = 'door.babylon'; // continue on...until all accesory is covered
-    // } 
-    // get the cube integer unique number
-    cubemeshInd = parseInt(cubeNameId.slice(1)); 
-    
-    // get the target cube mesh coords pos (remmember, cubePos is an array of 3 elements x y z)
-    var cubePos = stackcubePos[cubemeshInd]; // this will be the base position for any assceory imports
-    
-    // get the target cube mesh prefix (only interested in the number 1-6 for B1-B6)
+     } else if (asstype == 'TA') { // table
+		var assmeshImp = 'table-singlemesh.babylon'; // continue on...until all accesory is covered
+     } 
 
-    var cubePrefixInt = parseInt(stackcubeArray[cubemeshInd].slice(1)); 
-    
-    // simple sanity check 
-    if (specificcubeNum > cubePrefixInt) {
-        console.log('[ERROR] Specific cube position cannot be larger than stack cube prefix int');
-        return 0; 
-    }
+	
+	
+	// get the cube integer unique number
+	cubemeshInd = parseInt(cubeNameId.slice(1)); 
 
+	// get the target cube mesh coords pos (remmember, cubePos is an array of 3 elements x y z)
+	var cubePos = stackcubePos[cubemeshInd]; // this will be the base position for any assceory imports
+	
+	// get the target cube mesh prefix (only interested in the number 1-6 for B1-B6)
+
+	var cubePrefixInt = parseInt(stackcubeArray[cubemeshInd].slice(1)); 
+	
+	// simple sanity check 
+	// if (importPos > cubePrefixInt) {
+	// 	console.log('[ERROR] Specific cube position cannot be larger than stack cube prefix int');
+	// 	return 0; 
+	// }
+	
     console.log("[INFO] Imported accesory mesh"); 
 
     BABYLON.SceneLoader.ImportMesh("", hostUrl, assmeshImp, scene, 
     function (assMesh) {
+		// the coordinates of the first stack cube level, and the tolerance level (used for checking)
+		var TOL = 0.08;
+		var firststackLvl = 0.685;
+
         var assMesh = assMesh[0]; // get the mesh object 
 
         // define mesh material
         var boxMaterial = createboxMaterial(scene); 
         assMesh.material = boxMaterial;
-        
-        // naming convention for accesories stack cube mesh SX<int> i.e. SXS1, SXS2, SXS3, SXS4 ... for X shelve
-        // where <int> refers to the associated cube mesh unique index 
-        assMesh.name = 'S' + asstype + String(cubemeshInd); 
-        assMesh.id = 'S' + asstype + String(cubemeshInd); 
-        
-        // here, compute the x position of the imported accesory 
-        // NOTE SEE TO-DO below.
-        if (cubePrefixInt%2 == 0) {
-            // if this cube is either B2,B4,B6 , use this formulae to determine x pos rel to cube CoG
-            var xposMesh = cubePos[0] + ((specificcubeNum - ((cubePrefixInt/2) + 0.5))*boxgridWidth); 
- 
-        } 
-        else if (cubePrefixInt%2 > 0) {
-            // else if the cube is either B1,B3,B5, use this formulae to determine x pos rel to cube CoG
-            // TO-DO: if both are exactly same formulae, just use one no need conditional...check properly first 
-            var xposMesh = cubePos[0] + ((specificcubeNum - ((cubePrefixInt/2) + 0.5))*boxgridWidth);
-        }
-        
-        // position the accesory mesh at base cube 
-        assMesh.position.x = xposMesh;
+		
+		assMesh.name = 'S' + asstype + String(cubemeshInd); 
+		assMesh.id = 'S' + asstype + String(cubemeshInd); 
 
-        assMesh.position.y = cubePos[1];
-        assMesh.position.z = cubePos[2];
-        assMesh.rotation.y = Math.PI/2;
+		// this is the case for importing tables
+		if (asstype === 'TA') {
+			if (cubePrefixInt > 1) { 
+				if (cubePos[1] >= firststackLvl-TOL && cubePos[1] <= firststackLvl+TOL){
+					var halfLength = (boxgridWidth*cubePrefixInt)/2;
+                         
+					// startCoord is the coordinates of the leftmost edge of the selected mesh
+					var startCoord = cubePos[0] - halfLength;
+					
+					// by using boxgridWidth multiplied with the Position chosen (Position 1, 2, 3), we know where to import the table because it is a multiple of boxgridWidth
+					// IMPORTANT : this is completely dependent on the html dropdown selection on the modal i.e Position 1, Position 2 etc
+					// If naming convention is changed then this method has to change appropriately
+					assMesh.position.x = startCoord + boxgridWidth*importPos;
+					assMesh.position.y = 0.37;
+					assMesh.position.z = -0.93;
+					assMesh.rotation.y = Math.PI/2;
+
+					// update stack accesory arrays at their respective specific cubes position
+					stackAccesoryArray[cubemeshInd][importPos - 1] = asstype;
+					stackAccesoryArray[cubemeshInd][importPos] = asstype;
+					stackAccesoryPos[cubemeshInd][importPos - 1] = [[assMesh.position.x, assMesh.position.y, assMesh.position.z]]; 
+					stackAccesoryPos[cubemeshInd][importPos] = [[assMesh.position.x, assMesh.position.y, assMesh.position.z]]; 
+				}
+			}
+			else {
+				alert("Minimum of 2 cubes together are needed for a table");
+				assMesh.dispose();
+				return;
+			}
+		}
+		
+		// case for all other accesories
+		else {
+			// here, compute the x position of the imported accesory 
+			// NOTE SEE TO-DO below.
+			var xposMesh = cubePos[0] + ((importPos - ((cubePrefixInt/2) + 0.5))*boxgridWidth); 
+	
+			// position the accesory mesh at base cube 
+			assMesh.position.x = xposMesh;
+			assMesh.position.y = cubePos[1];
+			assMesh.position.z = cubePos[2];
+			assMesh.rotation.y = Math.PI/2;
+
+			// update stack accesory arrays at their respective specific cubes position
+			stackAccesoryArray[cubemeshInd][importPos - 1] = asstype;
+			stackAccesoryPos[cubemeshInd][importPos - 1] = [[xposMesh, cubePos[1], cubePos[2]]]; 
+
+		}
 
         // register the mesh for actions
-        assMesh.actionManager = new BABYLON.ActionManager(scene); 
-        
-        // update base accesory arrays at their respective specific cubes position
-        // recall that specificcubeNum is the cube prefix int from 1-6 for B1-B6. so in terms of index, it is 0-5
-        
-        stackAccesoryArray[cubemeshInd][specificcubeNum - 1] = asstype;
-        stackAccesoryPos[cubemeshInd][specificcubeNum - 1] = [[xposMesh],[cubePos[1]],[cubePos[2]]]; 
-
-         // update price after importing an extra cube
-         var curprice = 0;
-         for (var i=0; i<stackAccesoryArray.length; i++) {
-            curprice += calcPrice(accessoryPrices, stackAccesoryArray[i]);
-        }
+		assMesh.actionManager = new BABYLON.ActionManager(scene); 
+		
+		// update price after importing an extra cube
+		var curprice = 0;
+		for (var i=0; i<stackAccesoryArray.length; i++) {
+			curprice += calcPrice(accessoryPrices, stackAccesoryArray[i]);
+		}
         totalStackAccessories = curprice;
 
         makeEvent("priceUpdate");
     });
 }
 
-function importPlankAccesories(scene, asstype, cubeNameId, specificcubeNum) {
+function importPlankAccesories(scene, asstype, cubeNameId, importPos) {
+	// the coordinates of the first stack cube level, and the tolerance level (used for checking)
+	var TOL = 0.08;
+	var firststackLvl = 0.685;
+	
+	// accesories management for base cubes only
 
-     // accesories management for base cubes only
- 
-     // here, args type is a string to identify which accesory is being imported. 
-     //            cubeNameId is a string identifying id of associated cube , which contains its array tracker index! 
-     //            cubeType is a string whether or not it is 'stack' or 'base' 
-     //            specificcubeNum is an integer specifying which cube of a composite cube is being referred to
-     //             ..... (this can be taken any integer between 1-6 i.e. cube 1 - cube 6 for B6, so on so forth)
- 
-     if (asstype == 'XS') { // X shelve
-           var assmeshImp = 'Xshelve.babylon'; // this name has to be same as the mesh file from cdn
-      } else if (asstype == 'SS') { // Single shelve
-           var assmeshImp = 'singleshelve.babylon';
-      } else if  (asstype == 'DS') { // Double shelve
-           var assmeshImp = 'doubleshelve.babylon'; 
-      } else if (asstype == 'NS') { // nine box shelve
-           var assmeshImp = 'nineboxshelve.babylon'; 
-      } else if (asstype == 'SB') { // six box shelve
-           var assmeshImp = 'sixboxshelve.babylon'; 
-     } 
-     // else if (asstype == 'DD') { // six box shelve
-      // 	var assmeshImp = 'doubledrawer.babylon'; // continue on...until all accesory is covered
-     // } else if (asstype == 'TA') { // six box shelve
-      // 	var assmeshImp = 'table.babylon'; // continue on...until all accesory is covered
-     // } else if (asstype == 'DO') { // six box shelve
-      // 	var assmeshImp = 'door.babylon'; // continue on...until all accesory is covered
-     // } 
-     // get the cube integer unique number
-     cubemeshInd = parseInt(cubeNameId.slice(2)); 
-     
-     // get the target cube mesh coords pos (remmember, cubePos is an array of 3 elements x y z)
-     var cubePos = stackcubePos[cubemeshInd]; // this will be the base position for any assceory imports
- 
-     // get the target cube mesh prefix (only interested in the number 1-6 for B1-B6)
-     var cubePrefixInt = parseInt(stackcubeArray[cubemeshInd].slice(1)); 
-     
-     // console.log(cubeNameId, stackcubeArray[cubemeshInd])
+	// here, args type is a string to identify which accesory is being imported. 
+	//            cubeNameId is a string identifying id of associated cube , which contains its array tracker index! 
+	//            cubeType is a string whether or not it is 'stack' or 'base' 
+	//            importPos is an integer specifying which cube of a composite cube is being referred to
+	//             ..... (this can be taken any integer between 1-6 i.e. cube 1 - cube 6 for B6, so on so forth)
 
-     // simple sanity check 
-     if (specificcubeNum > cubePrefixInt) {
-          console.log('[ERROR] Specific cube position cannot be larger than stack cube prefix int');
-          return 0; 
-     }
+	if (asstype == 'XS') { // X shelve
+		var assmeshImp = 'Xshelve.babylon'; // this name has to be same as the mesh file from cdn
+	} else if (asstype == 'SS') { // Single shelve
+		var assmeshImp = 'singleshelve.babylon';
+	} else if  (asstype == 'DS') { // Double shelve
+		var assmeshImp = 'doubleshelve.babylon'; 
+	} else if (asstype == 'NS') { // nine box shelve
+		var assmeshImp = 'nineboxshelve.babylon'; 
+	} else if (asstype == 'SB') { // six box shelve
+		var assmeshImp = 'sixboxshelve.babylon'; 
+	} else if (asstype == 'TA') { // table
+		var assmeshImp = 'table-singlemesh.babylon'; 
+	} 
+	// else if (asstype == 'DD') { // six box shelve
+	// 	var assmeshImp = 'doubledrawer.babylon'; // continue on...until all accesory is covered
+	// } else if (asstype == 'TA') { // six box shelve
+	// 	var assmeshImp = 'table.babylon'; // continue on...until all accesory is covered
+	// } else if (asstype == 'DO') { // six box shelve
+	// 	var assmeshImp = 'door.babylon'; // continue on...until all accesory is covered
+	// } 
+
+	// get the cube integer unique number
+	cubemeshInd = parseInt(cubeNameId.slice(2)); 
+	
+	// get the target cube mesh coords pos (remmember, cubePos is an array of 3 elements x y z)
+	var cubePos = stackcubePos[cubemeshInd]; // this will be the base position for any assceory imports
+
+	// get the target cube mesh prefix (only interested in the number 1-6 for B1-B6)
+	var cubePrefixInt = parseInt(stackcubeArray[cubemeshInd].slice(1));
+	
+	// find the config of the selected plank i.e if its 1001 or 100001 etc
+	var config = findConfig(stackcubeArray[cubemeshInd]);
+
+	// simple sanity check 
+	if (importPos > cubePrefixInt) {
+		console.log('[ERROR] Specific cube position cannot be larger than stack cube prefix int');
+		return 0; 
+	}
  
      console.log("[INFO] Imported accesory mesh"); 
  
-     BABYLON.SceneLoader.ImportMesh("", hostUrl, assmeshImp, scene, 
-     function (assMesh) {
-          var assMesh = assMesh[0]; // get the mesh object 
- 
-          // define mesh material
-          var boxMaterial = createboxMaterial(scene); 
-          assMesh.material = boxMaterial;
-          
-          // naming convention for accesories stack cube mesh PX<int> i.e. PXS1, PXS2, PXS3, PXS4 ... for X shelve
-          // where <int> refers to the associated cube mesh unique index 
-          assMesh.name = 'P' + asstype + String(cubemeshInd); 
-          assMesh.id = 'P' + asstype + String(cubemeshInd); 
-          
-          // find out which cube in the scene the user wants to import the mesh to
-          var whichCube = findIndex(plank_marker, 1, specificcubeNum);
+	BABYLON.SceneLoader.ImportMesh("", hostUrl, assmeshImp, scene, 
+	function (assMesh) {
+		var assMesh = assMesh[0]; // get the mesh object 
 
-          if (whichCube >= 0) {
-               var xpos = gridMat[whichCube][whichCube][0];
+		// define mesh material
+		var boxMaterial = createboxMaterial(scene); 
+		assMesh.material = boxMaterial;
+		
+		// naming convention for accesories stack cube mesh PX<int> i.e. PXS1, PXS2, PXS3, PXS4 ... for X shelve
+		// where <int> refers to the associated cube mesh unique index 
+		assMesh.name = 'P' + asstype + String(cubemeshInd); 
+		assMesh.id = 'P' + asstype + String(cubemeshInd); 
+		
+		// find out which cube in the scene the user wants to import the mesh to
+		var whichCube = findIndex(config, importPos);
 
-               assMesh.position.x = xpos;
-               assMesh.position.y = cubePos[1];
-               assMesh.position.z = cubePos[2];
-               assMesh.rotation.y = Math.PI/2;
-               
-               // register the mesh for actions
-               assMesh.actionManager = new BABYLON.ActionManager(scene); 
+          	if (whichCube >= 0) {
+               	var xpos = gridMat[whichCube][whichCube][0];
 
-               // update base accesory arrays at their respective specific cubes position
-               // recall that specificcubeNum is the cube prefix int from 1-6 for B1-B6. so in terms of index, it is 0-5
-               stackAccesoryArray[cubemeshInd][specificcubeNum - 1] = asstype;
-               stackAccesoryPos[cubemeshInd][specificcubeNum - 1] = [[xpos], [cubePos[1]], [cubePos[2]]]; 
-               
-               // update price after importing an extra cube
-               var curprice = 0;
+				assMesh.position.x = xpos;
+				assMesh.position.y = cubePos[1];
+				assMesh.position.z = cubePos[2];
+				assMesh.rotation.y = Math.PI/2;
+				
+				// register the mesh for actions
+				assMesh.actionManager = new BABYLON.ActionManager(scene); 
 
-               for (var i=0; i<stackAccesoryArray.length; i++) {
-                    curprice += calcPrice(accessoryPrices, stackAccesoryArray[i]);
-               }
+				// update base accesory arrays at their respective specific cubes position
+				// recall that importPos is the cube prefix int from 1-6 for B1-B6. so in terms of index, it is 0-5
+				stackAccesoryArray[cubemeshInd][importPos - 1] = asstype;
+				stackAccesoryPos[cubemeshInd][importPos - 1] = [[xpos, cubePos[1], cubePos[2]]]; 
+				
+				// update price after importing an extra cube
+				var curprice = 0;
 
-               totalStackAccessories = curprice;
+               	for (var i=0; i<stackAccesoryArray.length; i++) {
+					curprice += calcPrice(accessoryPrices, stackAccesoryArray[i]);
+               	}
 
-               makeEvent("priceUpdate");
-          }
+				totalStackAccessories = curprice;
+
+				makeEvent("priceUpdate");
+          	}
           
           // position the accesory mesh at base cube 
   
-     });
- }
+	});
+}
 
- function findIndex(array, subject, occurence){
-     var counter = 0;
-     for (var i=0; i<array.length; i++){
-          if (array[i] == subject) {
-               counter += 1;
-               
-               if (counter == occurence) {
-                    return i;
-               }
-          }    
-     }
-     return -1;
- }
+// this function is to find the position to import the accessory in the plank
+function findIndex(array, occurence){
+	// the counter is to indicate the location(index) the accessory is to be imported
+	var counter = 0;
+	for (var i=0; i<array.length; i++){
+		if (array[i] == 1) {
+			counter += 1;
+			
+			// once the counter matches the occurence(Stack cube 1/2/3/etc), then it returns the current index
+			if (counter == occurence) {
+				return i;
+			}
+		}    
+	}
+
+	return -1;
+}
+
+// this function is to loop through the stackplankConfig array to find the plank configuration that matches the name
+function findConfig(target){
+	for (var i=0; i<stackplankConfig.length; i++) {
+		if (stackplankConfig[i][0] === target) {
+			return stackplankConfig[i][1];
+		}
+	}
+}
 
  // remove all zeroes from an array
- function cleanUp(array) {
-     for (var i=array.length-1; i>= 0; i--){
-          if (array[i] === 0) {
-               array.splice(i, 1);
-          }
-     }
- }
+function cleanUp(array) {
+	for (var i=array.length-1; i>= 0; i--){
+		if (array[i] === 0) {
+			array.splice(i, 1);
+		}
+	}
+}

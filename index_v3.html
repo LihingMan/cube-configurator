@@ -142,11 +142,13 @@
           
                 }); 
 
+                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
                 // this is for the stack cube manipulation popup
                 window.addEventListener("popupStack", function(){  
                     // get the active stack cube accesory array
                     var activeAssArr = stackAccesoryArray[stackIndex]; // note this should equal to the integer of each cube i.e. 6 for B6 etc
-                    // console.log(activeAssArr.length)
+
                     // init the render to html dropdown selection
                     // idea is to use the global accesory tracker which is always updated in the main logic upon import of accesory
                     var cubelistHTML = ''; 
@@ -163,6 +165,26 @@
                     }    
 
                     for (var i=0; i < accesoryList[0].length; i++) {
+                        var placeholder;
+
+                        if (accesoryList[0][i] === "TA" && activeAssArr.length > 1) {
+                            placeholder = cubelistHTML.slice(0) // save a copy of cubelistHTML
+
+                            cubelistHTML = ""; // reset the string
+
+                            for (var j=0; j < activeAssArr.length; j++) {
+                                if (activeAssArr[j] != 0) {
+                                    // meaning a particular cube is not empty,
+                                    continue // continue to next iter
+                                } else {
+									// if it is zero, meaning it is empty so we populate the cubelist array with the cube number specific location
+									if (j != activeAssArr.length-1) {
+										cubelistHTML = cubelistHTML + `<a class="dropdown-item" id="${j+1}">Position ${j+1}</a>`
+									}
+                                    // later, jquery, on click dropdown-item, we get its id, then use this as input into the import accesory arg - specificcubeNum
+                                }
+                            }                            
+                        }
                         // we then simply pass the logic filtered values into the string
                         $("#contentAss").append (
                             ` 
@@ -181,6 +203,11 @@
                             </div>    
                             `
                         );
+                        
+                        // reassign cubelistHTML to its original value
+                        if (accesoryList[0][i] === "TA" && activeAssArr.length > 1) {
+                            cubelistHTML = placeholder;
+                        }
                     }   
 
                     // this is to identify which accessory to import
@@ -190,6 +217,8 @@
 
                     // import the identified accessory to the selected cube
                     $(".dropdown-item").click(function(){
+                        // console.log(this.innerHTML)
+                        
                         id = parseInt(this.id); // id of selected cube
                         makeEvent("importAccessoryStack");
                         $('#pop-up-modal').modal("hide"); // close modal after choosing accessory
@@ -199,8 +228,13 @@
                                        
                 });
 
+                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                
                 window.addEventListener("popupPlank", function(){
                     var activeAssArr = stackAccesoryArray[plankIndex]; // note this should equal to the integer of each cube i.e. 6 for B6 etc
+
+                    // console.log(stackcubeArray[plankIndex])
+                    var plankType = stackcubeArray[plankIndex];
 
                     // init the render to html dropdown selection
                     // idea is to use the global accesory tracker which is always updated in the main logic upon import of accesory
@@ -216,7 +250,33 @@
                             // later, jquery, on click dropdown-item, we get its id, then use this as input into the import accesory arg - specificcubeNum
                         }
                     }
+                    
+                    // check if the plank type can have a table
+                    var tableFlag = false;
+                    for (var i=0; i<tableReady.length; i++){
+                        if (plankType === tableReady[i][0]){
+							tableFlag = true;
+							plankType = tableReady[i][1];
+							break;
+                        }
+                    }
+					
                     for (var i=0; i < accesoryList[0].length; i++) {
+						// var placeholder;
+						// the purpose of this whole if statement and its contents is to identify the gap between the cubes, or the 0s in between the 1s in the config
+						// i.e 110001 has a gap of 000. And this particular config can only have a table imported on the left most side, where there is a 11
+						// if (tableFlag && accesoryList[0][i] === "TA") {
+						// 	if (plankType.includes("1001")){
+						// 		plankType = plankType.split("00")
+						// 		console.log(plankType)
+						// 	}
+						// 	else if (plankType.includes("10001")) {
+						// 		plankType = plankType.split("000")
+						// 		console.log(plankType)
+						// 	}
+
+						// }
+                        
                         // we then simply pass the logic filtered values into the string
                         $("#contentAss").append (
                             ` 
@@ -234,7 +294,12 @@
                                 </div>
                             </div>    
                             `
-                        );
+						);
+						
+						// reassign cubelistHTML to its original value
+						if (accesoryList[0][i] === "TA" && tableFlag) {
+							cubelistHTML = placeholder;
+                        }
                     }   
 
                     // this is to identify which accessory to import
