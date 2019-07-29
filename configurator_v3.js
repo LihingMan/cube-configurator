@@ -614,11 +614,11 @@ function importBaseCubes_SUPP(scene,gridMat,bcubesPrefix,rx,cy) {
           meshSelectControl (scene, newMesh,'1');
 
           // update price after importing an extra cube
-          var curprice = calcPrice(basePrices, basecubeArray)
-          totalBasecubes = curprice;
+          // var curprice = calcPrice(basePrices, basecubeArray)
+          // totalBasecubes = curprice;
 
-          // fire event to update html
-          makeEvent("priceUpdate");
+          // // fire event to update html
+          // makeEvent("priceUpdate");
 
     }); 
 }
@@ -765,11 +765,11 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                meshSelectControl (scene, newMesh , '1');
 
                // update price after importing an extra cube
-               var curprice = calcPrice(basePrices, basecubeArray);
-               totalBasecubes = curprice;
+               // var curprice = calcPrice(basePrices, basecubeArray);
+               // totalBasecubes = curprice;
 
-               // fire an event to update html 
-               makeEvent("priceUpdate");
+               // // fire an event to update html 
+               // makeEvent("priceUpdate");
                
           } else if (type == 'nextLOGIC') {
 
@@ -946,13 +946,13 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     //console.log("INFO - Obtained left neighbour cube mesh via id");
                     
                     // update price after deleting an accessory
-                    var curprice = 0;
-                    for (var i=0; i<baseAccesoryArray.length; i++) {
-                        curprice += calcPrice(accessoryPrices, baseAccesoryArray[i]);
-                    }
-                    totalBaseAccessories = curprice;
+                    // var curprice = 0;
+                    // for (var i=0; i<baseAccesoryArray.length; i++) {
+                    //     curprice += calcPrice(accessoryPrices, baseAccesoryArray[i]);
+                    // }
+                    // totalBaseAccessories = curprice;
 
-                    makeEvent("priceUpdate");
+                    // makeEvent("priceUpdate");
 
                     // and then import the new base cube in its new adjusted position by calling back importBaseCubes with type=='quickADD'
                     // this implements just a simple mesh import directly to rx_coord, cy_coord which are specific coordinates 
@@ -1024,13 +1024,13 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     }
                     
                     // update price after deleting an accessory
-                    var curprice = 0;
-                    for (var i=0; i<baseAccesoryArray.length; i++) {
-                        curprice += calcPrice(accessoryPrices, baseAccesoryArray[i]);
-                    }
-                    totalBaseAccessories = curprice;
+                    // var curprice = 0;
+                    // for (var i=0; i<baseAccesoryArray.length; i++) {
+                    //     curprice += calcPrice(accessoryPrices, baseAccesoryArray[i]);
+                    // }
+                    // totalBaseAccessories = curprice;
 
-                    makeEvent("priceUpdate")
+                    // makeEvent("priceUpdate")
                     // and then import the new base cube in its new adjusted position by calling back importBaseCubes with type=='quickADD'
                     // this implements just a simple mesh import directly to rx_coord, cy_coord which are specific coordinates 
                     // NOTE : no need to update global counter here since the importBaseCubes quickLOGIC
@@ -1072,11 +1072,11 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     meshSelectControl (scene, newMesh ,'1');
 
                     // update price after importing an extra cube
-                    var curprice = calcPrice(basePrices, basecubeArray)
-                    totalBasecubes = curprice;
+                    // var curprice = calcPrice(basePrices, basecubeArray)
+                    // totalBasecubes = curprice;
 
-                    // fire event to update html
-                    makeEvent("priceUpdate");
+                    // // fire event to update html
+                    // makeEvent("priceUpdate");
 
                } else {
                     console.log("[ERROR] problem with right or left detection."); 
@@ -1596,11 +1596,11 @@ function importStackCubes_SUPP(scene, gridMat, rx, cy, stackprefix) {
           meshSelectControl (scene, stackMesh,'2');
 
           // update price after importing an extra cube
-          var curprice = calcPrice(stackPrices, stackcubeArray);
-          totalStackcubes = curprice;
+          // var curprice = calcPrice(stackPrices, stackcubeArray);
+          // totalStackcubes = curprice;
 
-          // update price after importing an extra cube
-          makeEvent("priceUpdate");
+          // // update price after importing an extra cube
+          // makeEvent("priceUpdate");
      }); 
 }
 
@@ -1778,13 +1778,13 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                     //console.log("INFO - Obtained left neighbour cube mesh via id");
 
                     // update price after importing an extra cube
-                    var curprice = 0;
-                    for (var i=0; i<stackAccesoryArray.length; i++) {
-                        curprice += calcPrice(accessoryPrices, stackAccesoryArray[i]);
-                    }
-                    totalStackAccessories = curprice;
+                    // var curprice = 0;
+                    // for (var i=0; i<stackAccesoryArray.length; i++) {
+                    //     curprice += calcPrice(accessoryPrices, stackAccesoryArray[i]);
+                    // }
+                    // totalStackAccessories = curprice;
             
-                    makeEvent("priceUpdate");
+                    // makeEvent("priceUpdate");
                     // this implements just a simple mesh import directly to rx_coord, cy_coord which are specific coordinates 
                      
                     importStackCubes_SUPP(scene,gridMat,rx_coord,newY,stackprefix, newX); 
@@ -1870,13 +1870,13 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                     }
 
                     // update price after importing an extra cube
-                    var curprice = 0;
-                    for (var i=0; i<stackAccesoryArray.length; i++) {
-                         curprice += calcPrice(accessoryPrices, stackAccesoryArray[i]);
-                    }
-                    totalStackAccessories = curprice;
+                    // var curprice = 0;
+                    // for (var i=0; i<stackAccesoryArray.length; i++) {
+                    //      curprice += calcPrice(accessoryPrices, stackAccesoryArray[i]);
+                    // }
+                    // totalStackAccessories = curprice;
           
-                    makeEvent("priceUpdate");
+                    // makeEvent("priceUpdate");
                     
                     // this implements just a simple mesh import directly to rx_coord, cy_coord which are specific coordinates 
                     
@@ -1922,11 +1922,11 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                     meshSelectControl (scene, stackMesh ,'2');
 
                     // update price after importing an extra cube
-                    var curprice = calcPrice(stackPrices, stackcubeArray);
-                    totalStackcubes = curprice;
+                    // var curprice = calcPrice(stackPrices, stackcubeArray);
+                    // totalStackcubes = curprice;
 
-                    // update price after importing an extra cube
-                    makeEvent("priceUpdate");
+                    // // update price after importing an extra cube
+                    // makeEvent("priceUpdate");
 
                } else {
                     console.log("[ERROR] problem with right or left detection."); 
@@ -2128,14 +2128,14 @@ function importBaseAccesories(scene, asstype, cubeNameId, importPos) {
         baseAccesoryPos[cubemeshInd][importPos - 1] = [[xposMesh, cubePos[1], cubePos[2]]]; 
         console.log(baseAccesoryArray)
 
-        var curprice = 0; 
+     //    var curprice = 0; 
 
-        for (var i=0; i<baseAccesoryArray.length; i++) {
-            curprice += calcPrice(accessoryPrices, baseAccesoryArray[i]);
-        }
-        totalBaseAccessories = curprice;
+     //    for (var i=0; i<baseAccesoryArray.length; i++) {
+     //        curprice += calcPrice(accessoryPrices, baseAccesoryArray[i]);
+     //    }
+     //    totalBaseAccessories = curprice;
 
-        makeEvent("priceUpdate");
+     //    makeEvent("priceUpdate");
     });
 }
 
@@ -2250,13 +2250,13 @@ function importStackAccesories(scene, asstype, cubeNameId, importPos) {
 		assMesh.actionManager = new BABYLON.ActionManager(scene); 
 		
 		// update price after importing an extra cube
-		var curprice = 0;
-		for (var i=0; i<stackAccesoryArray.length; i++) {
-			curprice += calcPrice(accessoryPrices, stackAccesoryArray[i]);
-		}
-        totalStackAccessories = curprice;
+		// var curprice = 0;
+		// for (var i=0; i<stackAccesoryArray.length; i++) {
+		// 	curprice += calcPrice(accessoryPrices, stackAccesoryArray[i]);
+		// }
+          // totalStackAccessories = curprice;
 
-        makeEvent("priceUpdate");
+     //    makeEvent("priceUpdate");
     });
 }
 
@@ -2347,15 +2347,15 @@ function importPlankAccesories(scene, asstype, cubeNameId, importPos) {
 				stackAccesoryPos[cubemeshInd][importPos - 1] = [[xpos, cubePos[1], cubePos[2]]]; 
 				
 				// update price after importing an extra cube
-				var curprice = 0;
+				// var curprice = 0;
 
-               	for (var i=0; i<stackAccesoryArray.length; i++) {
-					curprice += calcPrice(accessoryPrices, stackAccesoryArray[i]);
-               	}
+               	// for (var i=0; i<stackAccesoryArray.length; i++) {
+				// 	curprice += calcPrice(accessoryPrices, stackAccesoryArray[i]);
+               	// }
 
-				totalStackAccessories = curprice;
+				// totalStackAccessories = curprice;
 
-				makeEvent("priceUpdate");
+				// makeEvent("priceUpdate");
           	}
           
           // position the accesory mesh at base cube 

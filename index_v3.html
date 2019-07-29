@@ -45,9 +45,9 @@
         <div class="container infoblock">
             <button class="btn btn-info btn-md" id="saveAsImg">Save as Image</button>
         
-            <button class="btn btn-primary btn-md">
+            <!-- <button class="btn btn-primary btn-md">
                 Price <span class="badge badge-light" id="price">USD --</span>
-            </button>
+            </button> -->
         </div>
 
         <div class="modal fade" id="pop-up-modal" tabindex="-1">
@@ -327,22 +327,22 @@
                     makeEvent("saveScene");
                 });
 
-                window.addEventListener("priceUpdate", function(){
+                // window.addEventListener("priceUpdate", function(){
 
-                    if (isNaN(totalStackAccessories)) {
-                        totalStackAccessories = 0;
-                    }
-                    if (isNaN(totalBaseAccessories)) {
-                        totalBaseAccessories = 0;
-                    }
-                    if (isNaN(totalStackcubes)) {
-                        totalStackcubes = 0;
-                    }
+                //     if (isNaN(totalStackAccessories)) {
+                //         totalStackAccessories = 0;
+                //     }
+                //     if (isNaN(totalBaseAccessories)) {
+                //         totalBaseAccessories = 0;
+                //     }
+                //     if (isNaN(totalStackcubes)) {
+                //         totalStackcubes = 0;
+                //     }
 
-                    price = totalBasecubes + totalStackcubes + totalBaseAccessories + totalStackAccessories;
+                //     price = totalBasecubes + totalStackcubes + totalBaseAccessories + totalStackAccessories;
                     
-                    document.getElementById("price").textContent = "USD" + price.toFixed(2);;
-                });
+                //     document.getElementById("price").textContent = "USD" + price.toFixed(2);;
+                // });
                
             });
         
