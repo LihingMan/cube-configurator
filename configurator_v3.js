@@ -163,7 +163,7 @@ function createRoomScene() {
      createWalls_Winds(scene); 
 
      // create the roof 
-    //  createRoof(scene); 
+     createRoof(scene); 
 
      // create the outdoor env --> skybox!
      createOutdEnv(scene);  
