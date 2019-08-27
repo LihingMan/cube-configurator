@@ -263,20 +263,63 @@
                     }
 					
                     for (var i=0; i < accesoryList[0].length; i++) {
-						// var placeholder;
+						var placeholder;
 						// the purpose of this whole if statement and its contents is to identify the gap between the cubes, or the 0s in between the 1s in the config
 						// i.e 110001 has a gap of 000. And this particular config can only have a table imported on the left most side, where there is a 11
-						// if (tableFlag && accesoryList[0][i] === "TA") {
-						// 	if (plankType.includes("1001")){
-						// 		plankType = plankType.split("00")
-						// 		console.log(plankType)
-						// 	}
-						// 	else if (plankType.includes("10001")) {
-						// 		plankType = plankType.split("000")
-						// 		console.log(plankType)
-						// 	}
+						if (tableFlag && accesoryList[0][i] === "TA") {
+							if (plankType.includes("1001")){
+								plankType = plankType.split("00");
+							}
+							else if (plankType.includes("10001")) {
+								plankType = plankType.split("000");
+                            }
 
-						// }
+                            placeholder = cubelistHTML.slice(0); // save a copy of cubelistHTML
+
+                            cubelistHTML = ""; // reset the string
+
+                            // count the number of valid table import positions
+                            var posCtr = 0;
+                            for (var j=0; j<plankType.length; j++) {
+                                if (plankType[j].length > 1) {
+                                    posCtr += plankType[j].length - 1
+                                }
+                            }
+                            console.log(activeAssArr)
+                            for (var j=0; j<posCtr; j++) {
+                                cubelistHTML = cubelistHTML + `<a class="dropdown-item" id="${j+1}">Position ${j+1}</a>`;
+                            }
+                            // var position = 1;
+                            // for (var j=0; j<plankType.length; j++){
+                            //     var startpoint, endpoint;
+                                
+                            //     if (j == 0) {
+                            //         startpoint = 0;
+                            //         endpoint = startpoint + plankType[j].length;
+                            //     }
+                            //     else {
+                            //         startpoint = plankType[j-1].length;
+                            //         endpoint = startpoint + plankType[j].length;
+                            //     }
+
+                            //     var counter = 0;
+                            //     for (var k=startpoint; k<endpoint; k++){
+                                    
+                            //         if (activeAssArr[k] != 0) {
+                            //             // meaning a particular cube is not empty,
+                            //             continue // continue to next iter
+                            //         } else {
+                            //             // if it is zero, meaning it is empty so we populate the cubelist array with the cube number specific location
+                            //             counter += 1;
+                            //         }
+                                    
+                            //         if (counter >= 2) {
+                            //             cubelistHTML = cubelistHTML + `<a class="dropdown-item" id="${position}">Position ${position}</a>`;
+                            //             position += 1;
+                            //         }
+                            //     }
+                            // }
+						}
                         
                         // we then simply pass the logic filtered values into the string
                         $("#contentAss").append (

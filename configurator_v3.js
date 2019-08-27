@@ -163,7 +163,7 @@ function createRoomScene() {
      createWalls_Winds(scene); 
 
      // create the roof 
-     createRoof(scene); 
+    //  createRoof(scene); 
 
      // create the outdoor env --> skybox!
      createOutdEnv(scene);  
@@ -2219,7 +2219,12 @@ function importStackAccesories(scene, asstype, cubeNameId, importPos) {
 					stackAccesoryArray[cubemeshInd][importPos] = asstype;
 					stackAccesoryPos[cubemeshInd][importPos - 1] = [[assMesh.position.x, assMesh.position.y, assMesh.position.z]]; 
 					stackAccesoryPos[cubemeshInd][importPos] = [[assMesh.position.x, assMesh.position.y, assMesh.position.z]]; 
-				}
+                    }
+                    else{
+                         alert("Tables can only be imported on the second level");
+                         assMesh.dispose();
+                         return;
+                    }
 			}
 			else {
 				alert("Minimum of 2 cubes together are needed for a table");
@@ -2310,8 +2315,10 @@ function importPlankAccesories(scene, asstype, cubeNameId, importPos) {
 	if (importPos > cubePrefixInt) {
 		console.log('[ERROR] Specific cube position cannot be larger than stack cube prefix int');
 		return 0; 
-	}
- 
+     }
+
+     var importInd = findOccurrences(config, importPos);
+
      console.log("[INFO] Imported accesory mesh"); 
  
 	BABYLON.SceneLoader.ImportMesh("", hostUrl, assmeshImp, scene, 
@@ -2325,38 +2332,78 @@ function importPlankAccesories(scene, asstype, cubeNameId, importPos) {
 		// naming convention for accesories stack cube mesh PX<int> i.e. PXS1, PXS2, PXS3, PXS4 ... for X shelve
 		// where <int> refers to the associated cube mesh unique index 
 		assMesh.name = 'P' + asstype + String(cubemeshInd); 
-		assMesh.id = 'P' + asstype + String(cubemeshInd); 
+          assMesh.id = 'P' + asstype + String(cubemeshInd); 
+          
+          if (asstype == "TA") {
+               if (importInd < 0) {
+                    alert("can't import table");
+                    assMesh.dispose();
+                    return;
+               }
+               if (cubePos[1] >= firststackLvl-TOL && cubePos[1] <= firststackLvl+TOL) {
+                    var halflength = ((config.length)*boxgridWidth)/2;
+                    var beginning = cubePos[0] - halflength;
+                    // importInd + 1 is the offset from the beginning of the plank. Used to calculate the X coordinates of the plank
+                    var xpos = (importInd+1)*boxgridWidth + beginning;
+
+                    assMesh.position.x = xpos;
+                    assMesh.position.y = 0.37;
+                    assMesh.position.z = -0.93;
+                    assMesh.rotation.y = Math.PI/2;
+
+                    // register the mesh for actions
+                    assMesh.actionManager = new BABYLON.ActionManager(scene); 
+                    
+                    // find the number of zeroes in the plank config
+                    var zeroes = zeroesCounter(config);
+
+                    // get the indexing in the stack accessory arrays right
+                    var index = importInd + 1;
+                    // for example if the config is 110011, the accessory array would be [0,0,0,0]
+                    // thus when using importInd to index this array, it goes out of bounds as the array is less than the length of the string
+                    // by minusing the indexes after the zeroes with the number of zeroes, then the arrays can be indexed properly.
+                    if ((importInd-zeroes) > 0) {
+                         index = index - zeroes;
+                    }
+                    stackAccesoryArray[cubemeshInd][index] = asstype;
+                    stackAccesoryArray[cubemeshInd][index - 1] = asstype;
+                    stackAccesoryPos[cubemeshInd][index] = [[assMesh.position.x, assMesh.position.y, assMesh.position.z]]; 
+                    stackAccesoryPos[cubemeshInd][index - 1] = [[assMesh.position.x, assMesh.position.y, assMesh.position.z]]; 
+               }
+          }
+          else {
+               // find out which cube in the scene the user wants to import the mesh to
+               var whichCube = findIndex(config, importPos);
+
+               if (whichCube >= 0) {
+                    var xpos = gridMat[whichCube][whichCube][0];
+
+                    assMesh.position.x = xpos;
+                    assMesh.position.y = cubePos[1];
+                    assMesh.position.z = cubePos[2];
+                    assMesh.rotation.y = Math.PI/2;
+                    
+                    // register the mesh for actions
+                    assMesh.actionManager = new BABYLON.ActionManager(scene); 
+
+                    // update base accesory arrays at their respective specific cubes position
+                    // recall that importPos is the cube prefix int from 1-6 for B1-B6. so in terms of index, it is 0-5
+                    stackAccesoryArray[cubemeshInd][importPos - 1] = asstype;
+                    stackAccesoryPos[cubemeshInd][importPos - 1] = [[xpos, cubePos[1], cubePos[2]]]; 
+               }
 		
-		// find out which cube in the scene the user wants to import the mesh to
-		var whichCube = findIndex(config, importPos);
+               
+               // update price after importing an extra cube
+               // var curprice = 0;
 
-          	if (whichCube >= 0) {
-               	var xpos = gridMat[whichCube][whichCube][0];
+               // for (var i=0; i<stackAccesoryArray.length; i++) {
+               // 	curprice += calcPrice(accessoryPrices, stackAccesoryArray[i]);
+               // }
 
-				assMesh.position.x = xpos;
-				assMesh.position.y = cubePos[1];
-				assMesh.position.z = cubePos[2];
-				assMesh.rotation.y = Math.PI/2;
-				
-				// register the mesh for actions
-				assMesh.actionManager = new BABYLON.ActionManager(scene); 
+               // totalStackAccessories = curprice;
 
-				// update base accesory arrays at their respective specific cubes position
-				// recall that importPos is the cube prefix int from 1-6 for B1-B6. so in terms of index, it is 0-5
-				stackAccesoryArray[cubemeshInd][importPos - 1] = asstype;
-				stackAccesoryPos[cubemeshInd][importPos - 1] = [[xpos, cubePos[1], cubePos[2]]]; 
-				
-				// update price after importing an extra cube
-				// var curprice = 0;
-
-               	// for (var i=0; i<stackAccesoryArray.length; i++) {
-				// 	curprice += calcPrice(accessoryPrices, stackAccesoryArray[i]);
-               	// }
-
-				// totalStackAccessories = curprice;
-
-				// makeEvent("priceUpdate");
-          	}
+               // makeEvent("priceUpdate");
+          }
           
           // position the accesory mesh at base cube 
   
@@ -2388,6 +2435,29 @@ function findConfig(target){
 			return stackplankConfig[i][1];
 		}
 	}
+}
+
+function findOccurrences(array, targetNum) {
+     var occurrence = 0;
+     for (var i=0; i<array.length; i++) {
+          if (array[i] == 1 && array[i+1] == 1) {
+               occurrence += 1;
+               if (occurrence == targetNum) {
+                    return i;
+               }
+          }
+     }
+     return -1;
+}
+
+function zeroesCounter(array){
+     counter = 0;
+     for (var i=0; i<array.length; i++) {
+          if (array[i] == 0) {
+               counter += 1;
+          }
+     }
+     return counter;
 }
 
  // remove all zeroes from an array
