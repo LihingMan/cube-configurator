@@ -45,6 +45,7 @@
         <div class="container infoblock">
             <button class="btn btn-info btn-md" id="saveAsImg">Save as Image</button>
             <button class="btn btn-info btn-md" id="viewCart">View Cart</button>
+            <button class="btn btn-dark btn-md" id="undo">Undo</button>
         
             <!-- <button class="btn btn-primary btn-md">
                 Price <span class="badge badge-light" id="price">USD --</span>
@@ -289,36 +290,6 @@
                             for (var j=0; j<posCtr; j++) {
                                 cubelistHTML = cubelistHTML + `<a class="dropdown-item" id="${j+1}">Position ${j+1}</a>`;
                             }
-                            // var position = 1;
-                            // for (var j=0; j<plankType.length; j++){
-                            //     var startpoint, endpoint;
-                                
-                            //     if (j == 0) {
-                            //         startpoint = 0;
-                            //         endpoint = startpoint + plankType[j].length;
-                            //     }
-                            //     else {
-                            //         startpoint = plankType[j-1].length;
-                            //         endpoint = startpoint + plankType[j].length;
-                            //     }
-
-                            //     var counter = 0;
-                            //     for (var k=startpoint; k<endpoint; k++){
-                                    
-                            //         if (activeAssArr[k] != 0) {
-                            //             // meaning a particular cube is not empty,
-                            //             continue // continue to next iter
-                            //         } else {
-                            //             // if it is zero, meaning it is empty so we populate the cubelist array with the cube number specific location
-                            //             counter += 1;
-                            //         }
-                                    
-                            //         if (counter >= 2) {
-                            //             cubelistHTML = cubelistHTML + `<a class="dropdown-item" id="${position}">Position ${position}</a>`;
-                            //             position += 1;
-                            //         }
-                            //     }
-                            // }
 						}
                         
                         // we then simply pass the logic filtered values into the string
@@ -370,6 +341,86 @@
                 $("#saveAsImg").click(function(){
                     makeEvent("saveScene");
                 });
+
+                $("#undo").click(function(){
+                    var TOL = 0.08;
+                    var retval = undo();
+                    var undoitem = retval[0];
+                    var type = retval[1];
+                    var index = retval[2];
+
+                    while (undoitem == null) {
+                        var retval = undo();
+                        var undoitem = retval[0];
+                        var type = retval[1];
+                        var index = retval[2];
+                    }
+
+                    undoitem.dispose();
+                    if (type == "E") {
+                        var buttonstomove = [];
+                        // stackbuttonArray[0].moveToVector3(new BABYLON.Vector3(1, 1, 0), scene);
+                        var ycoord = stackcubePos[index][1];
+                        var xcoord = stackcubePos[index][0];
+                        
+                        var cubeint = parseInt(stackcubeArray[index].slice(1));
+                        console.log(cubeint)
+                        
+                        for (var i=0; i<stackbuttonArray.length; i++){
+                            var but_xpos = gridMat[stackbuttonArray[i][1]][stackbuttonArray[i][2]][0];
+                            var but_ypos = gridMat[stackbuttonArray[i][1]][stackbuttonArray[i][2]][1];
+                            // if it's only one cube, means only one button to worry about, the button directly above
+                            if (cubeint == 1) {
+                                // check if the button is above the cube to be undone
+                                if (but_xpos == xcoord && but_ypos > ycoord) {
+                                    // duplicate the old button
+                                    var newbutton = btn_Stack(scene, gridMat, stackbuttonArray[i][1]-1, stackbuttonArray[i][2], stackbuttonArray[i][0].name);
+
+                                    // delete the old button
+                                    stackbuttonArray[i][0].dispose();
+
+                                    // replace the button and the old row position
+                                    stackbuttonArray[i][0] = newbutton;
+                                    stackbuttonArray[i][1] = stackbuttonArray[i][1]-1; 
+                                }
+                            }
+                            else if (cubeint > 1) {
+                                var halflength = (boxgridWidth*cubeint)/2;
+                                var start = xcoord - halflength;
+                                var end = xcoord + halflength;
+                                
+                                if (but_xpos > start && but_xpos < end && but_ypos > ycoord && but_ypos < ycoord+boxgridWidth*2) {
+                                    // duplicate the old button
+                                    var newbutton = btn_Stack(scene, gridMat, stackbuttonArray[i][1]-1, stackbuttonArray[i][2], stackbuttonArray[i][0].name);
+
+                                    // delete the old button
+                                    stackbuttonArray[i][0].dispose();
+
+                                    // replace the button and the old row position
+                                    stackbuttonArray[i][0] = newbutton;
+                                    stackbuttonArray[i][1] = stackbuttonArray[i][1]-1;
+                                }
+                            }
+                        }
+                        
+                        stackcubeArray.splice(index, 1)
+                        stackcubePos.splice(index, 1)
+                        stackAccesoryArray.splice(index, 1)
+                        stackAccesoryPos.splice(index, 1)
+                        stackcubeCtr = stackcubeCtr - 1; 
+                        
+                    }
+                    
+                    function undo() {
+                        var latestItem = undoSTACK.pop();
+                        var type = latestItem[0];
+                        var index = parseInt(latestItem.slice(1));
+                        var undoitem = scene.getMeshByID(latestItem);
+                        return [undoitem, type, index];
+                    }
+                    
+                });
+
 
                 // window.addEventListener("priceUpdate", function(){
 

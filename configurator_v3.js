@@ -3,6 +3,9 @@ EZBO Stacking Cube Product Configurator Web App v2
 */
 // Use CDN for static files i.e. https://stagingfiles.sgp1.digitaloceanspaces.com/ezbo/<filename>
 
+// global scene variable
+var scene;
+
 // trackers for base cube - the B series
 var basecubeArray = []; // to track the base cubes in the scene by name i.e. B1 etc
 var basecubePos = []; // to keep track of 1:1 position in euler coords (i.e. 0.1,0.25 etc etc) 
@@ -59,6 +62,10 @@ var tableReady = [["E54", '11001'], ["E64",'110001'], ["E65b", '110011'], ["E65a
 
 var plankIndex = 0;
 var plankcubeName;
+
+var stackbuttonArray = [];
+
+var undoSTACK = [];
 
 // NEW logic for stack cube planks
 var stackplankVertTrack = []; // stores stack cube vertical position , to limit one composite stack cube per level 
@@ -127,7 +134,7 @@ function mainApp() {
  
      // Load room scene with native Babylon funcs
      // important: must run this first, as this will set the scene for the cubes
-     var scene = createRoomScene(); 
+     scene = createRoomScene(); 
 
      // Render
      engine.runRenderLoop(function () {
@@ -585,7 +592,10 @@ function importBaseCubes_SUPP(scene,gridMat,bcubesPrefix,rx,cy) {
           //      we will just reuse the rx cy args only  
           // give the mesh a unique ID (do this for every 'if')
           newMesh.id = String('B' + basecubeCtr); 
-          newMesh.name = String('B' + basecubeCtr); 
+		  newMesh.name = String('B' + basecubeCtr);
+
+          undoSTACK.push(newMesh.id);
+          
           // give mesh position based on rx == rx_coord and cy == cy_coord
           // REMINDER: STUPID! THIS IS THE PROBLEM OF ALL MOTHERFUCKERS! 
           // RX AND CY IN THIS CASE ARE THE COORDINATES! DIRECTLY , NOT THE GRID MAT MATRIX INDEXES
@@ -609,7 +619,7 @@ function importBaseCubes_SUPP(scene,gridMat,bcubesPrefix,rx,cy) {
           // note: cant use zero here, since a basecube may have more than one accesory
           baseAccesoryArray.push(new Array(intprefix).fill(0)); // on initial import of a cube mesh, there is no accesory, so initialize zero array
           baseAccesoryPos.push(new Array(intprefix).fill(0)); 
-
+          // console.log(basecubePos[parseInt(undoSTACK[1][1])])
           // configure actionManager
           meshSelectControl (scene, newMesh,'1');
 
@@ -656,7 +666,8 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                // give the mesh a unique ID (do this for every 'if')
                newMesh.id = String('B' + basecubeCtr); 
                newMesh.name = String('B' + basecubeCtr); 
-
+			   undoSTACK.push(newMesh.id);
+			   
                // get base cube integer from prefix
                var intprefix = parseInt(bcubesPrefix.slice(1)); // slice the first letter which is B 
 
@@ -695,7 +706,8 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                          horBtn_4 = btn_BaseHorInit (scene, gridMat, 0, 4, 5);
                          horBtn_5 = btn_BaseHorInit (scene, gridMat, 0, 5, 6);
                          // associated vertical
-                         stackBtn_1 = btn_Stack(scene, gridMat, 1, 0, 1);
+						 stackBtn_1 = btn_Stack(scene, gridMat, 1, 0, 1);  
+                         stackbuttonArray.push([stackBtn_1, 1, 0]);
                          break; 
                     case 2: 
                          // for B2, we will have four pluses to its right
@@ -706,6 +718,8 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                          // associated vertical
                          stackBtn_1 = btn_Stack(scene, gridMat, 1, 0, 1);
                          stackBtn_2 = btn_Stack(scene, gridMat, 1, 1, 2);
+                         stackbuttonArray.push([stackBtn_1, 1, 0]);
+                         stackbuttonArray.push([stackBtn_2, 1, 1]);
                          break; 
                     case 3: 
                          horBtn_1 = btn_BaseHorInit (scene, gridMat, 0, 3, 4);
@@ -715,6 +729,9 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                          stackBtn_1 = btn_Stack(scene, gridMat, 1, 0, 1);
                          stackBtn_2 = btn_Stack(scene, gridMat, 1, 1, 2);
                          stackBtn_3 = btn_Stack(scene, gridMat, 1, 2, 3);
+                         stackbuttonArray.push([stackBtn_1, 1, 0]);
+                         stackbuttonArray.push([stackBtn_2, 1, 1]);
+                         stackbuttonArray.push([stackBtn_3, 1, 2]);
                          break; 
                     case 4:
                          horBtn_1 = btn_BaseHorInit (scene, gridMat, 0, 4, 5);
@@ -724,6 +741,10 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                          stackBtn_2 = btn_Stack(scene, gridMat, 1, 1, 2);
                          stackBtn_3 = btn_Stack(scene, gridMat, 1, 2, 3);
                          stackBtn_4 = btn_Stack(scene, gridMat, 1, 3, 4);
+                         stackbuttonArray.push([stackBtn_1, 1, 0]);
+                         stackbuttonArray.push([stackBtn_2, 1, 1]);
+                         stackbuttonArray.push([stackBtn_3, 1, 2]);
+                         stackbuttonArray.push([stackBtn_4, 1, 3]);
                          break; 
                     case 5:
                          horBtn_1 = btn_BaseHorInit (scene, gridMat, 0, 5, 6);
@@ -733,6 +754,11 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                          stackBtn_3 = btn_Stack(scene, gridMat, 1, 2, 3);
                          stackBtn_4 = btn_Stack(scene, gridMat, 1, 3, 4);
                          stackBtn_5 = btn_Stack(scene, gridMat, 1, 4, 5);
+						 stackbuttonArray.push([stackBtn_1, 1, 0]);
+                         stackbuttonArray.push([stackBtn_2, 1, 1]);
+                         stackbuttonArray.push([stackBtn_3, 1, 2]);
+                         stackbuttonArray.push([stackBtn_4, 1, 3]);
+                         stackbuttonArray.push([stackBtn_5, 1, 4]);
                          break; 
                     default:
                          // case 6 has zero horizontal pluses 
@@ -743,6 +769,12 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                          stackBtn_4 = btn_Stack(scene, gridMat, 1, 3, 4);
                          stackBtn_5 = btn_Stack(scene, gridMat, 1, 4, 5);
                          stackBtn_6 = btn_Stack(scene, gridMat, 1, 5, 6);
+						 stackbuttonArray.push([stackBtn_1, 1, 0]);
+                         stackbuttonArray.push([stackBtn_2, 1, 1]);
+                         stackbuttonArray.push([stackBtn_3, 1, 2]);
+                         stackbuttonArray.push([stackBtn_4, 1, 3]);
+                         stackbuttonArray.push([stackBtn_5, 1, 4]);
+                         stackbuttonArray.push([stackBtn_6, 1, 5]);
                          break; 
                }
 
@@ -1052,7 +1084,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     // give the mesh a unique ID (do this for every 'if'). since this is base cube, it is B1 B2 B3 B4 .. BN
                     newMesh.id = String('B' + basecubeCtr); 
                     newMesh.name = String('B' + basecubeCtr); 
-
+                    undoSTACK.push(newMesh.id);
                     // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
                     basecubeArray.push(bcubesPrefix);
                     basecubePos.push([newMesh.position.x,newMesh.position.y,newMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
@@ -1148,7 +1180,6 @@ function btn_BaseHorInit (scene, gridMat, rx_target,cy_target, btnName) {
      // on click event for the button
      button.onPointerClickObservable.add(function() {
           // remove the button and in its place, put the base cube B1
-          // var TOL = 0.08;
           var plankAbove = false;
           
           button.dispose(); 
@@ -1192,7 +1223,9 @@ function btn_BaseHorInit (scene, gridMat, rx_target,cy_target, btnName) {
           // if there is a plank directly above the base cubes, don't spawn a stack button
           // if the base cube is not under a plank, spawn a stack button
           if (!plankAbove) {
-               btn_Stack(scene, gridMat, rx_target+1, cy_target, btnName);
+               var but = btn_Stack(scene, gridMat, rx_target+1, cy_target, btnName);
+			   // store this button in an array
+			   stackbuttonArray.push([but, rx_target+1, cy_target]);  
           }
           
           
@@ -1243,7 +1276,6 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
 	// at the same time, assign the binary position marker for the active row
 	// active row being the level of vert_coord_import, which is the current cube 
 	for (var i=0; i<stackcubePos.length; i++) {
-
 		if (stackcubePos[i] != 0 && stackcubePos[i][1] == vert_coord_import) { // if it is not zero (zero means it has been previously deleted)
 			// only if the we have same row stackcubes then we consider them for further processing 
 			// only works for non first stackcube imports
@@ -1563,8 +1595,9 @@ function importStackCubes_SUPP(scene, gridMat, rx, cy, stackprefix) {
           // give the mesh a unique ID (do this for every 'if')
           stackMesh.id = String('E' + stackcubeCtr); 
           
-          stackMesh.name = String('E' + stackcubeCtr); 
-          
+		  stackMesh.name = String('E' + stackcubeCtr); 
+		  
+		  undoSTACK.push(stackMesh.id)
           // give mesh position based on rx == rx_coord and cy == cy_coord
           // REMINDER: STUPID! THIS IS THE PROBLEM OF ALL MOTHERFUCKERS! 
           // RX AND CY IN THIS CASE ARE THE COORDINATES! DIRECTLY , NOT THE GRID MAT MATRIX INDEXES
@@ -1611,7 +1644,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
 
      // name of cube to be imported
      var cubeName = stackprefix + postfix;      
-
+	
      BABYLON.SceneLoader.ImportMesh("", hostUrl, cubeName, scene, 
      function (newMeshes) {
 
@@ -1899,6 +1932,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                     stackMesh.id = String('E' + stackcubeCtr); 
                     
                     stackMesh.name = String('E' + stackcubeCtr); 
+					undoSTACK.push(stackMesh.id);
 
                     // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
                     stackcubeArray.push(stackprefix);
@@ -2011,20 +2045,28 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
           importStackCubes(scene, gridMat, rx_target, cy_target, "E1"); 
 
           if (!plankAbove) {
-               button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target+1][cy_target][1], 0), scene); 
-               rx_target += 1; // increment the row number  
+			  	// increment the row number
+				rx_target += 1;
+               	button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], 0), scene); 
+			     
+			   	updatebuttons(button, rx_target, cy_target); 
           }
           else {
-               button.dispose();
+			   button.dispose();
+			   var index = deletebuttons(button);
+			   stackbuttonArray.splice(index, 1);
           }
 
      });
 
-     var eventName = "delete" + btnName;
+	var eventName = "delete" + btnName;
 
-     window.addEventListener(eventName, function(){
-          button.dispose()
-     });
+	window.addEventListener(eventName, function(){
+		button.dispose()
+		var index = deletebuttons(button);
+		stackbuttonArray.splice(index, 1);
+		print(stackbuttonArray)
+	});
 
      var btnPos = "position" + btnName;
      window.addEventListener(btnPos, function() {
@@ -2467,4 +2509,28 @@ function cleanUp(array) {
 			array.splice(i, 1);
 		}
 	}
+}
+
+
+function deletebuttons(button){
+	for (var i=0; i<stackbuttonArray.length; i++) {
+		if (stackbuttonArray[i][0].name == button.name){
+			return i;
+	   }
+	}
+}
+
+function updatebuttons(button, row, col){
+	for (var i=0; i<stackbuttonArray.length; i++) {
+		if (stackbuttonArray[i][0].name == button.name){
+			stackbuttonArray[i][1] = row;
+			stackbuttonArray[i][2] = col;
+	   }
+	}
+}
+
+function print(array){
+     for (var i=0; i<array.length; i++) {
+          console.log(array[i].name, array.length)
+     }
 }
