@@ -350,95 +350,120 @@
                     var index = retval[2];
 
                     while (undoitem == null) {
-                        var retval = undo();
-                        var undoitem = retval[0];
-                        var type = retval[1];
-                        var index = retval[2];
+                        retval = undo();
+                        undoitem = retval[0];
+                        type = retval[1];
+                        index = retval[2];
                     }
 
                     undoitem.dispose();
+                    
                     if (type == "E") {
                         var buttonstomove = [];
-                        // stackbuttonArray[0].moveToVector3(new BABYLON.Vector3(1, 1, 0), scene);
+                        // console.log(stackcubeArray)
                         var ycoord = stackcubePos[index][1];
                         var xcoord = stackcubePos[index][0];
-                        
+                        // console.log(stackcubeArray, index)
                         var cubeint = parseInt(stackcubeArray[index].slice(1));
-                        console.log(cubeint)
-                        
-                        for (var i=0; i<stackbuttonArray.length; i++){
-                            var but_xpos = gridMat[stackbuttonArray[i][1]][stackbuttonArray[i][2]][0];
-                            var but_ypos = gridMat[stackbuttonArray[i][1]][stackbuttonArray[i][2]][1];
-                            // if it's only one cube, means only one button to worry about, the button directly above
-                            if (cubeint == 1) {
-                                // check if the button is above the cube to be undone
-                                if (but_xpos == xcoord && but_ypos > ycoord) {
-                                    // duplicate the old button
-                                    var newbutton = btn_Stack(scene, gridMat, stackbuttonArray[i][1]-1, stackbuttonArray[i][2], stackbuttonArray[i][0].name);
+            
+                        var row = findRow(ycoord); // row of the cubes that were undone
+                        var buttonsAbove = stackbtn_grid[row+1];
+                        var buttonsCurrent = stackbtn_grid[row];
 
-                                    // delete the old button
-                                    stackbuttonArray[i][0].dispose();
+                        // if it's only one cube, means only one button to worry about, the button directly above
+                        if (cubeint == 1) {
+                            // check if the button is above the cube to be undone
+                            for (var i=0; i<buttonsAbove.length; i++) {
+                                var rx_target_above = buttonsAbove[i][1];
+                                var cy_target_above = buttonsAbove[i][2];
+                                var btnAbove = buttonsAbove[i][0];
+                                if (gridMat[rx_target_above][cy_target_above][0] == xcoord) {
+                                    btnAbove.moveToVector3(new BABYLON.Vector3(gridMat[rx_target_above][cy_target_above][0], gridMat[rx_target_above][cy_target_above][1], -10), scene);
 
-                                    // replace the button and the old row position
-                                    stackbuttonArray[i][0] = newbutton;
-                                    stackbuttonArray[i][1] = stackbuttonArray[i][1]-1; 
+                                    // moving the button in the cube pos back into the scene
+                                    var btnCur = buttonsCurrent[i][0];
+                                    var rx_target_cur = buttonsCurrent[i][1];
+                                    var cy_target_cur = buttonsCurrent[i][2];
+                                    btnCur.moveToVector3(new BABYLON.Vector3(gridMat[rx_target_cur][cy_target_cur][0], gridMat[rx_target_cur][cy_target_cur][1], 0), scene);
                                 }
                             }
-                            else if (cubeint > 1) {
-                                var halflength = (boxgridWidth*cubeint)/2;
-                                var start = xcoord - halflength;
-                                var end = xcoord + halflength;
-                                
-                                if (but_xpos > start && but_xpos < end && but_ypos > ycoord && but_ypos < ycoord+boxgridWidth*2) {
-                                    // duplicate the old button
-                                    var newbutton = btn_Stack(scene, gridMat, stackbuttonArray[i][1]-1, stackbuttonArray[i][2], stackbuttonArray[i][0].name);
+                            
+                        }
+                        else if (cubeint > 1) {
+                            var halflength = (boxgridWidth*cubeint)/2;
+                            var start = xcoord - halflength;
+                            var end = xcoord + halflength;
 
-                                    // delete the old button
-                                    stackbuttonArray[i][0].dispose();
+                            for (var i=0; i<buttonsAbove.length; i++) {
+                                var rx_target_above = buttonsAbove[i][1];
+                                var cy_target_above = buttonsAbove[i][2];
+                                var btnAbove = buttonsAbove[i][0];
+                                var but_xpos = gridMat[rx_target_above][cy_target_above][0];
+                                var but_ypos = gridMat[rx_target_above][cy_target_above][1];
 
-                                    // replace the button and the old row position
-                                    stackbuttonArray[i][0] = newbutton;
-                                    stackbuttonArray[i][1] = stackbuttonArray[i][1]-1;
+                                if (but_xpos > start && but_xpos < end) {
+                                    btnAbove.moveToVector3(new BABYLON.Vector3(gridMat[rx_target_above][cy_target_above][0], gridMat[rx_target_above][cy_target_above][1], -10), scene);
+
+                                    // moving the button in the cube pos back into the scene
+                                    var btnCur = buttonsCurrent[i][0];
+                                    var rx_target_cur = buttonsCurrent[i][1];
+                                    var cy_target_cur = buttonsCurrent[i][2];
+                                    btnCur.moveToVector3(new BABYLON.Vector3(gridMat[rx_target_cur][cy_target_cur][0], gridMat[rx_target_cur][cy_target_cur][1], 0), scene);
                                 }
                             }
                         }
                         
-                        stackcubeArray.splice(index, 1)
-                        stackcubePos.splice(index, 1)
-                        stackAccesoryArray.splice(index, 1)
-                        stackAccesoryPos.splice(index, 1)
-                        stackcubeCtr = stackcubeCtr - 1; 
                         
+                        stackcubeArray.splice(index, 1);
+                        stackcubePos.splice(index, 1);
+                        stackAccesoryArray.splice(index, 1);
+                        stackAccesoryPos.splice(index, 1);
+                        stackcubeCtr = stackcubeCtr - 1;
+                    }
+                    else if (type == "B") {
+                        var buttonstomove = [];
+                        
+                        var ycoord = basecubePos[index][1];
+                        var xcoord = basecubePos[index][0];
+
+                        var cubeint = parseInt(basecubeArray[index].slice(1));
+
+                        var breakcheck = false;
+                        for (var i=0; i<basebuttonArray.length; i++){
+                            // console.log(basebuttonArray)
+                            var but_xpos = gridMat[basebuttonArray[i][1]][basebuttonArray[i][2]][0];
+                            var but_ypos = gridMat[basebuttonArray[i][1]][basebuttonArray[i][2]][1];
+                            // console.log(but_xpos, xcoord)
+                            if (but_xpos == xcoord) {
+                                for (var j=0; j<stackbuttonArray.length; j++) {
+                                    var stackbut_xpos = gridMat[stackbuttonArray[j][1]][stackbuttonArray[j][2]][0];
+                                    var stackbut_ypos = gridMat[stackbuttonArray[j][1]][stackbuttonArray[j][2]][1];
+                                    
+                                    if (cubeint == 1) {
+                                        if (stackbut_xpos == xcoord && stackbut_ypos > ycoord) {
+                                            stackbuttonArray[j][0].dispose();   
+                                            var newbutton = btn_BaseHorInit(scene, gridMat, basebuttonArray[i][1], basebuttonArray[i][2], 3); 
+                                        }
+                                    }
+                                      
+                                }
+                               
+                            }
+                            
+                        }
                     }
                     
                     function undo() {
                         var latestItem = undoSTACK.pop();
                         var type = latestItem[0];
                         var index = parseInt(latestItem.slice(1));
+                        // console.log(latestItem)
                         var undoitem = scene.getMeshByID(latestItem);
                         return [undoitem, type, index];
                     }
                     
                 });
 
-
-                // window.addEventListener("priceUpdate", function(){
-
-                //     if (isNaN(totalStackAccessories)) {
-                //         totalStackAccessories = 0;
-                //     }
-                //     if (isNaN(totalBaseAccessories)) {
-                //         totalBaseAccessories = 0;
-                //     }
-                //     if (isNaN(totalStackcubes)) {
-                //         totalStackcubes = 0;
-                //     }
-
-                //     price = totalBasecubes + totalStackcubes + totalBaseAccessories + totalStackAccessories;
-                    
-                //     document.getElementById("price").textContent = "USD" + price.toFixed(2);;
-                // });
-               
             });
         
         </script>        
