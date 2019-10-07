@@ -1086,7 +1086,7 @@ function btn_BaseHorInit (scene, gridMat, rx_target, cy_target, btnName) {
                               // if it is not, then the stack buttons are imported after the base buttons are pressed
                               if (stackcubePos[i][1] >= BASE_CUBE_YCOORD+(boxgridWidth*2)) {
                                    continue;
-                              }
+                              } 
                               // if there is a plank stack cube directly above the buttons, don't import the stack cube buttons
                               else {
                                    var name = stackplankConfig[j][0];
