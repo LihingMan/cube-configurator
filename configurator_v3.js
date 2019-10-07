@@ -685,6 +685,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     var x = stackbuttons[i][1];
                     var y = stackbuttons[i][2];
                     stackbuttons[i][0].moveToVector3(new BABYLON.Vector3(gridMat[x][y][0], gridMat[x][y][1], 0), scene);
+                    stackbuttons[i][3] = 1;
                }
 
                // determine which base buttons should be available to be pressed on scene render
@@ -693,6 +694,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     var x = basebuttonArray[i][1];
                     var y = basebuttonArray[i][2];
                     basebuttonArray[i][0].moveToVector3(new BABYLON.Vector3(gridMat[x][y][0], gridMat[x][y][1], 0), scene);
+                    basebuttonArray[i][3] = 1;
                }
 
                // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
@@ -1072,7 +1074,8 @@ function btn_BaseHorInit (scene, gridMat, rx_target, cy_target, btnName) {
           var plankAbove = false;
           
           button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], -10), scene);
-
+          console.log(basebuttonArray)
+          basebuttonArray[cy_target-1][3] = 0;
           importBaseCubes(scene,gridMat,'B1',rx_target,cy_target,'nextLOGIC'); 
 
           for (var i=0; i<stackcubeArray.length; i++) {
@@ -1115,6 +1118,7 @@ function btn_BaseHorInit (scene, gridMat, rx_target, cy_target, btnName) {
                var x = buttons[ind][1];
                var y = buttons[ind][2];
                buttons[ind][0].moveToVector3(new BABYLON.Vector3(gridMat[x][y][0], gridMat[x][y][1], 0), scene);
+               buttons[ind][3] = 1;
           }
           
           
@@ -1122,7 +1126,7 @@ function btn_BaseHorInit (scene, gridMat, rx_target, cy_target, btnName) {
 
      advancedTexture.addControl(button);
      button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], -10), scene);
-
+     
      return button;
 }
 
@@ -1383,6 +1387,7 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
                var rx_target = buttons[i][1];
                var cy_target = buttons[i][2];
                btn.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], -10), scene);
+               buttons[i][3] = 0;
           }
      }
 
@@ -1897,6 +1902,7 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
           if (!plankAbove) {
                // move current button out of the scene
                button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], -10), scene);
+               stackbtn_grid[rx_target][cy_target][3] = 0;
 
                // increment the row number
                var row = rx_target
@@ -1905,11 +1911,17 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
                var buttons = stackbtn_grid[row];
 
                // move the button above current cube into the scene
-               buttons[cy_target][0].moveToVector3(new BABYLON.Vector3(gridMat[row][cy_target][0], gridMat[row][cy_target][1], 0), scene); 
+               if (stackbtn_grid[row][cy_target][3] == 0 && stackbtn_grid[row+1][cy_target][3] == 0){
+                    buttons[cy_target][0].moveToVector3(new BABYLON.Vector3(gridMat[row][cy_target][0], gridMat[row][cy_target][1], 0), scene);
+                    
+                    stackbtn_grid[row][cy_target][3] = 1;
+                    console.log(stackbtn_grid)
+               }
                
           }
           else {
                button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], -10), scene);
+               stackbtn_grid[rx_target][cy_target][3] = 0;
           }
 
      });
@@ -2296,13 +2308,13 @@ function initButtons(){
      scene.updateTransformMatrix();
      for (var i=1; i<gridMat[0].length; i++) {
           var basebtn = btn_BaseHorInit(scene, gridMat, 0, i, i+1);
-          basebuttonArray.push([basebtn, 0, i]);
+          basebuttonArray.push([basebtn, 0, i, 0]);
      }
 
      for (var i=1; i<gridMat.length; i++){
           for (var j=0; j<gridMat[0].length; j++){
                var stackbtn = btn_Stack(scene, gridMat, i, j, j);
-               stackbtn_grid[i].push([stackbtn, i, j]);
+               stackbtn_grid[i].push([stackbtn, i, j, 0]);
           }
      }
      console.log(stackbtn_grid)
