@@ -229,16 +229,16 @@ function createCamera(scene) {
      var camera = new BABYLON.ArcRotateCamera("camera", -Math.PI/2, Math.PI/2, 4, new BABYLON.Vector3(2,1.25,0), scene); 
      // camera.attachControl(canvas, true);
      // set limits to camera movement so users dont get disorganized  
-     camera.lowerRadiusLimit = 4;
-     camera.upperRadiusLimit = 4; 
-     camera.lowerAlphaLimit = -1.8; // rmbr this is radians!  
-     camera.upperAlphaLimit = -1.3; 
-     camera.lowerBetaLimit = 1.35; 
-     camera.upperBetaLimit = 1.75; 
+     // camera.lowerRadiusLimit = 4;
+     // camera.upperRadiusLimit = 4; 
+     // camera.lowerAlphaLimit = -1.8; // rmbr this is radians!  
+     // camera.upperAlphaLimit = -1.3; 
+     // camera.lowerBetaLimit = 1.35; 
+     // camera.upperBetaLimit = 1.75; 
 
      // totally deactivate panning (if developer requires to see beyond cube, comment this out in development)
-     scene.activeCamera.panningSensibility = 0;
-     scene.activeCamera = camera; // set it as active viewport
+     // scene.activeCamera.panningSensibility = 0;
+     // scene.activeCamera = camera; // set it as active viewport
      
      /* for testing only
      var camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI/2, Math.PI/2, 4.5, new BABYLON.Vector3(2,1.25,0), scene); 
@@ -690,7 +690,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
 
                // determine which base buttons should be available to be pressed on scene render
                // i.e if intprefix = 1, means that one cube has been automatically imported, thus 5 buttons on the right of the cube should be available
-               for (var i=intprefix-1; i<basebuttonArray.length; i++) {
+               for (var i=intprefix; i<basebuttonArray.length; i++) {
                     var x = basebuttonArray[i][1];
                     var y = basebuttonArray[i][2];
                     basebuttonArray[i][0].moveToVector3(new BABYLON.Vector3(gridMat[x][y][0], gridMat[x][y][1], 0), scene);
@@ -1074,8 +1074,8 @@ function btn_BaseHorInit (scene, gridMat, rx_target, cy_target, btnName) {
           var plankAbove = false;
           
           button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], -10), scene);
-          console.log(basebuttonArray)
-          basebuttonArray[cy_target-1][3] = 0;
+          
+          basebuttonArray[cy_target][3] = 0;
           importBaseCubes(scene,gridMat,'B1',rx_target,cy_target,'nextLOGIC'); 
 
           for (var i=0; i<stackcubeArray.length; i++) {
@@ -1417,7 +1417,9 @@ function importPlankStackCubes_SUPP(scene, gridMat, x, y, plankstackprefix) {
           plankstackMesh.id = String('ES' + stackcubeCtr); 
           
           plankstackMesh.name = String('ES' + stackcubeCtr); 
-          
+
+          undoSTACK.push(plankstackMesh.id);
+
           plankstackMesh.position.x = x; 
           plankstackMesh.position.y = y;
           plankstackMesh.position.z = gridMat[0][0][2]; // this one is constant for all stack cubes 
@@ -1915,8 +1917,15 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
                     buttons[cy_target][0].moveToVector3(new BABYLON.Vector3(gridMat[row][cy_target][0], gridMat[row][cy_target][1], 0), scene);
                     
                     stackbtn_grid[row][cy_target][3] = 1;
-                    console.log(stackbtn_grid)
+
                }
+
+               // else if (stackbtn_grid[row][cy_target][3] == 0 && stackbtn_grid[row+1][cy_target][3] == 1){
+               //      buttons[cy_target][0].moveToVector3(new BABYLON.Vector3(gridMat[row][cy_target][0], gridMat[row][cy_target][1], 0), scene);
+                    
+               //      stackbtn_grid[row][cy_target][3] = 1;
+               //      console.log(stackbtn_grid)
+               // }
                
           }
           else {
@@ -2304,9 +2313,11 @@ function cleanUp(array) {
 }
 
 // make buttons for each coordinate
+// the format of each index in the button arrays are [button object, row, col, binary val(0 or 1)]
+// the binary val determines whether or not the button is visible to the user or not
 function initButtons(){
      scene.updateTransformMatrix();
-     for (var i=1; i<gridMat[0].length; i++) {
+     for (var i=0; i<gridMat[0].length; i++) {
           var basebtn = btn_BaseHorInit(scene, gridMat, 0, i, i+1);
           basebuttonArray.push([basebtn, 0, i, 0]);
      }
@@ -2317,7 +2328,7 @@ function initButtons(){
                stackbtn_grid[i].push([stackbtn, i, j, 0]);
           }
      }
-     console.log(stackbtn_grid)
+     // console.log(stackbtn_grid)
 }
 
 
