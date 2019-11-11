@@ -91,7 +91,7 @@
                 window.addEventListener("popupBase", function(){  
                     // get the active base cube accesory array
                     var activeAssArr = baseAccesoryArray[baseIndex]; // note this should equal to the integer of each cube i.e. 6 for B6 etc
-                    
+                    // console.log(activeAssArr)
                     // init the render to html dropdown selection
                     // idea is to use the global accesory tracker which is always updated in the main logic upon import of accesory
                     var cubelistHTML = ''; 
@@ -136,7 +136,8 @@
                     // import the identified accessory to the selected cube
                     $(".dropdown-item").click(function(){
                         id = parseInt(this.id); // id of selected cube
-                        makeEvent("importAccessoryBase");
+                        // makeEvent("importAccessoryBase");
+                        callbackFromCanvas("base")
                         $('#pop-up-modal').modal("hide"); // close modal after choosing accessory
                     });
 
@@ -222,7 +223,8 @@
                         // console.log(this.innerHTML)
                         
                         id = parseInt(this.id); // id of selected cube
-                        makeEvent("importAccessoryStack");
+                        // makeEvent("importAccessoryStack");
+                        callbackFromCanvas("stack")
                         $('#pop-up-modal').modal("hide"); // close modal after choosing accessory
                     });
 
@@ -325,7 +327,8 @@
                     // import the identified accessory to the selected cube
                     $(".dropdown-item").click(function(){
                         id = parseInt(this.id); // id of selected cube
-                        makeEvent("importAccessoryPlank");
+                        
+                        callbackFromCanvas("plank")
                         $('#pop-up-modal').modal("hide"); // close modal after choosing accessory
                     });
 
@@ -343,8 +346,12 @@
                 });
 
                 $("#showarray").click(function(){
-                    console.log(basecubeArray)
-                    console.log(stackcubeArray)
+                    cleanUp(basecubeArray)
+                    cleanUp(stackcubeArray)
+                    
+                    console.log("Base cubes: ", basecubeArray)
+                    console.log("Stack cubes", stackcubeArray)
+                    console.log(basecubePos)
                 })
 
                 $("#undo").click(function(){
@@ -354,7 +361,7 @@
                     var latestItem = retval[1];
                     var type;
                     var index;
-                    // console.log(latestItem)
+                    console.log(latestItem)
                     
                     if (latestItem != "B0") {
                         type = latestItem[0];
@@ -368,22 +375,43 @@
                         }
 
                         if (latestItem != "B0") {
+
                             undoitem.dispose();
 
-                            // =========== FOR STACK CUBES =======================================================================================================
+                            // ====================================== FOR STACK AND PLANK CUBES ============================================================
 
-                            if (type == "E" && !Number.isNaN(index)) {
+                            if (type == "E") {
+                                // if its not a number then the format of the string means that its a plank cube 
+                                // i.e "ES4"
+                                if (Number.isNaN(index)) {
+                                    index = latestItem.slice(2);
+                                    var config;
+                                    var plankType = stackcubeArray[index];
+
+                                    for (var i=0; i<stackplankConfig.length; i++) {
+                                        if (plankType == stackplankConfig[i][0]) {
+                                            config = stackplankConfig[i][1];
+                                            break;
+                                        }
+                                    }
+
+                                    var cubeint = config.length;
+                                }
+                                // else its a normal stack cube
+                                else {
+                                    var cubeint = parseInt(stackcubeArray[index].slice(1));
+                                }
                                 
-                                // console.log(stackcubeArray)
                                 var ycoord = stackcubePos[index][1];
                                 var xcoord = stackcubePos[index][0];
-                                // console.log(stackcubeArray, index)
-                                var cubeint = parseInt(stackcubeArray[index].slice(1));
-                    
+
                                 var row = findRow(ycoord); // row of the cubes that were undone
-                                var buttonsAbove = stackbtn_grid[row+1];
-                                var buttonsCurrent = stackbtn_grid[row];
+
+                                var buttonsBelow = stackbtn_grid[row-1]; // buttons below the current row
+                                var buttonsAbove = stackbtn_grid[row+1]; // buttons above the current row
+                                var buttonsCurrent = stackbtn_grid[row]; // buttons on the current row
                                 
+                                // dimensions of the mesh to be undone
                                 var halflength = (boxgridWidth*cubeint)/2;
                                 var start = xcoord - halflength;
                                 var end = xcoord + halflength;
@@ -395,10 +423,12 @@
                                     var btnAbove = buttonsAbove[i][0];
                                     var but_xpos = gridMat[rx_target_above][cy_target_above][0];
                                     var but_ypos = gridMat[rx_target_above][cy_target_above][1];
-
-                                    // move the buttons above the current row out of the scene
+                                    
+                                    // move the buttons above the current row out of the scene 
+                                    // NOTE: when moving buttons, -10 is to move button out of sight, 0 is to move button into sight
                                     if (but_xpos > start && but_xpos < end) {
                                         if (buttonsAbove[i][3] == 1){
+
                                             btnAbove.moveToVector3(new BABYLON.Vector3(but_xpos, but_ypos, -10), scene);
                                             buttonsAbove[i][3] = 0;
                                         }
@@ -407,12 +437,30 @@
                                         var btnCur = buttonsCurrent[i][0];
                                         var rx_target_cur = buttonsCurrent[i][1];
                                         var cy_target_cur = buttonsCurrent[i][2];
-                                        btnCur.moveToVector3(new BABYLON.Vector3(gridMat[rx_target_cur][cy_target_cur][0], gridMat[rx_target_cur][cy_target_cur][1], 0), scene);
-                                        buttonsCurrent[i][3] = 1;
-                                        
+                                        var cur_xpos = gridMat[rx_target_cur][cy_target_cur][0];
+                                        var cur_ypos = gridMat[rx_target_cur][cy_target_cur][1];
+
+                                        if (row == 1) {
+                                            
+                                            if (basebuttonArray[i][3] == 0) {
+                                                btnCur.moveToVector3(new BABYLON.Vector3(cur_xpos, cur_ypos, 0), scene);
+                                                buttonsCurrent[i][3] = 1;
+                                            }
+                                        }
+                                        else if (row > 1){
+                                            
+                                            if (buttonsBelow[i][3] == 0) {
+                                                btnCur.moveToVector3(new BABYLON.Vector3(cur_xpos, cur_ypos, 0), scene);
+                                                buttonsCurrent[i][3] = 1;
+                                                if (basebuttonArray[i][3] == 1) {
+                                                    btnCur.moveToVector3(new BABYLON.Vector3(cur_xpos, cur_ypos, -10), scene);
+                                                    buttonsCurrent[i][3] = 0;
+                                                } 
+                                            }
+                                            
+                                        }   
                                     }
                                 }
-
                                 stackcubeArray.splice(index, 1);
                                 stackcubePos.splice(index, 1);
                                 stackAccesoryArray.splice(index, 1);
@@ -420,11 +468,10 @@
                                 stackcubeCtr = stackcubeCtr - 1;
                             }
 
-                            // =========== FOR BASE CUBES =====================================================================================================
+                            // ============================================= FOR BASE CUBES ======================================================================
 
                             else if (type == "B") {
-                                console.log(basecubePos)
-                                console.log(basebuttonArray)
+                                
                                 var xcoord = basecubePos[index][0];
                                 var ycoord = basecubePos[index][1];
                                 var cubeint = parseInt(basecubeArray[index].slice(1));
@@ -453,68 +500,26 @@
                                 basecubeCtr = basecubeCtr - 1;
                             }
 
-                            // =========== FOR PLANK CUBES =====================================================================================================
+                            // ============================================= FOR ACCESSORIES ======================================================================
+                            // else if (type == "S" || type == "P" || type == "A") {
+                            //     index = parseInt(latestItem.slice(3));
 
-                            else if (type == "E" && Number.isNaN(index)) {
-                                index = latestItem.slice(2);
-                                var config;
-                                var plankType = stackcubeArray[index];
-
-                                for (var i=0; i<stackplankConfig.length; i++) {
-                                    if (plankType == stackplankConfig[i][0]) {
-                                        config = stackplankConfig[i][1];
-                                        break;
-                                    }
-                                }
-                                var xcoord = stackcubePos[index][0];
-                                var ycoord = stackcubePos[index][1];
-                                var cubeint = config.length;
-                    
-                                var row = findRow(ycoord); // row of the cubes that were undone
-                                var buttonsAbove = stackbtn_grid[row+1];
-                                var buttonsCurrent = stackbtn_grid[row];
+                            
+                            // }
+                            // else if (type == "A") {
+                            //     index = parseInt(latestItem.slice(3));
+                            //     console.log(baseAccesoryArray[index])
+                                // var cubetype = basecubeArray[index]
+                                // size = parseInt(cubetype.slice(1));
                                 
-                                var halflength = (boxgridWidth*cubeint)/2;
-                                var start = xcoord - halflength;
-                                var end = xcoord + halflength;
-
-                                for (var i=0; i<buttonsAbove.length; i++) {
-                                    // these are the variables for the buttons on the top row
-                                    var rx_target_above = buttonsAbove[i][1];
-                                    var cy_target_above = buttonsAbove[i][2];
-                                    var btnAbove = buttonsAbove[i][0];
-                                    var but_xpos = gridMat[rx_target_above][cy_target_above][0];
-                                    var but_ypos = gridMat[rx_target_above][cy_target_above][1];
-
-                                    if (but_xpos > start && but_xpos < end) {
-                                        // move the buttons above the current row out of the scene
-                                        if (buttonsAbove[i][3] == 1){
-                                            btnAbove.moveToVector3(new BABYLON.Vector3(but_xpos, but_ypos, -10), scene);
-                                            buttonsAbove[i][3] = 0;
-                                        }
-                                        
-                                        // moving the button in the current cube row back into the scene
-                                        var btnCur = buttonsCurrent[i][0];
-                                        var rx_target_cur = buttonsCurrent[i][1];
-                                        var cy_target_cur = buttonsCurrent[i][2];
-                                        var cur_xpos = gridMat[rx_target_cur][cy_target_cur][0];
-                                        var cur_ypos = gridMat[rx_target_cur][cy_target_cur][1];
-                                    
-                                        btnCur.moveToVector3(new BABYLON.Vector3(cur_xpos, cur_ypos, 0), scene);
-                                        buttonsCurrent[i][3] = 1;
-
-                                    }
-                                }
-                                stackcubeArray.splice(index, 1);
-                                stackcubePos.splice(index, 1);
-                                stackAccesoryArray.splice(index, 1);
-                                stackAccesoryPos.splice(index, 1);
-                                stackcubeCtr = stackcubeCtr - 1;
-                            }
+                                // baseAccesoryArray[index] = new Array(size).fill(0)
+                                // baseAccesoryPos[index] = new Array(size).fill(0)
+                                // baseAccesoryArray.splice(index, 1);
+                                // baseAccesoryPos.splice(index, 1);
+                            // }
                         }
                         
                     }
-                    
                     
                     function undo() {
                         if (undoSTACK[undoSTACK.length-1] == "B0") {
