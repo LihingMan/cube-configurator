@@ -288,7 +288,7 @@
                                     posCtr += plankType[j].length - 1
                                 }
                             }
-                            console.log(activeAssArr)
+                            
                             for (var j=0; j<posCtr; j++) {
                                 cubelistHTML = cubelistHTML + `<a class="dropdown-item" id="${j+1}">Position ${j+1}</a>`;
                             }
@@ -463,8 +463,8 @@
                                 }
                                 stackcubeArray.splice(index, 1);
                                 stackcubePos.splice(index, 1);
-                                stackAccesoryArray.splice(index, 1);
-                                stackAccesoryPos.splice(index, 1);
+                                stackAccesoryArray[index] = new Array(cubeint).fill(0);
+                                stackAccesoryPos[index] = new Array(cubeint).fill(0);
                                 stackcubeCtr = stackcubeCtr - 1;
                             }
 
@@ -495,28 +495,92 @@
                                 }
                                 basecubeArray.splice(index, 1);
                                 basecubePos.splice(index, 1);
-                                baseAccesoryArray.splice(index, 1);
-                                baseAccesoryPos.splice(index, 1);
+                                baseAccesoryArray[index] = new Array(cubeint).fill(0)
+                                baseAccesoryPos[index] = new Array(cubeint).fill(0)
                                 basecubeCtr = basecubeCtr - 1;
                             }
 
                             // ============================================= FOR ACCESSORIES ======================================================================
-                            // else if (type == "S" || type == "P" || type == "A") {
-                            //     index = parseInt(latestItem.slice(3));
+                           
+                            /////// NOTE: Accessories which start with the letter "B" are base cube accessories
+                            else if (type == "A") {
 
-                            
-                            // }
-                            // else if (type == "A") {
-                            //     index = parseInt(latestItem.slice(3));
-                            //     console.log(baseAccesoryArray[index])
-                                // var cubetype = basecubeArray[index]
-                                // size = parseInt(cubetype.slice(1));
+                                index = parseInt(latestItem.slice(3));
                                 
-                                // baseAccesoryArray[index] = new Array(size).fill(0)
-                                // baseAccesoryPos[index] = new Array(size).fill(0)
-                                // baseAccesoryArray.splice(index, 1);
-                                // baseAccesoryPos.splice(index, 1);
-                            // }
+                                var cubetype = basecubeArray[index];
+                                var size = parseInt(cubetype.slice(1));
+                                var cur_accesory_x = undoitem.absolutePosition.x;
+     
+                                var all_accesory_pos = baseAccesoryPos[index];
+                                var accesory_ind;
+                                
+                                for (var i=0; i<all_accesory_pos.length; i++) {
+                                    if(all_accesory_pos[i] != 0) {
+                                        
+                                        if (cur_accesory_x <= all_accesory_pos[i][0] + TOL && cur_accesory_x >= all_accesory_pos[i][0] - TOL) {
+                                            accesory_ind = i;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                baseAccesoryArray[index][accesory_ind] = 0;
+                                baseAccesoryPos[index][accesory_ind] = 0;
+                            }
+
+                            /////// NOTE: Accessories which start with the letter "S" are stack cube accessories
+                            else if(type == "S") {
+                                index = parseInt(latestItem.slice(3));
+
+                                var cubetype = stackcubeArray[index];
+                                var size = parseInt(cubetype.slice(1));
+                                var cur_accesory_x = undoitem.absolutePosition.x;
+     
+                                var all_accesory_pos = stackAccesoryPos[index];
+                                var accesory_ind;
+                                for (var i=0; i<all_accesory_pos.length; i++) {
+                                    if(all_accesory_pos[i] != 0) {
+                                        if (cur_accesory_x <= all_accesory_pos[i][0] + TOL && cur_accesory_x >= all_accesory_pos[i][0] - TOL) {
+                                            accesory_ind = i;
+                                            break;
+                                        }
+                                    }
+                                }
+                                stackAccesoryArray[index][accesory_ind] = 0;
+                                stackAccesoryPos[index][accesory_ind] = 0;
+                            }
+
+                            /////// NOTE: Accessories which start with the letter "P" are plank cube accessories
+
+                            else if(type == "P") {
+                                index = parseInt(latestItem.slice(3));
+
+                                var plankType = stackcubeArray[index];
+                                var size;
+                                var config;
+
+                                if (plankType[0] == "R") {
+                                    size = parseInt(plankType[2]);
+                                }
+                                else if(plankType[0] == "E") {
+                                    size = parseInt(plankType[1]);
+                                }
+                                
+                                for (var i=0; i<stackplankConfig.length; i++) {
+                                    if (plankType == stackplankConfig[i][0]) {
+                                        config = stackplankConfig[i][1];
+                                        break;
+                                    }
+                                }
+
+                                var cur_accesory_x = undoitem.absolutePosition.x;
+                                var all_accesory_pos = stackAccesoryPos[index];
+                                console.log(config)
+                                console.log(stackAccesoryArray[index])
+                                console.log(stackAccesoryArray)
+                                console.log(cur_accesory_x)
+                                
+                            }
                         }
                         
                     }
@@ -528,6 +592,7 @@
                         else {
                             var latestItem = undoSTACK.pop();
                             var undoitem = scene.getMeshByID(latestItem);
+
                             return [undoitem, latestItem];
                         }
                         

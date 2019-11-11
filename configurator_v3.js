@@ -1077,8 +1077,14 @@ function btn_BaseHorInit (scene, gridMat, rx_target, cy_target, btnName) {
                               } 
                               // if there is a plank stack cube directly above the buttons, don't import the stack cube buttons
                               else {
+
                                    var name = stackplankConfig[j][0];
-                                   var plankSize = parseInt(name[1]);
+                                   if (name[0] == "R") {
+                                        var plankSize = parseInt(name[2]);
+                                   }
+                                   else if(name[0] == "E") {
+                                        var plankSize = parseInt(name[1]);
+                                   }
                                    var plankCoor = stackcubePos[i][0];
                                    var halfplankLength = (plankSize*boxgridWidth)/2;
 
@@ -1882,7 +1888,13 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
                               // if there is a plank stack cube directly above the buttons, don't import the stack cube buttons
                               else {
                                    var name = stackplankConfig[j][0];
-                                   var plankSize = parseInt(name[1]);
+                                   if (name[0] == "R") {
+                                        var plankSize = parseInt(name[2]);
+                                   }
+                                   else if(name[0] == "E") {
+                                        var plankSize = parseInt(name[1]);
+                                   }
+                                   
                                    var plankCoor = stackcubePos[i][0];
                                    var halfplankLength = (plankSize*boxgridWidth)/2;
 
@@ -1892,6 +1904,7 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
                                    
                                    // don't spawn the buttons which are underneath the plank
                                    if (gridMat[rx_target][cy_target][0] >= low && gridMat[rx_target][cy_target][0] <= high){
+                                        console.log("here")
                                         plankAbove = true;
                                    }
                               }
@@ -2034,7 +2047,7 @@ function importBaseAccesories(scene, asstype, cubeNameId, importPos) {
         // recall that importPos is the cube prefix int from 1-6 for B1-B6. so in terms of index, it is 0-5
         
         baseAccesoryArray[cubemeshInd][importPos - 1] = asstype;
-        baseAccesoryPos[cubemeshInd][importPos - 1] = [[xposMesh, cubePos[1], cubePos[2]]]; 
+        baseAccesoryPos[cubemeshInd][importPos - 1] = [xposMesh, cubePos[1], cubePos[2]]; 
         
 
     });
@@ -2112,8 +2125,8 @@ function importStackAccesories(scene, asstype, cubeNameId, importPos) {
 					// update stack accesory arrays at their respective specific cubes position
 					stackAccesoryArray[cubemeshInd][importPos - 1] = asstype;
 					stackAccesoryArray[cubemeshInd][importPos] = asstype;
-					stackAccesoryPos[cubemeshInd][importPos - 1] = [[assMesh.position.x, assMesh.position.y, assMesh.position.z]]; 
-					stackAccesoryPos[cubemeshInd][importPos] = [[assMesh.position.x, assMesh.position.y, assMesh.position.z]]; 
+					stackAccesoryPos[cubemeshInd][importPos - 1] = [assMesh.position.x, assMesh.position.y, assMesh.position.z]; 
+					stackAccesoryPos[cubemeshInd][importPos] = [assMesh.position.x, assMesh.position.y, assMesh.position.z]; 
                     }
                     else{
                          alert("Tables can only be imported on the second level");
@@ -2142,7 +2155,7 @@ function importStackAccesories(scene, asstype, cubeNameId, importPos) {
 
 			// update stack accesory arrays at their respective specific cubes position
 			stackAccesoryArray[cubemeshInd][importPos - 1] = asstype;
-			stackAccesoryPos[cubemeshInd][importPos - 1] = [[xposMesh, cubePos[1], cubePos[2]]]; 
+			stackAccesoryPos[cubemeshInd][importPos - 1] = [xposMesh, cubePos[1], cubePos[2]]; 
 
 		}
 
@@ -2255,8 +2268,8 @@ function importPlankAccesories(scene, asstype, cubeNameId, importPos) {
                     }
                     stackAccesoryArray[cubemeshInd][index] = asstype;
                     stackAccesoryArray[cubemeshInd][index - 1] = asstype;
-                    stackAccesoryPos[cubemeshInd][index] = [[assMesh.position.x, assMesh.position.y, assMesh.position.z]]; 
-                    stackAccesoryPos[cubemeshInd][index - 1] = [[assMesh.position.x, assMesh.position.y, assMesh.position.z]]; 
+                    stackAccesoryPos[cubemeshInd][index] = [assMesh.position.x, assMesh.position.y, assMesh.position.z]; 
+                    stackAccesoryPos[cubemeshInd][index - 1] = [assMesh.position.x, assMesh.position.y, assMesh.position.z]; 
                }
           }
           else {
@@ -2277,7 +2290,7 @@ function importPlankAccesories(scene, asstype, cubeNameId, importPos) {
                     // update base accesory arrays at their respective specific cubes position
                     // recall that importPos is the cube prefix int from 1-6 for B1-B6. so in terms of index, it is 0-5
                     stackAccesoryArray[cubemeshInd][importPos - 1] = asstype;
-                    stackAccesoryPos[cubemeshInd][importPos - 1] = [[xpos, cubePos[1], cubePos[2]]]; 
+                    stackAccesoryPos[cubemeshInd][importPos - 1] = [xpos, cubePos[1], cubePos[2]]; 
                }
           }
           
