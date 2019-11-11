@@ -509,11 +509,13 @@
                                 
                                 var cubetype = basecubeArray[index];
                                 var size = parseInt(cubetype.slice(1));
-                                var cur_accesory_x = undoitem.absolutePosition.x;
+                                var cur_accesory_x = undoitem.absolutePosition.x; // get the position of the mesh in the scene
      
-                                var all_accesory_pos = baseAccesoryPos[index];
-                                var accesory_ind;
+                                var all_accesory_pos = baseAccesoryPos[index]; // get the accessory array for the current mesh
+                                var accesory_ind; // to determine the index of the accessory in the array to be deleted
                                 
+                                // this loop is to determine the index of the accessory in the array
+                                // have to use TOLERANCE error bars because .absolutePosition returns rounded off figures for the coordinates
                                 for (var i=0; i<all_accesory_pos.length; i++) {
                                     if(all_accesory_pos[i] != 0) {
                                         
@@ -534,10 +536,10 @@
 
                                 var cubetype = stackcubeArray[index];
                                 var size = parseInt(cubetype.slice(1));
-                                var cur_accesory_x = undoitem.absolutePosition.x;
+                                var cur_accesory_x = undoitem.absolutePosition.x; // get the position of the mesh in the scene
      
-                                var all_accesory_pos = stackAccesoryPos[index];
-                                var accesory_ind;
+                                var all_accesory_pos = stackAccesoryPos[index]; // get the accessory array for the current mesh
+                                var accesory_ind; // to determine the index of the accessory in the array to be deleted
                                 for (var i=0; i<all_accesory_pos.length; i++) {
                                     if(all_accesory_pos[i] != 0) {
                                         if (cur_accesory_x <= all_accesory_pos[i][0] + TOL && cur_accesory_x >= all_accesory_pos[i][0] - TOL) {
@@ -566,19 +568,25 @@
                                     size = parseInt(plankType[1]);
                                 }
                                 
-                                for (var i=0; i<stackplankConfig.length; i++) {
-                                    if (plankType == stackplankConfig[i][0]) {
-                                        config = stackplankConfig[i][1];
-                                        break;
+                                var cur_accesory_x = undoitem.absolutePosition.x; // get the position of the mesh in the scene
+                                var all_accesory_pos = stackAccesoryPos[index]; // get the accessory array for the current mesh
+                                var accesory_ind; // to determine the index of the accessory in the array to be deleted
+
+                                for (var i=0; i<all_accesory_pos.length; i++) {
+                                    if(all_accesory_pos[i] != 0) {
+                                        if (cur_accesory_x <= all_accesory_pos[i][0] + TOL && cur_accesory_x >= all_accesory_pos[i][0] - TOL) {
+                                            accesory_ind = i;
+                                            break;
+                                        }
                                     }
                                 }
 
-                                var cur_accesory_x = undoitem.absolutePosition.x;
-                                var all_accesory_pos = stackAccesoryPos[index];
-                                console.log(config)
-                                console.log(stackAccesoryArray[index])
+                                stackAccesoryArray[index][accesory_ind] = 0;
+                                stackAccesoryPos[index][accesory_ind] = 0;
+                                // console.log(accesory_ind)
+                                // console.log(stackAccesoryArray[index])
                                 console.log(stackAccesoryArray)
-                                console.log(cur_accesory_x)
+                                console.log(stackAccesoryPos)
                                 
                             }
                         }
