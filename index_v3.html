@@ -348,10 +348,13 @@
                 $("#showarray").click(function(){
                     cleanUp(basecubeArray)
                     cleanUp(stackcubeArray)
-                    
+                    cleanUp(stackAccesoryArray)
+                    cleanUp(baseAccesoryArray)
                     console.log("Base cubes: ", basecubeArray)
+                    console.log("Base accessories", baseAccesoryArray)
                     console.log("Stack cubes", stackcubeArray)
-                    console.log(basecubePos)
+                    console.log("Stack accessories: ", stackAccesoryArray)
+                    
                 })
 
                 $("#undo").click(function(){
@@ -361,7 +364,7 @@
                     var latestItem = retval[1];
                     var type;
                     var index;
-                    console.log(latestItem)
+
                     
                     if (latestItem != "B0") {
                         type = latestItem[0];
@@ -384,6 +387,7 @@
                                 // if its not a number then the format of the string means that its a plank cube 
                                 // i.e "ES4"
                                 if (Number.isNaN(index)) {
+                                    var plank = true;
                                     index = latestItem.slice(2);
                                     var config;
                                     var plankType = stackcubeArray[index];
@@ -399,6 +403,7 @@
                                 }
                                 // else its a normal stack cube
                                 else {
+                                    var plank = false
                                     var cubeint = parseInt(stackcubeArray[index].slice(1));
                                 }
                                 
@@ -461,11 +466,28 @@
                                         }   
                                     }
                                 }
+
                                 stackcubeArray.splice(index, 1);
                                 stackcubePos.splice(index, 1);
-                                stackAccesoryArray[index] = new Array(cubeint).fill(0);
-                                stackAccesoryPos[index] = new Array(cubeint).fill(0);
+                                // stackAccesoryArray[index] = new Array(cubeint).fill(0);
+                                // stackAccesoryPos[index] = new Array(cubeint).fill(0);
+                                // if (plank) {
+                                //     console.log(stackAccesoryArray[index].length)
+                                //     cubeint = stackAccesoryArray[index].length
+                                //     stackAccesoryArray[index] = new Array(cubeint).fill(0);
+                                //     stackAccesoryPos[index] = new Array(cubeint).fill(0);
+                                // }
+                                // else if (!plank) {
+                                //     stackAccesoryArray[index] = new Array(cubeint).fill(0);
+                                //     stackAccesoryPos[index] = new Array(cubeint).fill(0);
+                                // }
+                                // stackAccesoryArray[index] = 0;
+                                // stackAccesoryPos[index] = 0;
+                                stackAccesoryArray.splice(index, 1)
+                                stackAccesoryPos.splice(index, 1)
                                 stackcubeCtr = stackcubeCtr - 1;
+                                console.log(stackAccesoryArray)
+                                console.log(stackcubeArray)
                             }
 
                             // ============================================= FOR BASE CUBES ======================================================================

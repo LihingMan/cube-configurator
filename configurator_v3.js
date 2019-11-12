@@ -1904,7 +1904,6 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
                                    
                                    // don't spawn the buttons which are underneath the plank
                                    if (gridMat[rx_target][cy_target][0] >= low && gridMat[rx_target][cy_target][0] <= high){
-                                        console.log("here")
                                         plankAbove = true;
                                    }
                               }
@@ -2273,11 +2272,15 @@ function importPlankAccesories(scene, asstype, cubeNameId, importPos) {
                }
           }
           else {
-               // find out which cube in the scene the user wants to import the mesh to
+               // find out which cube in the scene the user wants to import the mesh to based on the plank configuration
                var whichCube = findIndex(config, importPos);
 
+               var halflength = ((config.length)*boxgridWidth)/2;
+               var beginning = cubePos[0] - halflength;
+               var halfboxgridwidth = boxgridWidth/2;
+
                if (whichCube >= 0) {
-                    var xpos = gridMat[whichCube][whichCube][0];
+                    var xpos = beginning + (whichCube*boxgridWidth) + halfboxgridwidth;
 
                     assMesh.position.x = xpos;
                     assMesh.position.y = cubePos[1];
@@ -2328,6 +2331,7 @@ function findConfig(target){
 	}
 }
 
+// finds occurences where there are two stack cubes next to each other such as 11001 
 function findOccurrences(array, targetNum) {
      var occurrence = 0;
      for (var i=0; i<array.length; i++) {
