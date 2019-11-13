@@ -1336,13 +1336,22 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
           
           // THE INDEXOF METHOD RETURNS TOO EARLY THUS IMPORTING THE WRONG PLANK CUBE
           // var indMatch = holder.indexOf(stackplankConfig[i][1]); // get the 1001, 11001 etc etc
-          if (stackplankConfig[i][1] == "1001" && holder != "1001") {
-               if (holder.includes(stackplankConfig[i][1])) {
-                    name = stackplankConfig[i][0];
-                    
-                    first = holder.indexOf(stackplankConfig[i][1]);
-                    last = first + stackplankConfig[i][1].length-1;
-                    
+
+          var cond = false;
+          if (stackplankConfig[i][1] == "1001") {
+               if (holder == "101001" || holder == "100101") {
+                    if (holder.includes(stackplankConfig[i][1])) {
+                         name = stackplankConfig[i][0];
+                         
+                         first = holder.indexOf(stackplankConfig[i][1]);
+                         last = first + stackplankConfig[i][1].length-1;
+                         cond = true;
+                    }
+               }
+               else {
+                    if (holder == stackplankConfig[i][1]) {
+                         name = stackplankConfig[i][0];
+                    }
                }
           }
           else {
@@ -1359,13 +1368,11 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
 
                     // 0.0198 is to make the centre coordinate more flush with the other cubes
                     var x = x_coord_definition[first] + boxgridWidth*multiplier + 0.0198;
-                    console.log()
                     for (var j=0; j<cubeIDs.length; j++) {
                          
                          var getMeshObj = scene.getMeshByID(cubeIDs[j]);
                          
-                         
-                         if (stackplankConfig[i][1] == "1001" && holder != "1001") {
+                         if (cond) {
                               var index = parseInt(cubeIDs[j].slice(1))
                               var mesh_pos = stackcubePos[index][0]
                               
@@ -1391,12 +1398,9 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
                                    stackAccesoryArray[cubeInd] = 0;  // also reset empty array for any associated accesories 
                                    stackAccesoryPos[cubeInd] = 0;
                               }
-                              else {
-                                   
-                                   
-                              }
                          }
                          else {
+                              
                               getMeshObj.dispose(); 
                               getMeshObj = null; // can just ignore error msg from babylon due to this i.e. import error or some shit
                               
@@ -1411,12 +1415,9 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
                               
                               // note: if a cube has been removed, remove its associated accesory array by setting to 0
                               stackAccesoryArray[cubeInd] = 0;  // also reset empty array for any associated accesories 
-                              stackAccesoryPos[cubeInd] = 0;
-                              console.log(stackcubeArray)
+                              stackAccesoryPos[cubeInd] = 0;    
                          }
-                    
                     }
-                    
                     
                     // next, import the plank stackcubes, DO NOT use importStackCubes_SUPP callback func since it calls this function
                     // simply create - copy paste a new SUPP importPlankStackCubes callback 
