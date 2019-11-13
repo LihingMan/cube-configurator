@@ -350,9 +350,14 @@
                     cleanUp(stackcubeArray)
                     cleanUp(stackAccesoryArray)
                     cleanUp(baseAccesoryArray)
+                    cleanUp(basecubePos)
+                    cleanUp(stackcubePos)
+                    
                     console.log("Base cubes: ", basecubeArray)
                     console.log("Base accessories", baseAccesoryArray)
+                    console.log("Base position", basecubePos)
                     console.log("Stack cubes", stackcubeArray)
+                    console.log("Stack position", stackcubePos)
                     console.log("Stack accessories: ", stackAccesoryArray)
                     
                 })
@@ -406,7 +411,7 @@
                                     var plank = false
                                     var cubeint = parseInt(stackcubeArray[index].slice(1));
                                 }
-                                console.log(plank)
+                                
                                 var ycoord = stackcubePos[index][1];
                                 var xcoord = stackcubePos[index][0];
 
@@ -435,6 +440,7 @@
                                         if (buttonsAbove[i][3] == 1){
                                             btnAbove.moveToVector3(new BABYLON.Vector3(but_xpos, but_ypos, -10), scene);
                                             buttonsAbove[i][3] = 0;
+                                            buttonsAbove[i][4] = 0;
                                         }
                                         
                                         // moving the button in the current cube row back into the scene
@@ -445,16 +451,18 @@
                                         var cur_ypos = gridMat[rx_target_cur][cy_target_cur][1];
 
                                         if (row == 1) {
-                                            if (basebuttonArray[i][3] == 0) {
+                                            if (basebuttonArray[i][4] == 1) {
                                                 btnCur.moveToVector3(new BABYLON.Vector3(cur_xpos, cur_ypos, 0), scene);
                                                 buttonsCurrent[i][3] = 1;
+                                                buttonsCurrent[i][4] = 0;
                                             }
                                         }
                                         else if (row > 1){
-                                            if (buttonsBelow[i][3] == 0) {
+                                            if (buttonsBelow[i][4] == 1) {
+                                                
                                                 btnCur.moveToVector3(new BABYLON.Vector3(cur_xpos, cur_ypos, 0), scene);
                                                 buttonsCurrent[i][3] = 1;
-                                                
+                                                buttonsCurrent[i][4] = 0;
                                             }    
                                         }   
                                     }
@@ -490,8 +498,10 @@
                                     if (but_xpos > start && but_xpos < end) {
                                         button.moveToVector3(new BABYLON.Vector3(gridMat[0][col][0], gridMat[0][col][1], 0), scene);
                                         basebuttonArray[i][3] = 1; 
+                                        basebuttonArray[i][4] = 0; 
                                         stackbutton.moveToVector3(new BABYLON.Vector3(gridMat[0][col][0], gridMat[0][col][1], -10), scene);
                                         secondRowBtns[i][3] = 0;
+                                        secondRowBtns[i][4] = 0;
                                     }
                                 }
                                 basecubeArray.splice(index, 1);

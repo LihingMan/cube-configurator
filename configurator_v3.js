@@ -660,7 +660,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                }
 
                // determine which stack buttons should be available to be pressed on scene render
-               // i.e if intprefix = 1, means that one cube has been automatically imported, thus the stack cube button should be available above it.
+               // i.e if intprefix = 1, means that one cube has been automatically imported initially, thus the stack cube button should be available above it.
                // NOTE: when moving buttons, -10 is to move button out of sight, 0 is to move button into sight
                var stackbuttons = stackbtn_grid[1];
                for (var i=0; i<intprefix; i++){
@@ -668,6 +668,10 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
                     var y = stackbuttons[i][2];
                     stackbuttons[i][0].moveToVector3(new BABYLON.Vector3(gridMat[x][y][0], gridMat[x][y][1], 0), scene);
                     stackbuttons[i][3] = 1;
+               }
+               
+               for (var i=0; i<intprefix; i++) {
+                    basebuttonArray[i][4] = 1;
                }
 
                // determine which base buttons should be available to be pressed on scene render
@@ -1063,7 +1067,9 @@ function btn_BaseHorInit (scene, gridMat, rx_target, cy_target, btnName) {
           
           button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], -10), scene);
           
-          basebuttonArray[cy_target][3] = 0;
+          basebuttonArray[cy_target][3] = 0; // button is moved out of sight
+          basebuttonArray[cy_target][4] = 1; // there is a cube in the position of the button now
+
           importBaseCubes(scene,gridMat,'B1',rx_target,cy_target,'nextLOGIC'); 
 
           for (var i=0; i<stackcubeArray.length; i++) {
@@ -1139,6 +1145,7 @@ function btn_BaseHorInit (scene, gridMat, rx_target, cy_target, btnName) {
                     buttons[cy_target][0].moveToVector3(new BABYLON.Vector3(gridMat[row][cy_target][0], gridMat[row][cy_target][1], 0), scene);
                     
                     stackbtn_grid[row][cy_target][3] = 1;
+                    stackbtn_grid[row][cy_target][4] = 0;
                }
           }
           
@@ -1440,6 +1447,8 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
           var row = findRow(vert_coord_import);
 
           // move the buttons out of the scene
+          console.log(first, last)
+          console.log(plank_marker)
           var buttons = stackbtn_grid[row];
           for (var i=first; i<last+1; i++) {
                var btn = buttons[i][0];
@@ -1447,6 +1456,11 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
                var cy_target = buttons[i][2];
                btn.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], -10), scene);
                buttons[i][3] = 0;
+               
+               if (plank_marker[i] == 1) {
+                    buttons[i][4] = 1; // make sure that the space occupied by the plank CUBES is marked to have cubes in it
+               }
+               
           }
      }
 
@@ -2009,6 +2023,7 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
                // move current button out of the scene
                button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], -10), scene);
                stackbtn_grid[rx_target][cy_target][3] = 0;
+               stackbtn_grid[rx_target][cy_target][4] = 1;
                
                // increment the row number
                var row = rx_target
@@ -2042,12 +2057,14 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
                     buttons[cy_target][0].moveToVector3(new BABYLON.Vector3(gridMat[row][cy_target][0], gridMat[row][cy_target][1], 0), scene);
                     
                     stackbtn_grid[row][cy_target][3] = 1;
+                    stackbtn_grid[row][cy_target][4] = 0;
                }
                
           }
           else {
                button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], -10), scene);
                stackbtn_grid[rx_target][cy_target][3] = 0;
+               stackbtn_grid[rx_target][cy_target][4] = 1;
           }
 
      });
@@ -2470,20 +2487,22 @@ function cleanUp(array) {
 }
 
 // make buttons for each coordinate
-// the format of each index in the button arrays are [button object, row, col, binary val(0 or 1)]
-// the binary val determines whether or not the button is visible to the user or not
+// the format of each index in the button arrays are [button object, row, col, button binary val(0 or 1), cube binary val(0 or 1)]
+// the button binary val determines whether or not the button is visible to the user or not
+// the cube binary val determines whether or not there is a cube in the position of that button or not
+// for example, if the button binary val is 0, then there is no button in that location, but if the cube binary val is 1, then there is a cube in that location
 // NOTE: when moving buttons, -10 is to move button out of sight, 0 is to move button into sight
 function initButtons(){
      scene.updateTransformMatrix();
      for (var i=0; i<gridMat[0].length; i++) {
           var basebtn = btn_BaseHorInit(scene, gridMat, 0, i, i+1);
-          basebuttonArray.push([basebtn, 0, i, 0]);
+          basebuttonArray.push([basebtn, 0, i, 0, 0]);
      }
 
      for (var i=1; i<gridMat.length; i++){
           for (var j=0; j<gridMat[0].length; j++){
                var stackbtn = btn_Stack(scene, gridMat, i, j, j);
-               stackbtn_grid[i].push([stackbtn, i, j, 0]);
+               stackbtn_grid[i].push([stackbtn, i, j, 0, 0]);
           }
      }
      // console.log(stackbtn_grid)
