@@ -1320,7 +1320,7 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
           if (stackcubeArray[i] != 0) {
                for (var j=0; j<stackplankConfig.length; j++) {
                     if (stackcubeArray[i] == stackplankConfig[j][0]) {
-                         if (stackcubePos[i][1] <= vert_coord_import+0.08 && stackcubePos[i][1] >= vert_coord_import-0.08) {
+                         if (stackcubePos[i][1] <= vert_coord_import+TOL && stackcubePos[i][1] >= vert_coord_import-TOL) {
                               plankExist = true;
                          }
                     }
@@ -1336,51 +1336,88 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
           
           // THE INDEXOF METHOD RETURNS TOO EARLY THUS IMPORTING THE WRONG PLANK CUBE
           // var indMatch = holder.indexOf(stackplankConfig[i][1]); // get the 1001, 11001 etc etc
-
-          var indMatch;
-          if (holder == stackplankConfig[i][1]) {
-               indMatch = 1;
+          if (stackplankConfig[i][1] == "1001" && holder != "1001") {
+               if (holder.includes(stackplankConfig[i][1])) {
+                    name = stackplankConfig[i][0];
+                    
+                    first = holder.indexOf(stackplankConfig[i][1]);
+                    last = first + stackplankConfig[i][1].length-1;
+                    
+               }
           }
           else {
-               indMatch = -1; 
+               if (holder == stackplankConfig[i][1]) {
+                    name = stackplankConfig[i][0];
+               }
           }
-          // only if match later then get the name to populate stackcube
-          if (indMatch != -1) {
-               name  = stackplankConfig[i][0];
-          }
-
-          
 
           if (name != null && !plankExist) {
                if (confirm("Import a plank?")) {
                     
-                    // console.log(stackcubeArray)
-                    for (var j=0; j<cubeIDs.length; j++) {
-                         var getMeshObj = scene.getMeshByID(cubeIDs[j]);
-                         getMeshObj.dispose(); 
-                         getMeshObj = null; // can just ignore error msg from babylon due to this i.e. import error or some shit
-                         
-                         // remove from stack cube tracker arrays by setting null
-                         
-                         cubeIDs[j] = cubeIDs[j].substring(1)
-                         
-                         var cubeInd = parseInt(cubeIDs[j]);
-                         
-                         stackcubeArray[cubeInd] = 0; 
-                         
-                         stackcubePos[cubeInd] = 0; 
-                         
-                         // note: if a cube has been removed, remove its associated accesory array by setting to 0
-                         stackAccesoryArray[cubeInd] = 0;  // also reset empty array for any associated accesories 
-                         stackAccesoryPos[cubeInd] = 0; 
-                         
-                    }
-                    
+                    console.log(cubeIDs)
                     var multiplier = (last - first)/2;
 
                     // 0.0198 is to make the centre coordinate more flush with the other cubes
                     var x = x_coord_definition[first] + boxgridWidth*multiplier + 0.0198;
-
+                    console.log()
+                    for (var j=0; j<cubeIDs.length; j++) {
+                         
+                         var getMeshObj = scene.getMeshByID(cubeIDs[j]);
+                         
+                         
+                         if (stackplankConfig[i][1] == "1001" && holder != "1001") {
+                              var index = parseInt(cubeIDs[j].slice(1))
+                              var mesh_pos = stackcubePos[index][0]
+                              
+                              var cubeint = parseInt(name[1]);
+                              var totallength = boxgridWidth*cubeint;
+                              var start = x - totallength/2;
+                              var end = x + totallength/2;
+                              
+                              if (mesh_pos >= start && mesh_pos <= end) {
+                                   getMeshObj.dispose(); 
+                                   getMeshObj = null; // can just ignore error msg from babylon due to this i.e. import error or some shit
+                                   
+                                   // remove from stack cube tracker arrays by setting null
+                                   cubeIDs[j] = cubeIDs[j].substring(1)
+                                   
+                                   var cubeInd = parseInt(cubeIDs[j]);
+                                   
+                                   stackcubeArray[cubeInd] = 0; 
+                                   
+                                   stackcubePos[cubeInd] = 0; 
+                                   
+                                   // note: if a cube has been removed, remove its associated accesory array by setting to 0
+                                   stackAccesoryArray[cubeInd] = 0;  // also reset empty array for any associated accesories 
+                                   stackAccesoryPos[cubeInd] = 0;
+                              }
+                              else {
+                                   
+                                   
+                              }
+                         }
+                         else {
+                              getMeshObj.dispose(); 
+                              getMeshObj = null; // can just ignore error msg from babylon due to this i.e. import error or some shit
+                              
+                              // remove from stack cube tracker arrays by setting null
+                              cubeIDs[j] = cubeIDs[j].substring(1)
+                              
+                              var cubeInd = parseInt(cubeIDs[j]);
+                              
+                              stackcubeArray[cubeInd] = 0; 
+                              
+                              stackcubePos[cubeInd] = 0; 
+                              
+                              // note: if a cube has been removed, remove its associated accesory array by setting to 0
+                              stackAccesoryArray[cubeInd] = 0;  // also reset empty array for any associated accesories 
+                              stackAccesoryPos[cubeInd] = 0;
+                              console.log(stackcubeArray)
+                         }
+                    
+                    }
+                    
+                    
                     // next, import the plank stackcubes, DO NOT use importStackCubes_SUPP callback func since it calls this function
                     // simply create - copy paste a new SUPP importPlankStackCubes callback 
                     importPlankStackCubes_SUPP(scene, gridMat, x, vert_coord_import, name);
@@ -1453,7 +1490,7 @@ function importPlankStackCubes_SUPP(scene, gridMat, x, y, plankstackprefix) {
                plankstackMesh.rotation.x = radians;
                plankstackMesh.rotation.z = radians;
           }
-          console.log(stackAccesoryArray)
+          
           // if (stackAccesoryArray[LeftExistCubeInd] != 0) {
           //      for (var i=0; i<stackAccesoryArray[LeftExistCubeInd].length; i++) {
           //           if (stackAccesoryArray[LeftExistCubeInd][i] != 0 && stackAccesoryArray[LeftExistCubeInd][i] != null) {
