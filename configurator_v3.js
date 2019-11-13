@@ -1109,11 +1109,37 @@ function btn_BaseHorInit (scene, gridMat, rx_target, cy_target, btnName) {
           // NOTE: when moving buttons, -10 is to move button out of sight, 0 is to move button into sight
           if (!plankAbove) {
                var buttons = stackbtn_grid[1];
-               var ind = parseInt(btnName) - 1;
-               var x = buttons[ind][1];
-               var y = buttons[ind][2];
-               buttons[ind][0].moveToVector3(new BABYLON.Vector3(gridMat[x][y][0], gridMat[x][y][1], 0), scene);
-               buttons[ind][3] = 1;
+
+               // increment the row number
+               var row = rx_target
+               row += 1;
+
+               var cubeflag = false;
+
+               // check if there is a cube directly above the current cube
+               // if there is, do not spawn a button above the current cube
+               for (var i=0; i<stackcubeArray.length; i++) {
+                    if (stackcubeArray[i] != 0) {
+                         
+                         if (stackcubePos[i][1] == gridMat[row][cy_target][1]) {
+                              var cubeint = parseInt(stackcubeArray[i][1]);
+                              var totallength = cubeint*boxgridWidth;
+                              var start = stackcubePos[i][0] - totallength/2;
+                              var end = stackcubePos[i][0] + totallength/2;
+                              if (gridMat[row][cy_target][0] > start && gridMat[row][cy_target][0] < end) {
+                                   cubeflag = true;
+                                   break;
+                              }
+                         }
+                    }
+               }
+               
+               // move button into scene 
+               if (!cubeflag) {
+                    buttons[cy_target][0].moveToVector3(new BABYLON.Vector3(gridMat[row][cy_target][0], gridMat[row][cy_target][1], 0), scene);
+                    
+                    stackbtn_grid[row][cy_target][3] = 1;
+               }
           }
           
           
@@ -1427,6 +1453,30 @@ function importPlankStackCubes_SUPP(scene, gridMat, x, y, plankstackprefix) {
                plankstackMesh.rotation.x = radians;
                plankstackMesh.rotation.z = radians;
           }
+          console.log(stackAccesoryArray)
+          // if (stackAccesoryArray[LeftExistCubeInd] != 0) {
+          //      for (var i=0; i<stackAccesoryArray[LeftExistCubeInd].length; i++) {
+          //           if (stackAccesoryArray[LeftExistCubeInd][i] != 0 && stackAccesoryArray[LeftExistCubeInd][i] != null) {
+          //                var accessoryID = stackAccesoryArray[LeftExistCubeInd][i];
+          //                // if it is a table accessory, then the next index is also taken up by "TA", but since we have removed "TA" in this iteration, 
+          //                // set the next index to 0 to avoid trying to remove it again
+          //                // next index is also "TA" because a table takes the space of two cubes 
+          //                if (accessoryID === "TA") {
+          //                     stackAccesoryArray[LeftExistCubeInd][i+1] = 0;
+          //                }
+          //                accessoryID = "S" + accessoryID + String(LeftExistCubeInd);
+          //                var getaccessoryObj = scene.getMeshByID(accessoryID);
+          //                getaccessoryObj.dispose(); 
+                         
+          //                getaccessoryObj = null;
+          //           }
+          //      }
+          // }
+          // // remove from satckcube tracker arrays by setting null
+          // stackcubeArray[LeftExistCubeInd] = 0; 
+          // stackcubePos[LeftExistCubeInd] = 0; 
+          // stackAccesoryArray[LeftExistCubeInd] = 0;  
+          // stackAccesoryPos[LeftExistCubeInd] = 0; 
           
           // define mesh material
           var boxMaterial = createboxMaterial(scene); 
@@ -1642,7 +1692,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                     
                     if (stackAccesoryArray[RightExistCubeInd] != 0) {
                     
-                        for (var i=0; i<stackAccesoryArray.length; i++) {
+                        for (var i=0; i<stackAccesoryArray[RightExistCubeInd].length; i++) {
                          
                             if (stackAccesoryArray[RightExistCubeInd][i] != 0 && stackAccesoryArray[RightExistCubeInd][i] != null) {
  
@@ -1677,7 +1727,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                     getMeshObj_L = null;
                    
                     if (stackAccesoryArray[LeftExistCubeInd] != 0) {
-                        for (var i=0; i<stackAccesoryArray.length; i++) {
+                        for (var i=0; i<stackAccesoryArray[LeftExistCubeInd].length; i++) {
                             if (stackAccesoryArray[LeftExistCubeInd][i] != 0 && stackAccesoryArray[LeftExistCubeInd][i] != null) {
                               var accessoryID = stackAccesoryArray[LeftExistCubeInd][i];
                               // if it is a table accessory, then the next index is also taken up by "TA", but since we have removed "TA" in this iteration, 
@@ -1722,7 +1772,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
 							getMeshObj_R = null; // can just ignore error msg from babylon due to this i.e. import error or some shit
 
 							if (stackAccesoryArray[RightExistCubeInd] != 0) {
-								for (var i=0; i<stackAccesoryArray.length; i++) {
+								for (var i=0; i<stackAccesoryArray[RightExistCubeInd].length; i++) {
 									if (stackAccesoryArray[RightExistCubeInd][i] != 0 && stackAccesoryArray[RightExistCubeInd][i] != null) {
 											var accessoryID = stackAccesoryArray[RightExistCubeInd][i];
 											// if it is a table accessory, then the next index is also taken up by "TA", but since we have removed "TA" in this iteration, 
@@ -1757,7 +1807,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
 							getMeshObj_L = null;
                               
 							if (stackAccesoryArray[LeftExistCubeInd] != 0) {
-								for (var i=0; i<stackAccesoryArray.length; i++) {
+								for (var i=0; i<stackAccesoryArray[LeftExistCubeInd].length; i++) {
 									if (stackAccesoryArray[LeftExistCubeInd][i] != 0 && stackAccesoryArray[LeftExistCubeInd][i] != null) {
 										var accessoryID = stackAccesoryArray[LeftExistCubeInd][i];
 										// if it is a table accessory, then the next index is also taken up by "TA", but since we have removed "TA" in this iteration, 
@@ -1812,7 +1862,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                     
                     stackcubePos.push([stackMesh.position.x,stackMesh.position.y,stackMesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
                     stackcubeCtr = stackcubeCtr +  1; 
-
+                    
                     // dont forget to update accesories with associated empty array
                     stackAccesoryArray.push(new Array(intprefix).fill(0));  
                     stackAccesoryPos.push(new Array(intprefix).fill(0)); 
@@ -1864,7 +1914,7 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
      button.width = "20px";
      button.height = "20px";
      button.color = "white";
-     
+     var TOL = 0.08;
       // get the vertical coordinates of the stack cube 
      
      // position the button at rx_target and cy_target, using gridMat data, unmodified
@@ -1916,31 +1966,45 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
           // if the stack cube is not under a plank, don't spawn a button
           
           importStackCubes(scene, gridMat, rx_target, cy_target, "E1"); 
+          
           if (!plankAbove) {
                // move current button out of the scene
                button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], -10), scene);
                stackbtn_grid[rx_target][cy_target][3] = 0;
-
+               
                // increment the row number
                var row = rx_target
                row += 1;
-
+               
                var buttons = stackbtn_grid[row];
-
+               
                // move the button above current cube into the scene
                // NOTE: when moving buttons, -10 is to move button out of sight, 0 is to move button into sight
-               if (stackbtn_grid[row][cy_target][3] == 0 && stackbtn_grid[row+1][cy_target][3] == 0){
+
+               var cubeflag = false;
+
+               for (var i=0; i<stackcubeArray.length; i++) {
+                    if (stackcubeArray[i] != 0) {
+                         
+                         if (stackcubePos[i][1] == gridMat[row][cy_target][1]) {
+                              var cubeint = parseInt(stackcubeArray[i][1]);
+                              var totallength = cubeint*boxgridWidth;
+                              var start = stackcubePos[i][0] - totallength/2;
+                              var end = stackcubePos[i][0] + totallength/2;
+                              if (gridMat[row][cy_target][0] > start && gridMat[row][cy_target][0] < end) {
+                                   cubeflag = true;
+                                   break;
+                              }
+                              
+                         }
+                    }
+               }
+               
+               if (!cubeflag) {
                     buttons[cy_target][0].moveToVector3(new BABYLON.Vector3(gridMat[row][cy_target][0], gridMat[row][cy_target][1], 0), scene);
                     
                     stackbtn_grid[row][cy_target][3] = 1;
                }
-
-               // else if (stackbtn_grid[row][cy_target][3] == 0 && stackbtn_grid[row+1][cy_target][3] == 1){
-               //      buttons[cy_target][0].moveToVector3(new BABYLON.Vector3(gridMat[row][cy_target][0], gridMat[row][cy_target][1], 0), scene);
-                    
-               //      stackbtn_grid[row][cy_target][3] = 1;
-               //      console.log(stackbtn_grid)
-               // }
                
           }
           else {

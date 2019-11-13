@@ -469,25 +469,11 @@
 
                                 stackcubeArray.splice(index, 1);
                                 stackcubePos.splice(index, 1);
-                                // stackAccesoryArray[index] = new Array(cubeint).fill(0);
-                                // stackAccesoryPos[index] = new Array(cubeint).fill(0);
-                                // if (plank) {
-                                //     console.log(stackAccesoryArray[index].length)
-                                //     cubeint = stackAccesoryArray[index].length
-                                //     stackAccesoryArray[index] = new Array(cubeint).fill(0);
-                                //     stackAccesoryPos[index] = new Array(cubeint).fill(0);
-                                // }
-                                // else if (!plank) {
-                                //     stackAccesoryArray[index] = new Array(cubeint).fill(0);
-                                //     stackAccesoryPos[index] = new Array(cubeint).fill(0);
-                                // }
-                                // stackAccesoryArray[index] = 0;
-                                // stackAccesoryPos[index] = 0;
-                                stackAccesoryArray.splice(index, 1)
-                                stackAccesoryPos.splice(index, 1)
+                                
+                                stackAccesoryArray.splice(index, 1);
+                                stackAccesoryPos.splice(index, 1);
                                 stackcubeCtr = stackcubeCtr - 1;
-                                console.log(stackAccesoryArray)
-                                console.log(stackcubeArray)
+ 
                             }
 
                             // ============================================= FOR BASE CUBES ======================================================================
@@ -517,8 +503,9 @@
                                 }
                                 basecubeArray.splice(index, 1);
                                 basecubePos.splice(index, 1);
-                                baseAccesoryArray[index] = new Array(cubeint).fill(0)
-                                baseAccesoryPos[index] = new Array(cubeint).fill(0)
+        
+                                baseAccesoryArray.splice(index, 1)
+                                baseAccesoryPos.splice(index, 1)
                                 basecubeCtr = basecubeCtr - 1;
                             }
 
@@ -578,6 +565,7 @@
 
                             else if(type == "P") {
                                 index = parseInt(latestItem.slice(3));
+                                var accesory_type = latestItem[1] + latestItem[2]
 
                                 var plankType = stackcubeArray[index];
                                 var size;
@@ -589,24 +577,28 @@
                                 else if(plankType[0] == "E") {
                                     size = parseInt(plankType[1]);
                                 }
-                                
+
                                 var cur_accesory_x = undoitem.absolutePosition.x; // get the position of the mesh in the scene
                                 var all_accesory_pos = stackAccesoryPos[index]; // get the accessory array for the current mesh
                                 var accesory_ind; // to determine the index of the accessory in the array to be deleted
-
-                                for (var i=0; i<all_accesory_pos.length; i++) {
-                                    if(all_accesory_pos[i] != 0) {
-                                        if (cur_accesory_x <= all_accesory_pos[i][0] + TOL && cur_accesory_x >= all_accesory_pos[i][0] - TOL) {
-                                            accesory_ind = i;
-                                            break;
+                                if (accesory_type == "TA") {
+                                    
+                                }
+                                else {
+                                    for (var i=0; i<all_accesory_pos.length; i++) {
+                                        if(all_accesory_pos[i] != 0) {
+                                            if (cur_accesory_x <= all_accesory_pos[i][0] + TOL && cur_accesory_x >= all_accesory_pos[i][0] - TOL) {
+                                                accesory_ind = i;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
+                                
 
                                 stackAccesoryArray[index][accesory_ind] = 0;
                                 stackAccesoryPos[index][accesory_ind] = 0;
-                                // console.log(accesory_ind)
-                                // console.log(stackAccesoryArray[index])
+
                                 console.log(stackAccesoryArray)
                                 console.log(stackAccesoryPos)
                                 
