@@ -101,7 +101,7 @@ var button_vert_Position;
 // define the mathematical grid to arrange cubes. call once only!
 var gridMat = gridEngine();
 
-var stackbtn_grid = Create2DArray(7);
+var stackbtn_grid = Create2DArray(6);
 
 // Check if  browser supports webGL
 if (BABYLON.Engine.isSupported()) {
@@ -409,9 +409,9 @@ function gridEngine () {
      var horOffset = 1; 
 
      // initialize empty 2d array with 7 rows and store in memory
-     var matCoords = Create2DArray(7);  // so we play with 'push' later
+     var matCoords = Create2DArray(6);  // so we play with 'push' later
      // matrix size
-     var nrows = 7; 
+     var nrows = 6; 
      var ncols = 6; 
 
      // EQN definition 
@@ -1352,7 +1352,7 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
                          
                          first = holder.indexOf(stackplankConfig[i][1]);
                          last = first + stackplankConfig[i][1].length-1;
-                         cond = true;
+                         cond = true; 
                     }
                }
                else {
@@ -1369,8 +1369,6 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
 
           if (name != null && !plankExist) {
                if (confirm("Import a plank?")) {
-                    
-                    console.log(cubeIDs)
                     var multiplier = (last - first)/2;
 
                     // 0.0198 is to make the centre coordinate more flush with the other cubes
@@ -1379,6 +1377,8 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
                          
                          var getMeshObj = scene.getMeshByID(cubeIDs[j]);
                          
+                         // this condition is to check which mesh to delete from the scene for the 1001 plank configuration. 
+                         // For example, say its 101001 on one row; then the cube in index 0 should not be deleted when importing the plank, only the cubes in index 2 and 5
                          if (cond) {
                               var index = parseInt(cubeIDs[j].slice(1))
                               var mesh_pos = stackcubePos[index][0]
@@ -1389,7 +1389,7 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
                               var end = x + totallength/2;
                               
                               if (mesh_pos >= start && mesh_pos <= end) {
-                                   getMeshObj.dispose(); 
+                                   getMeshObj.dispose();
                                    getMeshObj = null; // can just ignore error msg from babylon due to this i.e. import error or some shit
                                    
                                    // remove from stack cube tracker arrays by setting null
@@ -1397,6 +1397,26 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
                                    
                                    var cubeInd = parseInt(cubeIDs[j]);
                                    
+                                   // removing the accessories from previous import
+                                   if (stackAccesoryArray[cubeInd] != 0) {
+                                        for (var i=0; i<stackAccesoryArray[cubeInd].length; i++) {
+                                             if (stackAccesoryArray[cubeInd][i] != 0 && stackAccesoryArray[cubeInd][i] != null) {
+                                                  var accessoryID = stackAccesoryArray[cubeInd][i];
+                                                  // if it is a table accessory, then the next index is also taken up by "TA", but since we have removed "TA" in this iteration, 
+                                                  // set the next index to 0 to avoid trying to remove it again
+                                                  // next index is also "TA" because a table takes the space of two cubes 
+                                                  if (accessoryID === "TA") {
+                                                       stackAccesoryArray[cubeInd][i+1] = 0;
+                                                  }
+                                                  accessoryID = "S" + accessoryID + String(cubeInd);
+                                                  var getaccessoryObj = scene.getMeshByID(accessoryID);
+                                                  getaccessoryObj.dispose(); 
+                                                  
+                                                  getaccessoryObj = null;
+                                             }
+                                        }
+                                   }
+                              
                                    stackcubeArray[cubeInd] = 0; 
                                    
                                    stackcubePos[cubeInd] = 0; 
@@ -1410,12 +1430,31 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
                               
                               getMeshObj.dispose(); 
                               getMeshObj = null; // can just ignore error msg from babylon due to this i.e. import error or some shit
-                              
+                                 
                               // remove from stack cube tracker arrays by setting null
                               cubeIDs[j] = cubeIDs[j].substring(1)
                               
                               var cubeInd = parseInt(cubeIDs[j]);
                               
+                              // removing the accessories from previous import
+                              if (stackAccesoryArray[cubeInd] != 0) {
+                                   for (var i=0; i<stackAccesoryArray[cubeInd].length; i++) {
+                                        if (stackAccesoryArray[cubeInd][i] != 0 && stackAccesoryArray[cubeInd][i] != null) {
+                                             var accessoryID = stackAccesoryArray[cubeInd][i];
+                                             // if it is a table accessory, then the next index is also taken up by "TA", but since we have removed "TA" in this iteration, 
+                                             // set the next index to 0 to avoid trying to remove it again
+                                             // next index is also "TA" because a table takes the space of two cubes 
+                                             if (accessoryID === "TA") {
+                                                  stackAccesoryArray[cubeInd][i+1] = 0;
+                                             }
+                                             accessoryID = "S" + accessoryID + String(cubeInd);
+                                             var getaccessoryObj = scene.getMeshByID(accessoryID);
+                                             getaccessoryObj.dispose(); 
+                                             
+                                             getaccessoryObj = null;
+                                        }
+                                   }
+                              }
                               stackcubeArray[cubeInd] = 0; 
                               
                               stackcubePos[cubeInd] = 0; 
@@ -1447,8 +1486,7 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
           var row = findRow(vert_coord_import);
 
           // move the buttons out of the scene
-          console.log(first, last)
-          console.log(plank_marker)
+
           var buttons = stackbtn_grid[row];
           for (var i=first; i<last+1; i++) {
                var btn = buttons[i][0];
@@ -1505,31 +1543,8 @@ function importPlankStackCubes_SUPP(scene, gridMat, x, y, plankstackprefix) {
                plankstackMesh.rotation.x = radians;
                plankstackMesh.rotation.z = radians;
           }
-          
-          // if (stackAccesoryArray[LeftExistCubeInd] != 0) {
-          //      for (var i=0; i<stackAccesoryArray[LeftExistCubeInd].length; i++) {
-          //           if (stackAccesoryArray[LeftExistCubeInd][i] != 0 && stackAccesoryArray[LeftExistCubeInd][i] != null) {
-          //                var accessoryID = stackAccesoryArray[LeftExistCubeInd][i];
-          //                // if it is a table accessory, then the next index is also taken up by "TA", but since we have removed "TA" in this iteration, 
-          //                // set the next index to 0 to avoid trying to remove it again
-          //                // next index is also "TA" because a table takes the space of two cubes 
-          //                if (accessoryID === "TA") {
-          //                     stackAccesoryArray[LeftExistCubeInd][i+1] = 0;
-          //                }
-          //                accessoryID = "S" + accessoryID + String(LeftExistCubeInd);
-          //                var getaccessoryObj = scene.getMeshByID(accessoryID);
-          //                getaccessoryObj.dispose(); 
-                         
-          //                getaccessoryObj = null;
-          //           }
-          //      }
-          // }
-          // // remove from satckcube tracker arrays by setting null
-          // stackcubeArray[LeftExistCubeInd] = 0; 
-          // stackcubePos[LeftExistCubeInd] = 0; 
-          // stackAccesoryArray[LeftExistCubeInd] = 0;  
-          // stackAccesoryPos[LeftExistCubeInd] = 0; 
-          
+          // console.log(stackAccesoryArray)
+                    
           // define mesh material
           var boxMaterial = createboxMaterial(scene); 
           plankstackMesh.material = boxMaterial;
@@ -1857,7 +1872,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
 						if (getMeshObj_L != null) {
 							getMeshObj_L.dispose(); 
 							getMeshObj_L = null;
-                              
+                                   
 							if (stackAccesoryArray[LeftExistCubeInd] != 0) {
 								for (var i=0; i<stackAccesoryArray[LeftExistCubeInd].length; i++) {
 									if (stackAccesoryArray[LeftExistCubeInd][i] != 0 && stackAccesoryArray[LeftExistCubeInd][i] != null) {
@@ -1892,7 +1907,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
                    
                } else if (RightExistCubePrefix == '' && LeftExistCubePrefix == '') {
                     // just import the E1 new cube as is 
-
+                    console.log(stackAccesoryArray)
                     console.log("no match neighbours");
                     
                     var intprefix = parseInt(stackprefix.slice(1));
@@ -2024,11 +2039,18 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
                button.moveToVector3(new BABYLON.Vector3(gridMat[rx_target][cy_target][0], gridMat[rx_target][cy_target][1], -10), scene);
                stackbtn_grid[rx_target][cy_target][3] = 0;
                stackbtn_grid[rx_target][cy_target][4] = 1;
-               
-               // increment the row number
+
                var row = rx_target
-               row += 1;
-               
+               // increment the row number if the current row is not the highest row
+               if (row < gridMat.length-1) {
+                    row += 1;
+               }
+               else {
+                    stackbtn_grid[row][cy_target][0].moveToVector3(new BABYLON.Vector3(gridMat[row][cy_target][0], gridMat[row][cy_target][1], -10), scene);
+                    stackbtn_grid[row][cy_target][3] = 0;
+                    stackbtn_grid[row][cy_target][4] = 1;
+               }
+
                var buttons = stackbtn_grid[row];
                
                // move the button above current cube into the scene
@@ -2037,8 +2059,7 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
                var cubeflag = false;
 
                for (var i=0; i<stackcubeArray.length; i++) {
-                    if (stackcubeArray[i] != 0) {
-                         
+                    if (stackcubeArray[i] != 0 ) {
                          if (stackcubePos[i][1] == gridMat[row][cy_target][1]) {
                               var cubeint = parseInt(stackcubeArray[i][1]);
                               var totallength = cubeint*boxgridWidth;
@@ -2053,9 +2074,8 @@ function btn_Stack(scene, gridMat, rx_target, cy_target, btnName) {
                     }
                }
                
-               if (!cubeflag) {
+               if (!cubeflag && rx_target < gridMat.length-1) {
                     buttons[cy_target][0].moveToVector3(new BABYLON.Vector3(gridMat[row][cy_target][0], gridMat[row][cy_target][1], 0), scene);
-                    
                     stackbtn_grid[row][cy_target][3] = 1;
                     stackbtn_grid[row][cy_target][4] = 0;
                }
@@ -2212,14 +2232,14 @@ function importStackAccesories(scene, asstype, cubeNameId, importPos) {
 		var TOL = 0.08;
 		var firststackLvl = 0.685;
 
-        var assMesh = assMesh[0]; // get the mesh object 
+          var assMesh = assMesh[0]; // get the mesh object 
 
-        // define mesh material
-        var boxMaterial = createboxMaterial(scene); 
-        assMesh.material = boxMaterial;
+          // define mesh material
+          var boxMaterial = createboxMaterial(scene); 
+          assMesh.material = boxMaterial;
 		
-		assMesh.name = 'S' + asstype + String(cubemeshInd); 
-		assMesh.id = 'S' + asstype + String(cubemeshInd); 
+          assMesh.name = 'S' + asstype + String(cubemeshInd); 
+          assMesh.id = 'S' + asstype + String(cubemeshInd); 
 
           undoSTACK.push(assMesh.id)
           
@@ -2346,13 +2366,13 @@ function importPlankAccesories(scene, asstype, cubeNameId, importPos) {
 		var boxMaterial = createboxMaterial(scene); 
 		assMesh.material = boxMaterial;
 		
-		// naming convention for accesories stack cube mesh PX<int> i.e. PXS1, PXS2, PXS3, PXS4 ... for X shelve
-		// where <int> refers to the associated cube mesh unique index 
-		assMesh.name = 'P' + asstype + String(cubemeshInd); 
-          assMesh.id = 'P' + asstype + String(cubemeshInd); 
+		// naming convention for accesories stack cube mesh PXS<int1>-<int2> i.e. PXS1-1, PXS2-2 ... for X shelve
+          // where <int1> refers to the associated accessory mesh unique index 
+          // and <int2> refers to the associated cube mesh unique index
+		assMesh.name = 'P' + asstype + String(importPos) + "-" + String(cubemeshInd); 
+          assMesh.id = 'P' + asstype + String(importPos) + "-" + String(cubemeshInd); 
 
           undoSTACK.push(assMesh.id)
-
           if (asstype == "TA") {
                if (importInd < 0) {
                     alert("can't import table");

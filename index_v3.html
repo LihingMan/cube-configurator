@@ -418,7 +418,12 @@
                                 var row = findRow(ycoord); // row of the cubes that were undone
 
                                 var buttonsBelow = stackbtn_grid[row-1]; // buttons below the current row
-                                var buttonsAbove = stackbtn_grid[row+1]; // buttons above the current row
+            
+                                // check if its already the highest available row
+                                if (row < gridMat.length-1) {
+                                    var buttonsAbove = stackbtn_grid[row+1]; // buttons above the current row
+                                }
+                                
                                 var buttonsCurrent = stackbtn_grid[row]; // buttons on the current row
                                 
                                 // dimensions of the mesh to be undone
@@ -426,21 +431,29 @@
                                 var start = xcoord - halflength;
                                 var end = xcoord + halflength;
                                 
-                                for (var i=0; i<buttonsAbove.length; i++) {
+                                for (var i=0; i<buttonsCurrent.length; i++) {
                                     // these are the variables for the buttons on the top row
-                                    var rx_target_above = buttonsAbove[i][1];
-                                    var cy_target_above = buttonsAbove[i][2];
-                                    var btnAbove = buttonsAbove[i][0];
-                                    var but_xpos = gridMat[rx_target_above][cy_target_above][0];
-                                    var but_ypos = gridMat[rx_target_above][cy_target_above][1];
-                                    
+                                    if (row < gridMat.length-1) {
+                                        var rx_target_above = buttonsAbove[i][1];
+                                        var cy_target_above = buttonsAbove[i][2];
+                                        var btnAbove = buttonsAbove[i][0];
+                                        var but_xpos = gridMat[rx_target_above][cy_target_above][0];
+                                        var but_ypos = gridMat[rx_target_above][cy_target_above][1];
+                                    }
+                                    else {
+                                        var rx_target = buttonsCurrent[i][1];
+                                        var cy_target = buttonsCurrent[i][2];
+                                        var but_xpos = gridMat[rx_target][cy_target][0];
+                                    }
                                     // move the buttons above the current row out of the scene 
                                     // NOTE: when moving buttons, -10 is to move button out of sight, 0 is to move button into sight
                                     if (but_xpos > start && but_xpos < end) {
-                                        if (buttonsAbove[i][3] == 1){
-                                            btnAbove.moveToVector3(new BABYLON.Vector3(but_xpos, but_ypos, -10), scene);
-                                            buttonsAbove[i][3] = 0;
-                                            buttonsAbove[i][4] = 0;
+                                        if (row < gridMat.length-1) {
+                                            if (buttonsAbove[i][4] == 0){
+                                                btnAbove.moveToVector3(new BABYLON.Vector3(but_xpos, but_ypos, -10), scene);
+                                                buttonsAbove[i][3] = 0;
+                                                buttonsAbove[i][4] = 0; 
+                                            }
                                         }
                                         
                                         // moving the button in the current cube row back into the scene
@@ -449,7 +462,7 @@
                                         var cy_target_cur = buttonsCurrent[i][2];
                                         var cur_xpos = gridMat[rx_target_cur][cy_target_cur][0];
                                         var cur_ypos = gridMat[rx_target_cur][cy_target_cur][1];
-
+                            
                                         if (row == 1) {
                                             if (basebuttonArray[i][4] == 1) {
                                                 btnCur.moveToVector3(new BABYLON.Vector3(cur_xpos, cur_ypos, 0), scene);
@@ -458,11 +471,18 @@
                                             }
                                         }
                                         else if (row > 1){
+                                            
                                             if (buttonsBelow[i][4] == 1) {
-                                                
                                                 btnCur.moveToVector3(new BABYLON.Vector3(cur_xpos, cur_ypos, 0), scene);
                                                 buttonsCurrent[i][3] = 1;
                                                 buttonsCurrent[i][4] = 0;
+                                            }
+                                            else {
+                                                if (buttonsBelow[i][3] == 1) {
+                                                    btnCur.moveToVector3(new BABYLON.Vector3(cur_xpos, cur_ypos, -10), scene);
+                                                    buttonsCurrent[i][3] = 0;
+                                                    buttonsCurrent[i][4] = 0;
+                                                }
                                             }    
                                         }   
                                     }
@@ -495,15 +515,20 @@
                                     var but_ypos = gridMat[0][col][1];
                                     var button = basebuttonArray[i][0];
                                     var stackbutton = secondRowBtns[i][0];
+
                                     if (but_xpos > start && but_xpos < end) {
                                         button.moveToVector3(new BABYLON.Vector3(gridMat[0][col][0], gridMat[0][col][1], 0), scene);
                                         basebuttonArray[i][3] = 1; 
                                         basebuttonArray[i][4] = 0; 
-                                        stackbutton.moveToVector3(new BABYLON.Vector3(gridMat[0][col][0], gridMat[0][col][1], -10), scene);
-                                        secondRowBtns[i][3] = 0;
-                                        secondRowBtns[i][4] = 0;
+                                        if (secondRowBtns[i][4] == 0 && secondRowBtns[i][3] == 1) {
+                                            stackbutton.moveToVector3(new BABYLON.Vector3(gridMat[0][col][0], gridMat[0][col][1], -10), scene);
+                                            secondRowBtns[i][3] = 0;
+                                            secondRowBtns[i][4] = 0;
+                                        }
+                                        
                                     }
                                 }
+                                
                                 basecubeArray.splice(index, 1);
                                 basecubePos.splice(index, 1);
         
@@ -552,23 +577,24 @@
      
                                 var all_accesory_pos = stackAccesoryPos[index]; // get the accessory array for the current mesh
                                 var accesory_ind; // to determine the index of the accessory in the array to be deleted
+
                                 for (var i=0; i<all_accesory_pos.length; i++) {
                                     if(all_accesory_pos[i] != 0) {
                                         if (cur_accesory_x <= all_accesory_pos[i][0] + TOL && cur_accesory_x >= all_accesory_pos[i][0] - TOL) {
-                                            accesory_ind = i;
-                                            break;
+                                            stackAccesoryArray[index][i] = 0;
+                                            stackAccesoryPos[index][i] = 0;
                                         }
                                     }
                                 }
-                                stackAccesoryArray[index][accesory_ind] = 0;
-                                stackAccesoryPos[index][accesory_ind] = 0;
+                                
                             }
 
                             /////// NOTE: Accessories which start with the letter "P" are plank cube accessories
 
                             else if(type == "P") {
-                                index = parseInt(latestItem.slice(3));
-                                var accesory_type = latestItem[1] + latestItem[2]
+                                var identifiers = latestItem.split("-");
+
+                                index = parseInt(identifiers[1]);
 
                                 var plankType = stackcubeArray[index];
                                 var size;
@@ -584,21 +610,16 @@
                                 var cur_accesory_x = undoitem.absolutePosition.x; // get the position of the mesh in the scene
                                 var all_accesory_pos = stackAccesoryPos[index]; // get the accessory array for the current mesh
                                 var accesory_ind; // to determine the index of the accessory in the array to be deleted
-                                if (accesory_type == "TA") {
-                                    
-                                }
-                                else {
-                                    for (var i=0; i<all_accesory_pos.length; i++) {
-                                        if(all_accesory_pos[i] != 0) {
-                                            if (cur_accesory_x <= all_accesory_pos[i][0] + TOL && cur_accesory_x >= all_accesory_pos[i][0] - TOL) {
-                                                accesory_ind = i;
-                                                break;
-                                            }
+
+                                for (var i=0; i<all_accesory_pos.length; i++) {
+                                    if(all_accesory_pos[i] != 0) {
+                                        if (cur_accesory_x <= all_accesory_pos[i][0] + TOL && cur_accesory_x >= all_accesory_pos[i][0] - TOL) {
+                                            stackAccesoryArray[index][i] = 0;
+                                            stackAccesoryPos[index][i] = 0;
                                         }
                                     }
                                 }
                                 
-
                                 stackAccesoryArray[index][accesory_ind] = 0;
                                 stackAccesoryPos[index][accesory_ind] = 0;
                                 
@@ -607,20 +628,20 @@
                         
                     }
                     
-                    function undo() {
-                        if (undoSTACK[undoSTACK.length-1] == "B0") {
-                            return [-1, "B0"];
-                        }
-                        else {
-                            var latestItem = undoSTACK.pop();
-                            var undoitem = scene.getMeshByID(latestItem);
+                });
 
-                            return [undoitem, latestItem];
-                        }
-                        
+                function undo() {
+                    if (undoSTACK[undoSTACK.length-1] == "B0") {
+                        return [-1, "B0"];
+                    }
+                    else {
+                        var latestItem = undoSTACK.pop();
+                        var undoitem = scene.getMeshByID(latestItem);
+
+                        return [undoitem, latestItem];
                     }
                     
-                });
+                }
 
             });
         
