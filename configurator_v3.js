@@ -152,6 +152,9 @@ function mainApp() {
      initButtons();
 }
 
+// declare gloabl variable for image data
+var image_data = 0; 
+
 // create the room scene which will be served to the user
 // Useful --> https://playground.babylonjs.com/#4G18GY#7 --> extruded polygon
 function createRoomScene() {
@@ -183,8 +186,14 @@ function createRoomScene() {
      // Load base cubes and enable modifications to the base cubes 
      importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0, 'init');
 
-     window.addEventListener("saveScene", function() {
+     window.addEventListener("saveScene", function() { // this one can be high definition
           BABYLON.Tools.CreateScreenshotUsingRenderTarget(engine, camera, {width:400, height:250}); // download the room scene as png
+     });
+	 
+	 window.addEventListener("saveSceneData", function() { // this one small res for thumbnail upload to api
+          BABYLON.Tools.CreateScreenshotUsingRenderTarget(engine, camera, {width:400, height:250}, function (data) {
+               image_data = data; 
+          }); // save the room scene as img data
      });
 
      // finally ... 
