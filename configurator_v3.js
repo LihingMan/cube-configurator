@@ -216,7 +216,7 @@ function createCamera(scene) {
      // limited arc rotate
      // note its coords are always defined in alpha, beta and radius .. https://doc.babylonjs.com/babylon101/cameras
      // Parameters: name, alpha, beta, radius, target position, scene 
-     var camera = new BABYLON.ArcRotateCamera("camera", -Math.PI/2, Math.PI/2, 4, new BABYLON.Vector3(2,1.25,0), scene); 
+     var camera = new BABYLON.ArcRotateCamera("camera", -Math.PI/2, Math.PI/2, 4, new BABYLON.Vector3(2,0.75,-0.2), scene); 
      // camera.attachControl(canvas, true);
      // set limits to camera movement so users dont get disorganized  
      // camera.lowerRadiusLimit = 4;
