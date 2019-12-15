@@ -1,0 +1,650 @@
+﻿<!Doctype html>
+<html>
+<head>
+
+    <meta charset="UTF-8">
+    <title>ezbo</title>
+
+    <!-- bootstrap css here (in production include in base.html). WE use v4.0 stable  -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- game page custom css -->
+    <link rel="stylesheet" href="configurator_v3.css">
+
+    <!-- earcut: polygon triangulation for webgl apps, required by babylon's polygon funcs -->
+    <script src="https://cdn.jsdelivr.net/npm/earcut@2.1.5/dist/earcut.dev.min.js"></script>
+
+    <!-- <script src="https://cdn.babylonjs.com/viewer/babylon.viewer.js"></script> --> 
+
+    <!-- babylon javascripts, order matters!! now running on v4 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babylonjs/4.0.3/babylon.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/babylonjs-loaders@4.0.3/babylonjs.loaders.min.js"></script>   
+    <script src="https://cdn.jsdelivr.net/npm/babylonjs-materials@4.0.3/babylonjs.materials.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/babylonjs-gui@4.0.3/babylon.gui.min.js"></script>
+</head> 
+
+    <body>
+        
+        <div id="overlay">
+            <div id="text">
+                Please tilt your phone to use landscape mode
+            </div>
+        </div>
+        
+        <canvas id="main_app"></canvas>
+
+        <script>
+            // global variables so that the js file can read them
+            var id; // cube number from left to right
+            var asstype; // type of accessory to be imported
+        </script>
+
+        <script src="configurator_v3.js"></script>
+
+        <div class="container infoblock">
+            <button class="btn btn-info btn-md" id="saveAsImg">Save as Image</button>
+            <button class="btn btn-info btn-md" id="viewCart">View Cart</button>
+            <button class="btn btn-dark btn-md" id="undo">Undo</button>
+            <button class="btn btn-dark btn-md" id="showarray">Show</button>
+            <!-- <button class="btn btn-primary btn-md">
+                Price <span class="badge badge-light" id="price">USD --</span>
+            </button> -->
+        </div>
+
+        <div class="modal fade" id="pop-up-modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title">
+                            Accessories
+                        </h1>
+                    </div>
+                    <div class="modal-body">
+                        <!-- first, choose the cube number -->
+                        <div class="container-fluid" id="contentAss"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" id="close" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- load JS lib and dependencies for bootstrap -->
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+        <script>            
+            var mql = window.matchMedia("(orientation: portrait)");
+            // Add a media query change listener
+            mql.addListener(function(m) {
+                if(!m.matches) {
+                    location.reload(true);
+                }
+            });
+
+           // this is for the base cube manipulation popup
+           $(document).ready(function () {
+               
+                window.addEventListener("popupBase", function(){  
+                    // get the active base cube accesory array
+                    var activeAssArr = baseAccesoryArray[baseIndex]; // note this should equal to the integer of each cube i.e. 6 for B6 etc
+                    // console.log(activeAssArr)
+                    // init the render to html dropdown selection
+                    // idea is to use the global accesory tracker which is always updated in the main logic upon import of accesory
+                    var cubelistHTML = ''; 
+                    // basically, we only want those which have not been rendered to be available for selection
+                    for (var i=0; i < activeAssArr.length; i++) {
+                        if (activeAssArr[i] != 0) {
+                            // meaning a particular cube is not empty,
+                            continue // continue to next iter
+                        } else {
+                            // if it is zero, meaning it is empty so we populate the cubelist array with the cube number specific location
+                            cubelistHTML = cubelistHTML + `<a class="dropdown-item" id="${i+1}">Base cube ${i+1}</a>`
+                            // later, jquery, on click dropdown-item, we get its id, then use this as input into the import accesory arg - specificcubeNum
+                        }
+                    }                    
+
+                    for (var i=0; i < accesoryList[0].length; i++) {
+                        // we then simply pass the logic filtered values into the string
+                        $("#contentAss").append (
+                            ` 
+                            <div class="card text-center">
+                                <img class="card-img-top" src="">
+                                <div class="card-body">
+                                    <h5 class="card-title"></h5>
+                                    <p class="card-text">${accesoryList[1][i]}</p>
+                                    <div class="dropdown">
+                                        <button type="button" href="#" class="btn btn-sm btn-outline-dark dropdown-toggle" data-toggle="dropdown" id='${accesoryList[0][i]}'>Add to..</button>
+                                        <div class="dropdown-menu">
+                                            ${cubelistHTML}
+                                        </div>
+                                    </div>  
+                                </div>
+                            </div>    
+                            `
+                        );
+                    }
+
+                    // this is to identify which accessory to import
+                    $(".dropdown-toggle").click(function() {
+                        asstype = this.id;
+                    })
+
+                    // import the identified accessory to the selected cube
+                    $(".dropdown-item").click(function(){
+                        id = parseInt(this.id); // id of selected cube
+                        // makeEvent("importAccessoryBase");
+                        callbackFromCanvas("base")
+                        $('#pop-up-modal').modal("hide"); // close modal after choosing accessory
+                    });
+
+                    $('#pop-up-modal').modal(); // show modal
+          
+                }); 
+
+                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                // this is for the stack cube manipulation popup
+                window.addEventListener("popupStack", function(){  
+                    // get the active stack cube accesory array
+                    var activeAssArr = stackAccesoryArray[stackIndex]; // note this should equal to the integer of each cube i.e. 6 for B6 etc
+
+                    // init the render to html dropdown selection
+                    // idea is to use the global accesory tracker which is always updated in the main logic upon import of accesory
+                    var cubelistHTML = ''; 
+                    // basically, we only want those which have not been rendered to be available for selection
+                    for (var i=0; i < activeAssArr.length; i++) {
+                        if (activeAssArr[i] != 0) {
+                            // meaning a particular cube is not empty,
+                            continue // continue to next iter
+                        } else {
+                            // if it is zero, meaning it is empty so we populate the cubelist array with the cube number specific location
+                            cubelistHTML = cubelistHTML + `<a class="dropdown-item" id="${i+1}">Stack cube ${i+1}</a>`
+                            // later, jquery, on click dropdown-item, we get its id, then use this as input into the import accesory arg - specificcubeNum
+                        }
+                    }    
+
+                    for (var i=0; i < accesoryList[0].length; i++) {
+                        var placeholder;
+
+                        if (accesoryList[0][i] === "TA" && activeAssArr.length > 1) {
+                            placeholder = cubelistHTML.slice(0) // save a copy of cubelistHTML
+
+                            cubelistHTML = ""; // reset the string
+
+                            for (var j=0; j < activeAssArr.length; j++) {
+                                if (activeAssArr[j] != 0) {
+                                    // meaning a particular cube is not empty,
+                                    continue // continue to next iter
+                                } else {
+									// if it is zero, meaning it is empty so we populate the cubelist array with the cube number specific location
+									if (j != activeAssArr.length-1) {
+										cubelistHTML = cubelistHTML + `<a class="dropdown-item" id="${j+1}">Position ${j+1}</a>`
+									}
+                                    // later, jquery, on click dropdown-item, we get its id, then use this as input into the import accesory arg - specificcubeNum
+                                }
+                            }                            
+                        }
+                        // we then simply pass the logic filtered values into the string
+                        $("#contentAss").append (
+                            ` 
+                            <div class="card text-center">
+                                <img class="card-img-top" src="">
+                                <div class="card-body">
+                                    <h5 class="card-title"></h5>
+                                    <p class="card-text">${accesoryList[1][i]}</p>
+                                    <div class="dropdown">
+                                        <button type="button" href="#" class="btn btn-sm btn-outline-dark dropdown-toggle" data-toggle="dropdown" id='${accesoryList[0][i]}'>Add to..</button>
+                                        <div class="dropdown-menu">
+                                            ${cubelistHTML}
+                                        </div>
+                                    </div>  
+                                </div>
+                            </div>    
+                            `
+                        );
+                        
+                        // reassign cubelistHTML to its original value
+                        if (accesoryList[0][i] === "TA" && activeAssArr.length > 1) {
+                            cubelistHTML = placeholder;
+                        }
+                    }   
+
+                    // this is to identify which accessory to import
+                    $(".dropdown-toggle").click(function(){
+                        asstype = this.id;
+                    });
+
+                    // import the identified accessory to the selected cube
+                    $(".dropdown-item").click(function(){
+                        // console.log(this.innerHTML)
+                        
+                        id = parseInt(this.id); // id of selected cube
+                        // makeEvent("importAccessoryStack");
+                        callbackFromCanvas("stack")
+                        $('#pop-up-modal').modal("hide"); // close modal after choosing accessory
+                    });
+
+                    $('#pop-up-modal').modal(); // show modal
+                                       
+                });
+
+                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                
+                window.addEventListener("popupPlank", function(){
+                    var activeAssArr = stackAccesoryArray[plankIndex]; // note this should equal to the integer of each cube i.e. 6 for B6 etc
+
+                    // console.log(stackcubeArray[plankIndex])
+                    var plankType = stackcubeArray[plankIndex];
+
+                    // init the render to html dropdown selection
+                    // idea is to use the global accesory tracker which is always updated in the main logic upon import of accesory
+                    var cubelistHTML = ''; 
+                    // basically, we only want those which have not been rendered to be available for selection
+                    for (var i=0; i < activeAssArr.length; i++) {
+                        if (activeAssArr[i] != 0) {
+                            // meaning a particular cube is not empty,
+                            continue // continue to next iter
+                        } else {
+                            // if it is zero, meaning it is empty so we populate the cubelist array with the cube number specific location
+                            cubelistHTML = cubelistHTML + `<a class="dropdown-item" id="${i+1}">Stack cube ${i+1}</a>`
+                            // later, jquery, on click dropdown-item, we get its id, then use this as input into the import accesory arg - specificcubeNum
+                        }
+                    }
+                    
+                    // check if the plank type can have a table
+                    var tableFlag = false;
+                    for (var i=0; i<tableReady.length; i++){
+                        if (plankType === tableReady[i][0]){
+							tableFlag = true;
+							plankType = tableReady[i][1];
+							break;
+                        }
+                    }
+					
+                    for (var i=0; i < accesoryList[0].length; i++) {
+						var placeholder;
+						// the purpose of this whole if statement and its contents is to identify the gap between the cubes, or the 0s in between the 1s in the config
+						// i.e 110001 has a gap of 000. And this particular config can only have a table imported on the left most side, where there is a 11
+						if (tableFlag && accesoryList[0][i] === "TA") {
+							if (plankType.includes("1001")){
+								plankType = plankType.split("00");
+							}
+							else if (plankType.includes("10001")) {
+								plankType = plankType.split("000");
+                            }
+
+                            placeholder = cubelistHTML.slice(0); // save a copy of cubelistHTML
+
+                            cubelistHTML = ""; // reset the string
+
+                            // count the number of valid table import positions
+                            var posCtr = 0;
+                            for (var j=0; j<plankType.length; j++) {
+                                if (plankType[j].length > 1) {
+                                    posCtr += plankType[j].length - 1
+                                }
+                            }
+                            
+                            for (var j=0; j<posCtr; j++) {
+                                cubelistHTML = cubelistHTML + `<a class="dropdown-item" id="${j+1}">Position ${j+1}</a>`;
+                            }
+						}
+                        
+                        // we then simply pass the logic filtered values into the string
+                        $("#contentAss").append (
+                            ` 
+                            <div class="card text-center">
+                                <img class="card-img-top" src="">
+                                <div class="card-body">
+                                    <h5 class="card-title"></h5>
+                                    <p class="card-text">${accesoryList[1][i]}</p>
+                                    <div class="dropdown">
+                                        <button type="button" href="#" class="btn btn-sm btn-outline-dark dropdown-toggle" data-toggle="dropdown" id='${accesoryList[0][i]}'>Add to..</button>
+                                        <div class="dropdown-menu">
+                                            ${cubelistHTML}
+                                        </div>
+                                    </div>  
+                                </div>
+                            </div>    
+                            `
+						);
+						
+						// reassign cubelistHTML to its original value
+						if (accesoryList[0][i] === "TA" && tableFlag) {
+							cubelistHTML = placeholder;
+                        }
+                    }   
+
+                    // this is to identify which accessory to import
+                    $(".dropdown-toggle").click(function(){
+                        asstype = this.id;
+                    });
+
+                    // import the identified accessory to the selected cube
+                    $(".dropdown-item").click(function(){
+                        id = parseInt(this.id); // id of selected cube
+                        
+                        callbackFromCanvas("plank")
+                        $('#pop-up-modal').modal("hide"); // close modal after choosing accessory
+                    });
+
+                    $('#pop-up-modal').modal(); // show modal
+                                   
+                }); 
+ 
+                // reset modal when hidden from view so buttons can change dynamically based on which cube is selected
+                $(".modal").on("hidden.bs.modal", function(){
+                        $("#contentAss").html(""); // this works, lets use this concept , not an issue. 
+                });  
+
+                $("#saveAsImg").click(function(){
+                    makeEvent("saveScene");
+                });
+
+                $("#showarray").click(function(){
+                    cleanUp(basecubeArray)
+                    cleanUp(stackcubeArray)
+                    cleanUp(stackAccesoryArray)
+                    cleanUp(baseAccesoryArray)
+                    cleanUp(basecubePos)
+                    cleanUp(stackcubePos)
+                    
+                    console.log("Base cubes: ", basecubeArray)
+                    console.log("Base accessories", baseAccesoryArray)
+                    console.log("Base position", basecubePos)
+                    console.log("Stack cubes", stackcubeArray)
+                    console.log("Stack position", stackcubePos)
+                    console.log("Stack accessories: ", stackAccesoryArray)
+                    
+                })
+
+                $("#undo").click(function(){
+                    var TOL = 0.08;
+                    var retval = undo();
+                    var undoitem = retval[0];
+                    var latestItem = retval[1];
+                    var type;
+                    var index;
+
+                    
+                    if (latestItem != "B0") {
+                        type = latestItem[0];
+                        index = parseInt(latestItem.slice(1));
+                        while (undoitem == null) {
+                            retval = undo();
+                            undoitem = retval[0];
+                            latestItem = retval[1];
+                            type = latestItem[0];
+                            index = parseInt(latestItem.slice(1));
+                        }
+
+                        if (latestItem != "B0") {
+
+                            undoitem.dispose();
+
+                            // ====================================== FOR STACK AND PLANK CUBES ============================================================
+
+                            if (type == "E") {
+                                // if its not a number then the format of the string means that its a plank cube 
+                                // i.e "ES4"
+                                if (Number.isNaN(index)) {
+                                    var plank = true;
+                                    index = latestItem.slice(2);
+                                    var config;
+                                    var plankType = stackcubeArray[index];
+
+                                    for (var i=0; i<stackplankConfig.length; i++) {
+                                        if (plankType == stackplankConfig[i][0]) {
+                                            config = stackplankConfig[i][1];
+                                            break;
+                                        }
+                                    }
+
+                                    var cubeint = config.length;
+                                }
+                                // else its a normal stack cube
+                                else {
+                                    var plank = false
+                                    var cubeint = parseInt(stackcubeArray[index].slice(1));
+                                }
+                                
+                                var ycoord = stackcubePos[index][1];
+                                var xcoord = stackcubePos[index][0];
+
+                                var row = findRow(ycoord); // row of the cubes that were undone
+
+                                var buttonsBelow = stackbtn_grid[row-1]; // buttons below the current row
+            
+                                // check if its already the highest available row
+                                if (row < gridMat.length-1) {
+                                    var buttonsAbove = stackbtn_grid[row+1]; // buttons above the current row
+                                }
+                                
+                                var buttonsCurrent = stackbtn_grid[row]; // buttons on the current row
+                                
+                                // dimensions of the mesh to be undone
+                                var halflength = (boxgridWidth*cubeint)/2;
+                                var start = xcoord - halflength;
+                                var end = xcoord + halflength;
+                                
+                                for (var i=0; i<buttonsCurrent.length; i++) {
+                                    // these are the variables for the buttons on the top row
+                                    if (row < gridMat.length-1) {
+                                        var rx_target_above = buttonsAbove[i][1];
+                                        var cy_target_above = buttonsAbove[i][2];
+                                        var btnAbove = buttonsAbove[i][0];
+                                        var but_xpos = gridMat[rx_target_above][cy_target_above][0];
+                                        var but_ypos = gridMat[rx_target_above][cy_target_above][1];
+                                    }
+                                    else {
+                                        var rx_target = buttonsCurrent[i][1];
+                                        var cy_target = buttonsCurrent[i][2];
+                                        var but_xpos = gridMat[rx_target][cy_target][0];
+                                    }
+                                    // move the buttons above the current row out of the scene 
+                                    // NOTE: when moving buttons, -10 is to move button out of sight, 0 is to move button into sight
+                                    if (but_xpos > start && but_xpos < end) {
+                                        if (row < gridMat.length-1) {
+                                            if (buttonsAbove[i][4] == 0){
+                                                btnAbove.moveToVector3(new BABYLON.Vector3(but_xpos, but_ypos, -10), scene);
+                                                buttonsAbove[i][3] = 0;
+                                                buttonsAbove[i][4] = 0; 
+                                            }
+                                        }
+                                        
+                                        // moving the button in the current cube row back into the scene
+                                        var btnCur = buttonsCurrent[i][0];
+                                        var rx_target_cur = buttonsCurrent[i][1];
+                                        var cy_target_cur = buttonsCurrent[i][2];
+                                        var cur_xpos = gridMat[rx_target_cur][cy_target_cur][0];
+                                        var cur_ypos = gridMat[rx_target_cur][cy_target_cur][1];
+                            
+                                        if (row == 1) {
+                                            if (basebuttonArray[i][4] == 1) {
+                                                btnCur.moveToVector3(new BABYLON.Vector3(cur_xpos, cur_ypos, 0), scene);
+                                                buttonsCurrent[i][3] = 1;
+                                                buttonsCurrent[i][4] = 0;
+                                            }
+                                        }
+                                        else if (row > 1){
+                                            
+                                            if (buttonsBelow[i][4] == 1) {
+                                                btnCur.moveToVector3(new BABYLON.Vector3(cur_xpos, cur_ypos, 0), scene);
+                                                buttonsCurrent[i][3] = 1;
+                                                buttonsCurrent[i][4] = 0;
+                                            }
+                                            else {
+                                                if (buttonsBelow[i][3] == 1) {
+                                                    btnCur.moveToVector3(new BABYLON.Vector3(cur_xpos, cur_ypos, -10), scene);
+                                                    buttonsCurrent[i][3] = 0;
+                                                    buttonsCurrent[i][4] = 0;
+                                                }
+                                            }    
+                                        }   
+                                    }
+                                }
+
+                                stackcubeArray.splice(index, 1);
+                                stackcubePos.splice(index, 1);
+                                
+                                stackAccesoryArray.splice(index, 1);
+                                stackAccesoryPos.splice(index, 1);
+                                stackcubeCtr = stackcubeCtr - 1;
+ 
+                            }
+
+                            // ============================================= FOR BASE CUBES ======================================================================
+
+                            else if (type == "B") {
+                                
+                                var xcoord = basecubePos[index][0];
+                                var ycoord = basecubePos[index][1];
+                                var cubeint = parseInt(basecubeArray[index].slice(1));
+                                var halflength = (boxgridWidth*cubeint)/2;
+                                var start = xcoord - halflength;
+                                var end = xcoord + halflength;
+                                var secondRowBtns = stackbtn_grid[1];
+                                
+                                for (var i=0; i<basebuttonArray.length; i++) {
+                                    var col = basebuttonArray[i][2];
+                                    var but_xpos = gridMat[0][col][0];
+                                    var but_ypos = gridMat[0][col][1];
+                                    var button = basebuttonArray[i][0];
+                                    var stackbutton = secondRowBtns[i][0];
+
+                                    if (but_xpos > start && but_xpos < end) {
+                                        button.moveToVector3(new BABYLON.Vector3(gridMat[0][col][0], gridMat[0][col][1], 0), scene);
+                                        basebuttonArray[i][3] = 1; 
+                                        basebuttonArray[i][4] = 0; 
+                                        if (secondRowBtns[i][4] == 0 && secondRowBtns[i][3] == 1) {
+                                            stackbutton.moveToVector3(new BABYLON.Vector3(gridMat[0][col][0], gridMat[0][col][1], -10), scene);
+                                            secondRowBtns[i][3] = 0;
+                                            secondRowBtns[i][4] = 0;
+                                        }
+                                        
+                                    }
+                                }
+                                
+                                basecubeArray.splice(index, 1);
+                                basecubePos.splice(index, 1);
+        
+                                baseAccesoryArray.splice(index, 1)
+                                baseAccesoryPos.splice(index, 1)
+                                basecubeCtr = basecubeCtr - 1;
+                            }
+
+                            // ============================================= FOR ACCESSORIES ======================================================================
+                           
+                            /////// NOTE: Accessories which start with the letter "B" are base cube accessories
+                            else if (type == "A") {
+
+                                index = parseInt(latestItem.slice(3));
+                                
+                                var cubetype = basecubeArray[index];
+                                var size = parseInt(cubetype.slice(1));
+                                var cur_accesory_x = undoitem.absolutePosition.x; // get the position of the mesh in the scene
+     
+                                var all_accesory_pos = baseAccesoryPos[index]; // get the accessory array for the current mesh
+                                var accesory_ind; // to determine the index of the accessory in the array to be deleted
+                                
+                                // this loop is to determine the index of the accessory in the array
+                                // have to use TOLERANCE error bars because .absolutePosition returns rounded off figures for the coordinates
+                                for (var i=0; i<all_accesory_pos.length; i++) {
+                                    if(all_accesory_pos[i] != 0) {
+                                        
+                                        if (cur_accesory_x <= all_accesory_pos[i][0] + TOL && cur_accesory_x >= all_accesory_pos[i][0] - TOL) {
+                                            accesory_ind = i;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                baseAccesoryArray[index][accesory_ind] = 0;
+                                baseAccesoryPos[index][accesory_ind] = 0;
+                            }
+
+                            /////// NOTE: Accessories which start with the letter "S" are stack cube accessories
+                            else if(type == "S") {
+                                index = parseInt(latestItem.slice(3));
+
+                                var cubetype = stackcubeArray[index];
+                                var size = parseInt(cubetype.slice(1));
+                                var cur_accesory_x = undoitem.absolutePosition.x; // get the position of the mesh in the scene
+     
+                                var all_accesory_pos = stackAccesoryPos[index]; // get the accessory array for the current mesh
+                                var accesory_ind; // to determine the index of the accessory in the array to be deleted
+
+                                for (var i=0; i<all_accesory_pos.length; i++) {
+                                    if(all_accesory_pos[i] != 0) {
+                                        if (cur_accesory_x <= all_accesory_pos[i][0] + TOL && cur_accesory_x >= all_accesory_pos[i][0] - TOL) {
+                                            stackAccesoryArray[index][i] = 0;
+                                            stackAccesoryPos[index][i] = 0;
+                                        }
+                                    }
+                                }
+                                
+                            }
+
+                            /////// NOTE: Accessories which start with the letter "P" are plank cube accessories
+
+                            else if(type == "P") {
+                                var identifiers = latestItem.split("-");
+
+                                index = parseInt(identifiers[1]);
+
+                                var plankType = stackcubeArray[index];
+                                var size;
+                                var config;
+
+                                if (plankType[0] == "R") {
+                                    size = parseInt(plankType[2]);
+                                }
+                                else if(plankType[0] == "E") {
+                                    size = parseInt(plankType[1]);
+                                }
+
+                                var cur_accesory_x = undoitem.absolutePosition.x; // get the position of the mesh in the scene
+                                var all_accesory_pos = stackAccesoryPos[index]; // get the accessory array for the current mesh
+                                var accesory_ind; // to determine the index of the accessory in the array to be deleted
+
+                                for (var i=0; i<all_accesory_pos.length; i++) {
+                                    if(all_accesory_pos[i] != 0) {
+                                        if (cur_accesory_x <= all_accesory_pos[i][0] + TOL && cur_accesory_x >= all_accesory_pos[i][0] - TOL) {
+                                            stackAccesoryArray[index][i] = 0;
+                                            stackAccesoryPos[index][i] = 0;
+                                        }
+                                    }
+                                }
+                                
+                                stackAccesoryArray[index][accesory_ind] = 0;
+                                stackAccesoryPos[index][accesory_ind] = 0;
+                                
+                            }
+                        }
+                        
+                    }
+                    
+                });
+
+                function undo() {
+                    if (undoSTACK[undoSTACK.length-1] == "B0") {
+                        return [-1, "B0"];
+                    }
+                    else {
+                        var latestItem = undoSTACK.pop();
+                        var undoitem = scene.getMeshByID(latestItem);
+
+                        return [undoitem, latestItem];
+                    }
+                    
+                }
+
+            });
+        
+        </script>        
+    </body>
+</html>    
