@@ -327,7 +327,6 @@
                     // import the identified accessory to the selected cube
                     $(".dropdown-item").click(function(){
                         id = parseInt(this.id); // id of selected cube
-                        
                         callbackFromCanvas("plank")
                         $('#pop-up-modal').modal("hide"); // close modal after choosing accessory
                     });
@@ -352,6 +351,7 @@
                     cleanUp(baseAccesoryArray)
                     cleanUp(basecubePos)
                     cleanUp(stackcubePos)
+                    cleanUp(stackAccesoryPos)
                     
                     console.log("Base cubes: ", basecubeArray)
                     console.log("Base accessories", baseAccesoryArray)
@@ -359,7 +359,7 @@
                     console.log("Stack cubes", stackcubeArray)
                     console.log("Stack position", stackcubePos)
                     console.log("Stack accessories: ", stackAccesoryArray)
-                    
+                    console.log("Stack accessories position: ", stackAccesoryPos)
                 })
 
                 $("#undo").click(function(){
@@ -381,7 +381,7 @@
                             type = latestItem[0];
                             index = parseInt(latestItem.slice(1));
                         }
-
+                        
                         if (latestItem != "B0") {
 
                             undoitem.dispose();
@@ -494,7 +494,7 @@
                                 stackAccesoryArray.splice(index, 1);
                                 stackAccesoryPos.splice(index, 1);
                                 stackcubeCtr = stackcubeCtr - 1;
- 
+                                
                             }
 
                             // ============================================= FOR BASE CUBES ======================================================================
@@ -592,6 +592,7 @@
                             /////// NOTE: Accessories which start with the letter "P" are plank cube accessories
 
                             else if(type == "P") {
+                                
                                 var identifiers = latestItem.split("-");
 
                                 index = parseInt(identifiers[1]);
@@ -609,8 +610,7 @@
 
                                 var cur_accesory_x = undoitem.absolutePosition.x; // get the position of the mesh in the scene
                                 var all_accesory_pos = stackAccesoryPos[index]; // get the accessory array for the current mesh
-                                var accesory_ind; // to determine the index of the accessory in the array to be deleted
-
+                                
                                 for (var i=0; i<all_accesory_pos.length; i++) {
                                     if(all_accesory_pos[i] != 0) {
                                         if (cur_accesory_x <= all_accesory_pos[i][0] + TOL && cur_accesory_x >= all_accesory_pos[i][0] - TOL) {
@@ -620,9 +620,6 @@
                                     }
                                 }
                                 
-                                stackAccesoryArray[index][accesory_ind] = 0;
-                                stackAccesoryPos[index][accesory_ind] = 0;
-                                
                             }
                         }
                         
@@ -631,13 +628,13 @@
                 });
 
                 function undo() {
+                    
                     if (undoSTACK[undoSTACK.length-1] == "B0") {
                         return [-1, "B0"];
                     }
                     else {
                         var latestItem = undoSTACK.pop();
                         var undoitem = scene.getMeshByID(latestItem);
-
                         return [undoitem, latestItem];
                     }
                     

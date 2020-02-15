@@ -184,8 +184,8 @@ function createRoomScene() {
      createOutdEnv(scene);  
      
      // Load base cubes and enable modifications to the base cubes 
-     importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0, 'init');
-
+     // importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0, 'init');
+     scene_recreation()
      window.addEventListener("saveScene", function() { // this one can be high definition
           BABYLON.Tools.CreateScreenshotUsingRenderTarget(engine, camera, {width:400, height:250}); // download the room scene as png
      });
@@ -626,9 +626,9 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
      // concat with the constant global postfix to give import name 
      var bcubename = bcubesPrefix + postfix;     
 
-    // SceneLoader.ImportMesh
-    // Loads the meshes from the file and appends them to the scene
-    BABYLON.SceneLoader.ImportMesh("", hostUrl , bcubename, scene, 
+     // SceneLoader.ImportMesh
+     // Loads the meshes from the file and appends them to the scene
+     BABYLON.SceneLoader.ImportMesh("", hostUrl , bcubename, scene, 
      function (newMeshes) {
           // console.log("here")
           // dirty hack to get around not being able to assign name and id to mesh
@@ -1530,7 +1530,7 @@ function importPlankStackCubes_SUPP(scene, gridMat, x, y, plankstackprefix) {
      
      BABYLON.SceneLoader.ImportMesh("", hostUrl, cubeName, scene, 
      function (newMeshes) {
-
+    
           // dirty hack to get around not being able to assign name and id to mesh
           var plankstackMesh = newMeshes[0]; 
           
@@ -2417,6 +2417,7 @@ function importPlankAccesories(scene, asstype, cubeNameId, importPos) {
                     stackAccesoryArray[cubemeshInd][index - 1] = asstype;
                     stackAccesoryPos[cubemeshInd][index] = [assMesh.position.x, assMesh.position.y, assMesh.position.z]; 
                     stackAccesoryPos[cubemeshInd][index - 1] = [assMesh.position.x, assMesh.position.y, assMesh.position.z]; 
+                    
                }
           }
           else {
@@ -2443,6 +2444,7 @@ function importPlankAccesories(scene, asstype, cubeNameId, importPos) {
                     stackAccesoryArray[cubemeshInd][importPos - 1] = asstype;
                     stackAccesoryPos[cubemeshInd][importPos - 1] = [xpos, cubePos[1], cubePos[2]]; 
                }
+               
           }
           
           // position the accesory mesh at base cube 
@@ -2534,7 +2536,6 @@ function initButtons(){
                stackbtn_grid[i].push([stackbtn, i, j, 0, 0]);
           }
      }
-     // console.log(stackbtn_grid)
 }
 
 function findRow(vert_coord){
@@ -2549,6 +2550,7 @@ function findRow(vert_coord){
      }
 }
 
+
 function callbackFromCanvas(type){
     
      var importPos = id;
@@ -2561,5 +2563,373 @@ function callbackFromCanvas(type){
      else if (type == "plank"){
           importPlankAccesories(scene, asstype, plankcubeName, importPos); 
      }
+}
+
+
+function scene_recreation() {
      
+     basecubes = ["B4", "B1"];
+     baseposition = [[1.79225, 0.29500000000000004, -0.3], [3.16925, 0.29500000000000004, -0.3]];
+
+     baseaccessories = [[0, "NS", 0, 0], ["NS"]];
+     baseaccessoriesposition = [[0, [1.6004999999999998, 0.29500000000000004, -0.3], 0, 0], [[3.16925, 0.29500000000000004, -0.3]]];
+
+     stackcubes = ["E1", "E43", "E1", "E1", "E4", "E2"];
+     stackposition = [[3.16925, 0.685, -0.3], [2.5838, 1.0750000000000002, -0.3], [1.9887500000000002, 1.4649999999999999, -0.3], [1.20175, 1.4649999999999999, -0.3], [1.7919166666666668, 0.685, -0.3], [1.3985833333333333, 1.0750000000000002, -0.3]];
+
+     stackaccessories = [[0], ["SS", 0], ["XS"], [0], [0, "NS", 0, 0], [0, 0]];
+     stackaccessoriesposition = [[0], [[2.00855, 1.0750000000000002, -0.3], 0], [[1.9887500000000002, 1.4649999999999999, -0.3]], [0], [0, [1.6001666666666667, 0.685, -0.3], 0, 0], [0, 0]];
+
+     for (var i=0; i<basecubes.length; i++) {
+          basecubes_recreation(baseposition[i], basecubes[i]);
+     }
+
+     for (var i=0; i<stackcubes.length; i++) {
+          stackcubes_recreation(stackposition[i], stackcubes[i]);
+     }
+
+
+     var delayInMilliseconds = 300;
+     setTimeout(function() {
+          for (var i=0; i<baseaccessories.length; i++) {
+               for (var j=0; j<baseaccessories[i].length; j++) {
+                    if (baseaccessories[i][j] != 0) {
+                         baseaccessory_recreation(baseaccessoriesposition[i][j], baseaccessories[i][j], i, j);
+                    }
+               }
+          }
+     }, delayInMilliseconds);
+     
+
+     // for (var i=0; i<stackaccessories.length; i++) {
+     //      for (var j=0; j<stackaccessories[i].length; j++) {
+     //           if (stackaccessories[i][j] != 0) {
+     //                recreation(stackaccessoriesposition[i][j], stackaccessories[i][j])
+     //           }
+     //      }
+     // }
+}
+
+function baseaccessory_recreation(coords, type, index, importPos){
+     if (type == 'XS') { // X shelve
+		var assmeshImp = 'Xshelve.babylon'; // this name has to be same as the mesh file from cdn
+	} else if (type == 'SS') { // Single shelve
+		var assmeshImp = 'singleshelve.babylon';
+	} else if  (type == 'DS') { // Double shelve
+		var assmeshImp = 'doubleshelve.babylon'; 
+	} else if (type == 'NS') { // nine box shelve
+		var assmeshImp = 'nineboxshelve.babylon'; 
+	} else if (type == 'SB') { // six box shelve
+		var assmeshImp = 'sixboxshelve.babylon'; 
+     }
+     
+     BABYLON.SceneLoader.ImportMesh("", hostUrl, assmeshImp, scene, 
+     function (newMeshes) {
+          var mesh = newMeshes[0];
+          // define mesh material
+          var boxMaterial = createboxMaterial(scene); 
+          mesh.material = boxMaterial;
+          
+          // naming convention for accesories base cube mesh AX<int> i.e. AXS1, AXS2, AXS3, AXS4 ... for X shelve
+          // where <int> refers to the associated cube mesh unique index 
+          mesh.name = 'A' + type + String(index); 
+          mesh.id = 'A' + type + String(index); 
+
+          // position the accesory mesh at base cube 
+          mesh.position.x = coords[0];
+          mesh.position.y = coords[1];
+          mesh.position.z = coords[2];
+          mesh.rotation.y = Math.PI/2;
+
+          // register the mesh for actions
+          mesh.actionManager = new BABYLON.ActionManager(scene); 
+          
+          // update base accesory arrays at their respective specific cubes position
+          // recall that importPos is the cube prefix int from 1-6 for B1-B6. so in terms of index, it is 0-5
+
+          baseAccesoryArray[index][importPos] = type;
+          baseAccesoryPos[index][importPos] = [coords[0], coords[1], coords[2]]; 
+     });
+}
+
+function stackcubes_recreation(coords, type){
+     var planks = ["E43", "E53", "E54", "E63", "E64", "E65b", "E65a", "RE54", "RE64", "RE65a"];
+     var stackname = type + postfix; 
+
+     if (planks.includes(type)){
+          var reverse = false;
+          if (type[0] == "R") {
+               // remove the R so that we can import the plank
+               type = type.slice(1);
+               reverse = true;
+          }
+     
+          var cubeName = type + postfix;  
+          
+          var intprefix = parseInt(cubeName[2]) - 1;
+
+          BABYLON.SceneLoader.ImportMesh("", hostUrl , stackname, scene, 
+          function (newMeshes) {
+               var mesh = newMeshes[0];
+
+               mesh.id = String('ES' + stackcubeCtr); 
+               
+               mesh.name = String('ES' + stackcubeCtr); 
+
+               mesh.position.x = coords[0]; 
+               mesh.position.y = coords[1];
+               mesh.position.z = coords[2]; // this one is constant for all cubes
+               
+               // define mesh rotation
+               var radians = BABYLON.Tools.ToRadians(180);
+               mesh.rotation.y = Math.PI/2;
+
+               if (reverse) {
+                    mesh.rotation.x = radians;
+                    mesh.rotation.z = radians;
+               }
+                         
+               // define mesh material
+               var boxMaterial = createboxMaterial(scene); 
+               mesh.material = boxMaterial;
+
+               // start is the coordinates of the leftmost edge of the selected mesh
+               // end is the rightmost edge of the mesh
+               var cube_num = parseInt(cubeName[1]);
+               var halfLength = (boxgridWidth*cube_num)/2; 
+               var start = coords[0] - halfLength;
+               var end = coords[0] + halfLength;
+
+               // determine which buttons in the current row should be removed from the scene 
+               row = findRow(coords[1]);
+               var stackbuttons = stackbtn_grid[row];
+               for (var i=0; i<stackbuttons.length; i++){
+                    var x = stackbuttons[i][1];
+                    var y = stackbuttons[i][2];
+     
+                    var x_coord = gridMat[x][y][0];
+                    var y_coord = gridMat[x][y][1];
+     
+                    if (x_coord > start && x_coord < end) {
+                         stackbuttons[i][0].moveToVector3(new BABYLON.Vector3(x_coord, y_coord, -10), scene);
+                         stackbuttons[i][3] = 0;  
+                         stackbuttons[i][4] = 1;
+                    }
+               }
+
+               plank_config = findConfig(type);
+
+               // determine which buttons above the current row should be visible and available to click
+               if (row < stackbtn_grid.length) {
+                    var row_above = row + 1;
+                    var stackbuttons_above = stackbtn_grid[row_above];
+                    var index = 0;
+                    for (var i=0; i<stackbuttons_above.length; i++){
+                         var x = stackbuttons_above[i][1];
+                         var y = stackbuttons_above[i][2];
+          
+                         var x_coord = gridMat[x][y][0];
+                         var y_coord = gridMat[x][y][1];
+
+                         // This is to check where to have a button to import cubes above the plank.
+                         // This uses the plank configuration i.e 1001, 10001.
+                         // Once we meet a button which is within the bounds of the plank, we then check whether there-
+                         // -is a plank cube at that position or not.
+                         // If it is a 1, then there is a cube (import a button), 
+                         // Else, there is no cube (continue on)
+                         if (x_coord > start && x_coord < end && stackbuttons_above[i][4] == 0) {
+                              var plank_cube_check = parseInt(plank_config[index]);
+                              if (plank_cube_check == 1) {
+                                   stackbuttons_above[i][0].moveToVector3(new BABYLON.Vector3(x_coord, y_coord, 0), scene);
+                                   stackbuttons_above[i][3] = 1;  
+                                   stackbuttons_above[i][4] = 0;
+                              }
+                              index += 1;
+                         }
+                    }
+               }
+
+               // update global counter for stack cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
+               stackcubeArray.push(type);
+               
+               stackcubePos.push([mesh.position.x, mesh.position.y, mesh.position.z]); // push grid position in stackcubePos array as an array of 3 elements x,y,z 
+               
+               stackcubeCtr = stackcubeCtr + 1;
+               
+               // update global stack cube accesory in tandem, populate with empty array and empty matrix 
+               // note: cant use zero here, since a stack cube may have more than one accesory
+
+               stackAccesoryArray.push(new Array(intprefix).fill(0)); // on initial import of a cube mesh, there is no accesory, so initialize zero array
+               stackAccesoryPos.push(new Array(intprefix).fill(0)); 
+
+               meshSelectControl (scene, mesh,'3');
+               
+          });
+     }
+     else {
+          BABYLON.SceneLoader.ImportMesh("", hostUrl , stackname, scene, 
+          function (newMeshes) {
+               // dirty hack to get around not being able to assign name and id to mesh
+               var mesh = newMeshes[0]; 
+
+               mesh.id = String('E' + stackcubeCtr);
+               mesh.name = String('E' + stackcubeCtr);
+
+               mesh.position.x = coords[0]; 
+               mesh.position.y = coords[1];
+               mesh.position.z = coords[2]; // this one is constant for all cubes 
+
+               // define mesh rotation
+               mesh.rotation.y = Math.PI/2;
+
+               // define mesh material
+               var boxMaterial = createboxMaterial(scene); 
+               mesh.material = boxMaterial;
+
+               var intprefix = parseInt(type.slice(1));
+
+               // start is the coordinates of the leftmost edge of the selected mesh
+               // end is the rightmost edge of the mesh
+               var halfLength = (boxgridWidth*intprefix)/2; 
+               var start = coords[0] - halfLength;
+               var end = coords[0] + halfLength;
+
+               // determine which buttons in the current row should be removed from the scene 
+               row = findRow(coords[1]);
+               var stackbuttons = stackbtn_grid[row];
+
+               for (var i=0; i<stackbuttons.length; i++){
+                    var x = stackbuttons[i][1];
+                    var y = stackbuttons[i][2];
+     
+                    var x_coord = gridMat[x][y][0];
+                    var y_coord = gridMat[x][y][1];
+     
+                    if (x_coord > start && x_coord < end) {
+                         stackbuttons[i][0].moveToVector3(new BABYLON.Vector3(x_coord, y_coord, -10), scene);
+                         stackbuttons[i][3] = 0;  
+                         stackbuttons[i][4] = 1;
+                    }
+               }
+
+               // determine which buttons above the current row should be visible and available to click
+               if (row < stackbtn_grid.length) {
+                    var row_above = row + 1;
+                    var stackbuttons_above = stackbtn_grid[row_above];
+
+                    for (var i=0; i<stackbuttons_above.length; i++){
+                         var x = stackbuttons_above[i][1];
+                         var y = stackbuttons_above[i][2];
+          
+                         var x_coord = gridMat[x][y][0];
+                         var y_coord = gridMat[x][y][1];
+          
+                         if (x_coord > start && x_coord < end && stackbuttons_above[i][4] == 0) {
+                              stackbuttons_above[i][0].moveToVector3(new BABYLON.Vector3(x_coord, y_coord, 0), scene);
+                              stackbuttons_above[i][3] = 1;  
+                              stackbuttons_above[i][4] = 0;
+                         }
+                    }
+               }
+
+               // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
+               stackcubeArray.push(type);
+                    
+               stackcubePos.push([mesh.position.x,mesh.position.y,mesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
+               stackcubeCtr = stackcubeCtr +  1; 
+               
+               // dont forget to update accesories with associated empty array
+               stackAccesoryArray.push(new Array(intprefix).fill(0));  
+               stackAccesoryPos.push(new Array(intprefix).fill(0)); 
+               
+               // configure mesh actionManager
+               meshSelectControl (scene, mesh ,'2');
+               
+          });
+     }
+}
+
+function basecubes_recreation(coords, type) {
+     // concat with the constant global postfix to give import name 
+     var bcubename = type + postfix;     
+     // SceneLoader.ImportMesh
+     // Loads the meshes from the file and appends them to the scene
+     BABYLON.SceneLoader.ImportMesh("", hostUrl , bcubename, scene, 
+     function (newMeshes) {
+          // dirty hack to get around not being able to assign name and id to mesh
+          var mesh = newMeshes[0]; 
+
+          // give the mesh a unique ID (do this for every 'if')
+          mesh.id = String('B' + basecubeCtr); 
+          mesh.name = String('B' + basecubeCtr); 
+          
+          mesh.position.x = coords[0]; 
+          mesh.position.y = coords[1];
+          mesh.position.z = coords[2]; // this one is constant for all base cubes 
+
+          // define mesh rotation
+          mesh.rotation.y = Math.PI/2;
+
+          // get base cube integer from prefix
+          var intprefix = parseInt(type.slice(1)); // slice the first letter which is B 
+
+          // start is the coordinates of the leftmost edge of the selected mesh
+          // end is the rightmost edge of the mesh
+          var halfLength = (boxgridWidth*intprefix)/2; 
+          var start = coords[0] - halfLength;
+          var end = coords[0] + halfLength;
+          
+          // define mesh material
+          var boxMaterial = createboxMaterial(scene); 
+          mesh.material = boxMaterial;
+
+          // determine which stack buttons should be available to be pressed on scene render
+          // NOTE: when moving buttons, -10 is to move button out of sight, 0 is to move button into sight
+          var stackbuttons = stackbtn_grid[1];
+
+          for (var i=0; i<stackbuttons.length; i++){
+               var x = stackbuttons[i][1];
+               var y = stackbuttons[i][2];
+
+               var x_coord = gridMat[x][y][0];
+               var y_coord = gridMat[x][y][1];
+
+               if (x_coord > start && x_coord < end) {
+                    stackbuttons[i][0].moveToVector3(new BABYLON.Vector3(x_coord, y_coord, 0), scene);
+                    stackbuttons[i][3] = 1;  
+                    stackbuttons[i][4] = 0;
+               }
+          }
+          
+          for (var i=0; i<basebuttonArray.length; i++) {
+               var x = basebuttonArray[i][1];
+               var y = basebuttonArray[i][2];
+
+               var x_coord = gridMat[x][y][0];
+               var y_coord = gridMat[x][y][1];
+
+               if (x_coord > start && x_coord < end) {
+                    basebuttonArray[i][0].moveToVector3(new BABYLON.Vector3(x_coord, y_coord, -10), scene);
+                    basebuttonArray[i][3] = 0;  
+                    basebuttonArray[i][4] = 1;
+               }
+               else if (basebuttonArray[i][4] == 0) {
+                    basebuttonArray[i][0].moveToVector3(new BABYLON.Vector3(x_coord, y_coord, 0), scene);
+                    basebuttonArray[i][3] = 1;  
+               }
+          }
+          
+          // update global counter for base cubes and its position tracker. THIS MUST BE 1:1 UNIQUE PAIR!!! 
+          basecubeArray.push(type);
+
+          basecubePos.push([mesh.position.x,mesh.position.y,mesh.position.z]); // push grid position in basecubePos array as an array of 3 elements x,y,z 
+          basecubeCtr = basecubeCtr +  1; 
+
+          // base cube accesories in tandem...
+          baseAccesoryArray.push(new Array(intprefix).fill(0)); // on initial import of a cube mesh, there is no accesory, so push empty array
+          baseAccesoryPos.push(new Array(intprefix).fill(0)); 
+
+          // define cube actionManager
+          meshSelectControl (scene, mesh , '1');
+     });
 }
