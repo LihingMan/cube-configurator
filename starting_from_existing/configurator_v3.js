@@ -2571,14 +2571,14 @@ function scene_recreation() {
      basecubes = ["B4", "B1"];
      baseposition = [[1.79225, 0.29500000000000004, -0.3], [3.16925, 0.29500000000000004, -0.3]];
 
-     baseaccessories = [[0, "NS", 0, 0], ["NS"]];
-     baseaccessoriesposition = [[0, [1.6004999999999998, 0.29500000000000004, -0.3], 0, 0], [[3.16925, 0.29500000000000004, -0.3]]];
+     baseaccessories = [["NS", 0, 0, 0], ["SS"]];
+     baseaccessoriesposition = [[[1.2169999999999999, 0.29500000000000004, -0.3], 0, 0, 0], [[3.16925, 0.29500000000000004, -0.3]]];
 
-     stackcubes = ["E1", "E43", "E1", "E1", "E4", "E2"];
-     stackposition = [[3.16925, 0.685, -0.3], [2.5838, 1.0750000000000002, -0.3], [1.9887500000000002, 1.4649999999999999, -0.3], [1.20175, 1.4649999999999999, -0.3], [1.7919166666666668, 0.685, -0.3], [1.3985833333333333, 1.0750000000000002, -0.3]];
+     stackcubes = ["E4", "E1", "E53", "E1", "E2"];
+     stackposition = [[1.79225, 0.685, -0.3], [3.16925, 0.685, -0.3], [2.38205, 1.0750000000000002, -0.3], [1.20175, 1.0750000000000002, -0.3], [1.3985833333333333, 1.4649999999999999, -0.3]];
 
-     stackaccessories = [[0], ["SS", 0], ["XS"], [0], [0, "NS", 0, 0], [0, 0]];
-     stackaccessoriesposition = [[0], [[2.00855, 1.0750000000000002, -0.3], 0], [[1.9887500000000002, 1.4649999999999999, -0.3]], [0], [0, [1.6001666666666667, 0.685, -0.3], 0, 0], [0, 0]];
+     stackaccessories = [["TA", "TA", 0, 0], ["NS"], ["SS", 0], [0], [0, "XS"]];
+     stackaccessoriesposition = [[[1.4087499999999997, 0.37, -0.93], [1.4087499999999997, 0.37, -0.93], 0, 0], [[3.16925, 0.685, -0.3]], [[1.61505, 1.0750000000000002, -0.3], 0], [0], [0, [1.5903333333333334, 1.4649999999999999, -0.3]]];
 
      for (var i=0; i<basecubes.length; i++) {
           basecubes_recreation(baseposition[i], basecubes[i]);
@@ -2598,16 +2598,120 @@ function scene_recreation() {
                     }
                }
           }
+
+          var table_encounter = 0;
+          for (var i=0; i<stackaccessories.length; i++) {
+               for (var j=0; j<stackaccessories[i].length; j++) {
+                    if (stackaccessories[i][j] != 0) {
+                         if (stackaccessories[i][j] == "TA") {
+                              if (table_encounter == 2) {
+                                   table_encounter = 1;
+                              }
+                              else if (table_encounter < 2){
+                                   table_encounter += 1;
+                                   
+                              }
+
+                              if (table_encounter == 1) {
+                                   stackaccessory_recreation(stackaccessoriesposition[i][j], stackaccessories[i][j], i, j);
+                              }
+                         }
+                         else {
+                              stackaccessory_recreation(stackaccessoriesposition[i][j], stackaccessories[i][j], i, j);
+                         }
+                         
+                    }
+               }
+          }
      }, delayInMilliseconds);
      
 
-     // for (var i=0; i<stackaccessories.length; i++) {
-     //      for (var j=0; j<stackaccessories[i].length; j++) {
-     //           if (stackaccessories[i][j] != 0) {
-     //                recreation(stackaccessoriesposition[i][j], stackaccessories[i][j])
-     //           }
-     //      }
-     // }
+     
+}
+
+function stackaccessory_recreation(coords, type, index, importPos) {
+     
+     var planks = ["E43", "E53", "E54", "E63", "E64", "E65b", "E65a", "RE54", "RE64", "RE65a"];
+
+     // the coordinates of the first stack cube level, and the tolerance level (used for checking)
+     var TOL = 0.08;
+     var firststackLvl = 0.685;
+
+     if (type == 'XS') { // X shelve
+		var assmeshImp = 'Xshelve.babylon'; // this name has to be same as the mesh file from cdn
+	} else if (type == 'SS') { // Single shelve
+		var assmeshImp = 'singleshelve.babylon';
+	} else if  (type == 'DS') { // Double shelve
+		var assmeshImp = 'doubleshelve.babylon'; 
+	} else if (type == 'NS') { // nine box shelve
+		var assmeshImp = 'nineboxshelve.babylon'; 
+	} else if (type == 'SB') { // six box shelve
+		var assmeshImp = 'sixboxshelve.babylon'; 
+     } else if (type == 'TA') { // table
+		var assmeshImp = 'table-singlemesh.babylon'; // continue on...until all accesory is covered
+     } 
+
+     var cube_type = stackcubes[index];
+
+     // get the target cube mesh prefix (only interested in the number 1-6 for B1-B6)
+	var cubePrefixInt = parseInt(stackcubeArray[index].slice(1)); 
+
+     if (planks.includes(cube_type)){
+
+     }
+     else {
+          BABYLON.SceneLoader.ImportMesh("", hostUrl, assmeshImp, scene, 
+          function (newMeshes) {
+               var mesh = newMeshes[0];
+               // define mesh material
+               var boxMaterial = createboxMaterial(scene); 
+               mesh.material = boxMaterial;
+
+               if (type === 'TA') {
+                    if (cubePrefixInt > 1) {
+                         var cube_vert_level = stackcubePos[index][1]
+                         if (cube_vert_level >= firststackLvl-TOL && cube_vert_level <= firststackLvl+TOL){
+                              // position the accesory mesh at base cube 
+                              mesh.position.x = coords[0];
+                              mesh.position.y = coords[1];
+                              mesh.position.z = coords[2];
+                              mesh.rotation.y = Math.PI/2;
+
+                              // update stack accesory arrays at their respective specific cubes position
+                              stackAccesoryArray[index][importPos] = type;
+                              stackAccesoryArray[index][importPos + 1] = type;
+                              stackAccesoryPos[index][importPos] = [coords[0], coords[1], coords[2]];
+                              stackAccesoryPos[index][importPos + 1] = [coords[0], coords[1], coords[2]];
+                         }
+                    } 
+				
+               }
+               else {
+                   
+                    
+                    // naming convention for accesories base cube mesh AX<int> i.e. AXS1, AXS2, AXS3, AXS4 ... for X shelve
+                    // where <int> refers to the associated cube mesh unique index 
+                    mesh.name = 'S' + type + String(index); 
+                    mesh.id = 'S' + type + String(index); 
+
+                    // position the accesory mesh at base cube 
+                    mesh.position.x = coords[0];
+                    mesh.position.y = coords[1];
+                    mesh.position.z = coords[2];
+                    mesh.rotation.y = Math.PI/2;
+
+                    // register the mesh for actions
+                    mesh.actionManager = new BABYLON.ActionManager(scene); 
+                    // console.log("here")
+                    // update base accesory arrays at their respective specific cubes position
+                    // recall that importPos is the cube prefix int from 1-6 for B1-B6. so in terms of index, it is 0-5
+
+                    stackAccesoryArray[index][importPos] = type;
+                    stackAccesoryPos[index][importPos] = [coords[0], coords[1], coords[2]]; 
+               }
+                
+          });
+     }
 }
 
 function baseaccessory_recreation(coords, type, index, importPos){
