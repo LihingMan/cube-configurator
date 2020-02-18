@@ -2589,7 +2589,7 @@ function scene_recreation() {
      }
 
 
-     var delayInMilliseconds = 300;
+     var delayInMilliseconds = 400;
      setTimeout(function() {
           for (var i=0; i<baseaccessories.length; i++) {
                for (var j=0; j<baseaccessories[i].length; j++) {
@@ -2646,7 +2646,7 @@ function stackaccessory_recreation(coords, type, index, importPos) {
 	} else if (type == 'NS') { // nine box shelve
 		var assmeshImp = 'nineboxshelve.babylon'; 
 	} else if (type == 'SB') { // six box shelve
-		var assmeshImp = 'sixboxshelve.babylon'; 
+		var assmeshImp = 'sixboxshelve.babylon';
      } else if (type == 'TA') { // table
 		var assmeshImp = 'table-singlemesh.babylon'; // continue on...until all accesory is covered
      } 
@@ -2654,11 +2654,48 @@ function stackaccessory_recreation(coords, type, index, importPos) {
      var cube_type = stackcubes[index];
 
      // get the target cube mesh prefix (only interested in the number 1-6 for B1-B6)
-	var cubePrefixInt = parseInt(stackcubeArray[index].slice(1)); 
+	var cubePrefixInt = parseInt(stackcubeArray[index].slice(1));
 
+     /////////////////////////////////////////// for plank cube accessories ////////////////////////////////////////////
      if (planks.includes(cube_type)){
+          BABYLON.SceneLoader.ImportMesh("", hostUrl, assmeshImp, scene, 
+          function (newMeshes) {
+               var mesh = newMeshes[0];
+               // define mesh material
+               var boxMaterial = createboxMaterial(scene);
+               mesh.material = boxMaterial;
+               // naming convention for accesories stack cube mesh PXS<int1>-<int2> i.e. PXS1-1, PXS2-2 ... for X shelve
+               // where <int1> refers to the associated accessory mesh unique index 
+               // and <int2> refers to the associated cube mesh unique index
+               mesh.name = 'P' + type + String(importPos) + "-" + String(index); 
+               mesh.id = 'P' + type + String(importPos) + "-" + String(index); 
 
+               // position the accesory mesh at base cube 
+               mesh.position.x = coords[0];
+               mesh.position.y = coords[1];
+               mesh.position.z = coords[2];
+               mesh.rotation.y = Math.PI/2;
+
+               // register the mesh for actions
+               mesh.actionManager = new BABYLON.ActionManager(scene);
+
+               if (type == 'TA') {
+                    stackAccesoryArray[index][importPos] = type;
+                    stackAccesoryArray[index][importPos + 1] = type;
+                    stackAccesoryPos[index][importPos] = [coords[0], coords[1], coords[2]];
+                    stackAccesoryPos[index][importPos + 1] = [coords[0], coords[1], coords[2]];
+               }
+               else {
+                    
+                    // update base accesory arrays at their respective specific cubes position
+                    // recall that importPos is the cube prefix int from 1-6 for B1-B6. so in terms of index, it is 0-5
+
+                    stackAccesoryArray[index][importPos] = type;
+                    stackAccesoryPos[index][importPos] = [coords[0], coords[1], coords[2]];
+               }
+          });
      }
+     /////////////////////////////////////////// for stack cube accessories /////////////////////////////////////////////
      else {
           BABYLON.SceneLoader.ImportMesh("", hostUrl, assmeshImp, scene, 
           function (newMeshes) {
@@ -2667,45 +2704,30 @@ function stackaccessory_recreation(coords, type, index, importPos) {
                var boxMaterial = createboxMaterial(scene); 
                mesh.material = boxMaterial;
 
-               if (type === 'TA') {
-                    if (cubePrefixInt > 1) {
-                         var cube_vert_level = stackcubePos[index][1]
-                         if (cube_vert_level >= firststackLvl-TOL && cube_vert_level <= firststackLvl+TOL){
-                              // position the accesory mesh at base cube 
-                              mesh.position.x = coords[0];
-                              mesh.position.y = coords[1];
-                              mesh.position.z = coords[2];
-                              mesh.rotation.y = Math.PI/2;
+               // naming convention for accesories base cube mesh AX<int> i.e. AXS1, AXS2, AXS3, AXS4 ... for X shelve
+               // where <int> refers to the associated cube mesh unique index 
+               mesh.name = 'S' + type + String(index); 
+               mesh.id = 'S' + type + String(index); 
 
-                              // update stack accesory arrays at their respective specific cubes position
-                              stackAccesoryArray[index][importPos] = type;
-                              stackAccesoryArray[index][importPos + 1] = type;
-                              stackAccesoryPos[index][importPos] = [coords[0], coords[1], coords[2]];
-                              stackAccesoryPos[index][importPos + 1] = [coords[0], coords[1], coords[2]];
-                         }
-                    } 
-				
+               // position the accesory mesh at base cube 
+               mesh.position.x = coords[0];
+               mesh.position.y = coords[1];
+               mesh.position.z = coords[2];
+               mesh.rotation.y = Math.PI/2;
+
+               // register the mesh for actions
+               mesh.actionManager = new BABYLON.ActionManager(scene); 
+
+               if (type == 'TA') {
+                    // update stack accesory arrays at their respective specific cubes position
+                    stackAccesoryArray[index][importPos] = type;
+                    stackAccesoryArray[index][importPos + 1] = type;
+                    stackAccesoryPos[index][importPos] = [coords[0], coords[1], coords[2]];
+                    stackAccesoryPos[index][importPos + 1] = [coords[0], coords[1], coords[2]];
                }
                else {
-                   
-                    
-                    // naming convention for accesories base cube mesh AX<int> i.e. AXS1, AXS2, AXS3, AXS4 ... for X shelve
-                    // where <int> refers to the associated cube mesh unique index 
-                    mesh.name = 'S' + type + String(index); 
-                    mesh.id = 'S' + type + String(index); 
-
-                    // position the accesory mesh at base cube 
-                    mesh.position.x = coords[0];
-                    mesh.position.y = coords[1];
-                    mesh.position.z = coords[2];
-                    mesh.rotation.y = Math.PI/2;
-
-                    // register the mesh for actions
-                    mesh.actionManager = new BABYLON.ActionManager(scene); 
-                    // console.log("here")
                     // update base accesory arrays at their respective specific cubes position
                     // recall that importPos is the cube prefix int from 1-6 for B1-B6. so in terms of index, it is 0-5
-
                     stackAccesoryArray[index][importPos] = type;
                     stackAccesoryPos[index][importPos] = [coords[0], coords[1], coords[2]]; 
                }
