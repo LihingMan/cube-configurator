@@ -77,7 +77,7 @@ var price = 0;
 // some global constants 
 var postfix = "-final.babylon"; // define postfix for end of mesh file names
 var constZ = -0.3; // in meters, the constant global z position of all cubes 
-var boxgridWidth = 0.3835; // in mtrs, the defined grid system box element width 
+var boxgridWidth = 0.3791// 0.3791 - 0.3835; // in mtrs, the defined grid system box element width 
 
 // assign accesories that can be imported into the scene
 // this is a nested array containing the accesories' programming code names and another array containing their respective actual names
@@ -177,9 +177,6 @@ function createRoomScene() {
      // create the walls with windows 
      createWalls_Winds(scene); 
 
-     // create the roof 
-    //  createRoof(scene); 
-
      // create the outdoor env --> skybox!
      createOutdEnv(scene);  
      
@@ -216,8 +213,8 @@ function createCamera(scene) {
      // limited arc rotate
      // note its coords are always defined in alpha, beta and radius .. https://doc.babylonjs.com/babylon101/cameras
      // Parameters: name, alpha, beta, radius, target position, scene 
-     var camera = new BABYLON.ArcRotateCamera("camera", -Math.PI/2, Math.PI/2, 4, new BABYLON.Vector3(2,0.75,-0.2), scene); 
-     // camera.attachControl(canvas, true);
+     var camera = new BABYLON.ArcRotateCamera("camera", -Math.PI/2, Math.PI/2, 4, new BABYLON.Vector3(2.2,1,-0.1), scene); 
+     //camera.attachControl(canvas, true);
      // set limits to camera movement so users dont get disorganized  
      // camera.lowerRadiusLimit = 4;
      // camera.upperRadiusLimit = 4; 
@@ -269,7 +266,7 @@ function createOutdEnv(scene) {
      
      // for now use hemispheric light for mvp level 
      var lights = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(10, 10, 0), scene);
-     lights.intensity = 3;
+     lights.intensity = 2;
      //lights.diffuse = new BABYLON.Color3(1, 0, 0);
     //lights.specular = new BABYLON.Color3(0, 1, 0);
     //lights.groundColor = new BABYLON.Color3(0, 1, 0);
@@ -282,10 +279,10 @@ function createOutdEnv(scene) {
  
      var floorCorners = [ 
           // make sure tally with walls!
-          new BABYLON.Vector3(4, 0,-6),
-          new BABYLON.Vector3(4,0,0), 
-          new BABYLON.Vector3(0,0,0), 
-          new BABYLON.Vector3(0,0,-6),
+          new BABYLON.Vector3(10, 0,-6),
+          new BABYLON.Vector3(10,0,0), 
+          new BABYLON.Vector3(-10,0,0), 
+          new BABYLON.Vector3(-10,0,-6),
      ]; 
  
      // Extrude polygon
@@ -293,40 +290,15 @@ function createOutdEnv(scene) {
  
      // create floor material
      var floorMaterial = new BABYLON.StandardMaterial("floorMaterial", scene);
-     var floorTextureUrl = hostUrl + 'woodtexture.jpg'; 
+     var floorTextureUrl = hostUrl + 'Tiles05_COL_VAR2_1K.jpg'; 
+     var floornormalurl = hostUrl + 'Tiles05_NRM_1K.jpg'
+     floorMaterial.diffuseTexture = new BABYLON.Texture(floorTextureUrl,scene); floorMaterial.diffuseTexture.uScale=20.0;
+     floorMaterial.bumpTexture = new BABYLON.Texture(floornormalurl,scene);
      floorMaterial.ambientTexture = new BABYLON.Texture(floorTextureUrl,scene);
      // apply the material to mesh
      floorMesh.material = floorMaterial;
  
      return floorMesh; // remark: not mandatory but good practice for future positoning 
- }
- 
- // create the roof (flat roof) , if neccesary then invoke
- // actually can merge this func with the floor func , but later on lah!
- function createRoof(scene) { 
- 
-     var roofCorners = [ 
-          // make sure tally with walls and floor!
-          new BABYLON.Vector3(4, 0,-6),
-          new BABYLON.Vector3(4,0,0), 
-          new BABYLON.Vector3(0,0,0), 
-          new BABYLON.Vector3(0,0,-6),
-     ]; 
- 
-     // Extrude polygon
-     var roofMesh = new BABYLON.MeshBuilder.ExtrudePolygon("roof", {shape:roofCorners, depth: 0.05}, scene);
-     // offset it to become roof
-     roofMesh.position.y = 2.5; 
- 
-     // create roof material
-     var roofMaterial = new BABYLON.StandardMaterial("roofMaterial", scene);
-     var roofTextureUrl = hostUrl + 'white-wall.jpg'; 
-     //roofMaterial.diffuseTexture = new BABYLON.Texture(roofTextureUrl,scene);
-     roofMaterial.ambientTexture = new BABYLON.Texture(roofTextureUrl,scene);
-     // apply the material to mesh
-     roofMesh.material = roofMaterial; 
- 
-     return roofMesh; // remark: not mandatory but good practice for future positoning 
  }
  
  // create (based on math) walls
@@ -342,13 +314,13 @@ function createOutdEnv(scene) {
      
      // Reminder: XoZ plane! (4m width, 2.5m height)
      var backwallGeo = [
-          new BABYLON.Vector3(0, 0, 0), 
-          new BABYLON.Vector3(4, 0, 0), 
-          new BABYLON.Vector3(4, 0, 2.5), 
-          new BABYLON.Vector3(0, 0, 2.5), 
+          new BABYLON.Vector3(-10, 0, 0), 
+          new BABYLON.Vector3(10, 0, 0), 
+          new BABYLON.Vector3(10, 0, 3.5), 
+          new BABYLON.Vector3(-10, 0, 3.5), 
      ];
      // 6m length, 2.5m height 
-     var sidewallGeo_r = [
+     /*var sidewallGeo_r = [
           new BABYLON.Vector3(4, 0, 0), 
           new BABYLON.Vector3(1.5, 0, 0), 
           new BABYLON.Vector3(1.5, 0, -6), 
@@ -377,29 +349,31 @@ function createOutdEnv(scene) {
           new BABYLON.Vector3(2.4, 0, -1.8), 
           new BABYLON.Vector3(2.4, 0, -2.5), 
           new BABYLON.Vector3(3.1, 0, -2.5), 
-     ];
+     ];*/ 
      
      // extrude the walls 
      var backwall = BABYLON.MeshBuilder.ExtrudePolygon("wall", {shape:backwallGeo, depth: 0.05}, scene);
      // then rotate 90deg to make the horizontal extrusion to be vertical 
      backwall.rotation.x =  -Math.PI/2;
      // do the same for side walls (each with diff rotation)
-     var sidewall_r = BABYLON.MeshBuilder.ExtrudePolygon("wall_r", {shape:sidewallGeo_r, holes:holeData, depth: 0.05}, scene);
+     /*var sidewall_r = BABYLON.MeshBuilder.ExtrudePolygon("wall_r", {shape:sidewallGeo_r, holes:holeData, depth: 0.05}, scene);
      sidewall_r.rotation.z = Math.PI/2;  
      sidewall_r.position.y = -1.5; // this is like a weird bug since it is rotating some distance away from the global origin 0,0,0
      sidewall_r.position.x = 4;
      var sidewall_l = BABYLON.MeshBuilder.ExtrudePolygon("wall_l", {shape:sidewallGeo_l, depth: 0.05}, scene);
-     sidewall_l.rotation.z = Math.PI/2;  // naturally rotates in position since it has a node at origin 
-    
+     sidewall_l.rotation.z = Math.PI/2;  // naturally rotates in position since it has a node at origin */
+     
      // create roof material
      var wallMaterial = new BABYLON.StandardMaterial("wallMaterial", scene);
-     var wallTextureUrl = hostUrl + 'white-wall.jpg'; 
-     wallMaterial.diffuseTexture = new BABYLON.Texture(wallTextureUrl,scene);
-     wallMaterial.ambientTexture = new BABYLON.Texture(wallTextureUrl,scene);
+     var wallTextureUrl =  hostUrl + 'Plaster17_COL_VAR2_1K.jpg'; 
+     var wallnormaltextureurl = hostUrl + 'Plaster17_NRM_1K.jpg';
+     wallMaterial.diffuseTexture = new BABYLON.Texture(wallTextureUrl,scene); wallMaterial.diffuseTexture.uScale=3;
+     wallMaterial.bumpTexture = new BABYLON.Texture(wallnormaltextureurl, scene);
+     //wallMaterial.ambientTexture = new BABYLON.Texture(wallTextureUrl,scene);
      // apply the material to meshes
      backwall.material = wallMaterial;
-     sidewall_r.material = wallMaterial;
-     sidewall_l.material = wallMaterial;
+     /*sidewall_r.material = wallMaterial;
+     sidewall_l.material = wallMaterial;*/
  }
 
 
@@ -790,7 +764,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
 
                               // RULE is, for every existing cube to the left, we subtract boxgridWidth/2 to the NEW cube's mesh centroid
                               // BUG FIX - here we use 1.95 to prevent leftward drift of the base cube, small but noticeable! so use 1.95!
-                              var rx_coordAdjust = rx_coordAdjust - (cubemultiplierL*(boxgridWidth/1.95));
+                              var rx_coordAdjust = rx_coordAdjust - (cubemultiplierL*(boxgridWidth/2));
                          
                          } // or check if this existing active looped cube is right to the new B1 import 
                          else if (RightExistCubePrefix == '' && BLeftX > newX && (BLeftX - newX) >= MEASURE_LOWER && (BLeftX - newX) <= MEASURE_UPPER) { 
@@ -807,7 +781,7 @@ function importBaseCubes(scene,gridMat,bcubesPrefix,rx,cy,type) {
 
                               // RULE is, for every cube added to the right , we add boxgridWidth/2 to the NEW cube's mesh centroid
                               // BUG FIX - here we use 1.95 to prevent rightwards drift of the base cube, small but noticeable! so use 1.95!
-                              var rx_coordAdjust = rx_coordAdjust + (cubemultiplierR*(boxgridWidth/1.95));
+                              var rx_coordAdjust = rx_coordAdjust + (cubemultiplierR*(boxgridWidth/2));
                          } 
                     // else just keep looping untill the end of the base cube array storage 
                     }
@@ -1714,7 +1688,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
      
                               // RULE is, for every existing cube to the left, we subtract boxgridWidth/2 to the NEW cube's mesh centroid
                               // BUG FIX - here we use 1.95 to prevent leftward drift of the stack cube, small but noticeable! so use 1.95!
-                              var rx_coordAdjust = rx_coordAdjust - (cubemultiplierL*(boxgridWidth/1.95));
+                              var rx_coordAdjust = rx_coordAdjust - (cubemultiplierL*(boxgridWidth/2));
                           
                          }
                          else if (RightExistCubePrefix == '' && ELeftX > newX && (ELeftX - newX) >= MEASURE_LOWER && (ELeftX - newX) <= MEASURE_UPPER) { 
@@ -1732,7 +1706,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
      
                               // RULE is, for every cube added to the right , we add boxgridWidth/2 to the NEW cube's mesh centroid
                               // BUG FIX - here we use 1.95 to prevent rightwards drift of the base cube, small but noticeable! so use 1.95!
-                              var rx_coordAdjust = rx_coordAdjust + (cubemultiplierR*(boxgridWidth/1.95));
+                              var rx_coordAdjust = rx_coordAdjust + (cubemultiplierR*(boxgridWidth/2));
                          } 
                     }
                }
