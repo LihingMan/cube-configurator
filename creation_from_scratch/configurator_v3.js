@@ -184,7 +184,7 @@ function createRoomScene() {
      importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0, 'init');
 
      window.addEventListener("saveScene", function() { // this one can be high definition
-          BABYLON.Tools.CreateScreenshotUsingRenderTarget(engine, camera, {width:400, height:250}); // download the room scene as png
+          BABYLON.Tools.CreateScreenshotUsingRenderTarget(engine, camera, {width:800, height:500}); // download the room scene as png
      });
 	 
 	 window.addEventListener("saveSceneData", function() { // this one small res for thumbnail upload to api
