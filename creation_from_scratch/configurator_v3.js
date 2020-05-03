@@ -77,7 +77,7 @@ var price = 0;
 // some global constants 
 var postfix = "-final.babylon"; // define postfix for end of mesh file names
 var constZ = -0.3; // in meters, the constant global z position of all cubes 
-var boxgridWidth = 0.3791// 0.3791 - 0.3835; // in mtrs, the defined grid system box element width 
+var boxgridWidth = 0.3835;  // inner widht      // 0.3791 - 0.3835; // in mtrs, the defined grid system box element width 
 
 // assign accesories that can be imported into the scene
 // this is a nested array containing the accesories' programming code names and another array containing their respective actual names
@@ -178,7 +178,7 @@ function createRoomScene() {
      createWalls_Winds(scene); 
 
      // create the outdoor env --> skybox!
-     createOutdEnv(scene);  
+     // createOutdEnv(scene);  // deprecated from use 
      
      // Load base cubes and enable modifications to the base cubes 
      importBaseCubes(scene, gridMat, bcubesPrefix_init, 0,0, 'init');
@@ -235,8 +235,9 @@ function createCamera(scene) {
      return camera;  
  }
 
- // create outdoor environment
+ // create outdoor environment DEPRECATED FUNCTION 
 function createOutdEnv(scene) {
+     //DEPRECATED FROM USE 
 
      // set bckgrnd colors
      scene.clearColor = new BABYLON.Color3(0, 0, 0);
@@ -265,11 +266,15 @@ function createOutdEnv(scene) {
  function createLights(scene) {
      
      // for now use hemispheric light for mvp level 
-     var lights = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(10, 10, 0), scene);
-     lights.intensity = 2;
+     //var lights = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(2, 50, -100), scene); 
+     //lights.intensity = 1;
      //lights.diffuse = new BABYLON.Color3(1, 0, 0);
     //lights.specular = new BABYLON.Color3(0, 1, 0);
     //lights.groundColor = new BABYLON.Color3(0, 1, 0);
+
+    // experiment with indoor lighting with point light 
+    var lights = new BABYLON.PointLight("pointLight", new BABYLON.Vector3(2, 50, -25), scene);
+    lights.intensity = 3;
  
      return lights; 
  }
@@ -367,9 +372,13 @@ function createOutdEnv(scene) {
      var wallMaterial = new BABYLON.StandardMaterial("wallMaterial", scene);
      var wallTextureUrl =  hostUrl + 'Plaster17_COL_VAR2_1K.jpg'; 
      var wallnormaltextureurl = hostUrl + 'Plaster17_NRM_1K.jpg';
+     var wallrefltextureurl = hostUrl + 'Plaster17_REFL_1K.jpg';
+     var wallspeculartextureurl = hostUrl + 'Plaster17_GLOSS_1K.jpg'; 
      wallMaterial.diffuseTexture = new BABYLON.Texture(wallTextureUrl,scene); wallMaterial.diffuseTexture.uScale=3;
+     wallMaterial.specularTexture = new BABYLON.Texture(wallspeculartextureurl,scene);
      wallMaterial.bumpTexture = new BABYLON.Texture(wallnormaltextureurl, scene);
-     //wallMaterial.ambientTexture = new BABYLON.Texture(wallTextureUrl,scene);
+     wallMaterial.ambientTexture = new BABYLON.Texture(wallTextureUrl,scene);
+     wallMaterial.reflectionTexture = new BABYLON.Texture(wallrefltextureurl, scene);
      // apply the material to meshes
      backwall.material = wallMaterial;
      /*sidewall_r.material = wallMaterial;
@@ -1222,14 +1231,14 @@ function importPlankCube(scene, importedStackMesh, gridMat) {
 				// seems that odd and even use the same logic
 				else if (sameRowCubeInt > 1) {
 
-					var localhorZero = x_center-(sameRowCubeInt*(boxgridWidth/1.95)); // zero horizontal coord wrt local cube  
+					var localhorZero = x_center-(sameRowCubeInt*(boxgridWidth/2.0)); // zero horizontal coord wrt local cube  
 					
 					for (var j=0; j < sameRowCubeInt; j++) { 
 
 						// this means scanning the cube (looking towards it fpv) from left to right
 						// left most being iter 0 and right most being iter cubeInt-1 
 						if (j == 0) {
-							var x = localhorZero + (boxgridWidth/1.95);
+							var x = localhorZero + (boxgridWidth/2.0);
 						} else { // for other rightwards cubes just superimpose boxgridwidth
 							x = x + boxgridWidth;
 						}
@@ -1688,7 +1697,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
      
                               // RULE is, for every existing cube to the left, we subtract boxgridWidth/2 to the NEW cube's mesh centroid
                               // BUG FIX - here we use 1.95 to prevent leftward drift of the stack cube, small but noticeable! so use 1.95!
-                              var rx_coordAdjust = rx_coordAdjust - (cubemultiplierL*(boxgridWidth/2));
+                              var rx_coordAdjust = rx_coordAdjust - (cubemultiplierL*(boxgridWidth/2.0));
                           
                          }
                          else if (RightExistCubePrefix == '' && ELeftX > newX && (ELeftX - newX) >= MEASURE_LOWER && (ELeftX - newX) <= MEASURE_UPPER) { 
@@ -1706,7 +1715,7 @@ function importStackCubes(scene, gridMat, rx, cy, stackprefix) {
      
                               // RULE is, for every cube added to the right , we add boxgridWidth/2 to the NEW cube's mesh centroid
                               // BUG FIX - here we use 1.95 to prevent rightwards drift of the base cube, small but noticeable! so use 1.95!
-                              var rx_coordAdjust = rx_coordAdjust + (cubemultiplierR*(boxgridWidth/2));
+                              var rx_coordAdjust = rx_coordAdjust + (cubemultiplierR*(boxgridWidth/2.0));
                          } 
                     }
                }
